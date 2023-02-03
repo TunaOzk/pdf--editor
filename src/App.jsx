@@ -1,33 +1,20 @@
 import React, { useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import './styles/output.css';
+import {
+  Routes,
+  Route,
+} from 'react-router-dom';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import { HOME_PAGE_PATH, PDF_EDIT_PAGE_PATH } from './constants/routePaths';
+import HomePage from './pages/HomePage';
+import PdfEditPage from './pages/PdfEditPage';
 
 function App() {
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [file, setFile] = useState('./sample.pdf');
-
-  const onDocumentLoadSuccess = () => {
-    setNumPages(numPages);
-  };
-
   return (
-    <div>
-      <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
-        <Page pageNumber={pageNumber} />
-      </Document>
-      <p>
-        Page
-        {' '}
-        {pageNumber}
-        {' '}
-        of
-        {' '}
-        {numPages}
-      </p>
-    </div>
+    <Routes>
+      <Route path={HOME_PAGE_PATH} element={<HomePage />} />
+      <Route path={PDF_EDIT_PAGE_PATH} element={<PdfEditPage />} />
+    </Routes>
+
   );
 }
 
