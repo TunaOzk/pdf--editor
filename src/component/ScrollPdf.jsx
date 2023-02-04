@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import React from 'react';
+import { Document, Page } from 'react-pdf';
 import PropTypes from 'prop-types';
 import uuid from 'react-uuid';
 import { ReactComponent as AddIcon } from '../assets/add.svg';
+import PdfPage from './PdfPage';
 
 function ScrollPdf({ docFile, onLoadSuccess, numPages }) {
   return (
@@ -13,14 +14,7 @@ function ScrollPdf({ docFile, onLoadSuccess, numPages }) {
           ...Array(numPages),
         ].map((value, index) => (
           <div className="flex flex-col items-center" key={uuid()}>
-            <Page
-              className="rounded-md border-4 border-indigo-500"
-              renderTextLayer={false}
-              renderAnnotationLayer={false}
-              width={100}
-              scale={2}
-              pageNumber={index + 1}
-            />
+            <PdfPage width={100} scale={2} pageNumber={index + 1} />
             <div>
               <AddIcon className=" border-2 rounded-full border-indigo-500" />
             </div>
