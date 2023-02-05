@@ -7,7 +7,6 @@ import ScrollPdf from '../component/ScrollPdf';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function PdfEditPage() {
-  const [file, setFile] = useState('./sample.pdf');
   const [numPages, setNumPages] = useState(null);
   const location = useLocation();
 
@@ -20,8 +19,6 @@ function PdfEditPage() {
       <div className="flex flex-col items-center w-1/5 min-h-screen border-4 border-black overflow-y-auto">
         <ScrollPdf
           docFile={{ data: location.state }}
-          onLoadSuccess={handleOnDocumentLoadSuccess}
-          numPages={numPages}
         />
 
       </div>
