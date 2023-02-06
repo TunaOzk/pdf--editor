@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Document, pdfjs } from 'react-pdf';
+import {
+  Document, Outline, Page, pdfjs,
+} from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import uuid from 'react-uuid';
@@ -19,10 +21,15 @@ function PdfEditPage() {
   };
 
   const handleDragEnd = (result) => {
+    if (!result.destination) return;
     const newPageList = pdfPageList;
     const [reorderedPage] = newPageList.splice(result.source.index, 1);
     newPageList.splice(result.destination.index, 0, reorderedPage);
     setPdfPageList(newPageList);
+  };
+
+  const handleDelete = (num) => {
+    setPdfPageList((prevList) => prevList.filter((item, index) => item !== num - 1));
   };
 
   return (
@@ -46,19 +53,34 @@ function PdfEditPage() {
                       width={100}
                       scale={2}
                       index={index}
+                      onDelete={handleDelete}
                     />
+
                   ))}
                   {provided.placeholder}
+
                 </div>
+
               )}
-
             </Droppable>
-
           </Document>
         </div>
       </DragDropContext>
 
-      <div className="w-4/5" />
+      <div className="flex flex-col items-center justify-center w-4/5">
+        {/* <Document
+          file={fileRef.current}
+          onLoadSuccess={handleOnDocumentLoadSuccess}
+        >
+          <Page
+            className="rounded-md border-4 border-indigo-500"
+            renderTextLayer={false}
+            renderAnnotationLayer={false}
+            pageNumber={1}
+          />
+
+        </Document> */}
+      </div>
     </div>
 
   );
