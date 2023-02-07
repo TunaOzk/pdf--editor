@@ -14,6 +14,7 @@ function PdfEditPage() {
   const fileRef = useRef({ data: location.state });
   const [numPages, setNumPages] = useState(0);
   const [pdfPageList, setPdfPageList] = useState([]);
+  const [pageNum, setPageNum] = useState(1);
 
   const handleOnDocumentLoadSuccess = (pdf) => {
     setNumPages(pdf.numPages);
@@ -30,6 +31,10 @@ function PdfEditPage() {
 
   const handleDelete = (num) => {
     setPdfPageList((prevList) => prevList.filter((item, index) => item !== num - 1));
+  };
+
+  const handleClick = (e, num) => {
+    setPageNum(num);
   };
 
   return (
@@ -54,6 +59,7 @@ function PdfEditPage() {
                       scale={2}
                       index={index}
                       onDelete={handleDelete}
+                      onClick={handleClick}
                     />
 
                   ))}
@@ -68,7 +74,7 @@ function PdfEditPage() {
       </DragDropContext>
 
       <div className="flex flex-col items-center justify-center w-4/5">
-        {/* <Document
+        <Document
           file={fileRef.current}
           onLoadSuccess={handleOnDocumentLoadSuccess}
         >
@@ -76,10 +82,10 @@ function PdfEditPage() {
             className="rounded-md border-4 border-indigo-500"
             renderTextLayer={false}
             renderAnnotationLayer={false}
-            pageNumber={1}
+            pageNumber={pageNum}
           />
 
-        </Document> */}
+        </Document>
       </div>
     </div>
 

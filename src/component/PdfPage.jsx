@@ -5,7 +5,7 @@ import { Draggable } from '@hello-pangea/dnd';
 import { ReactComponent as AddIcon } from '../assets/remove.svg';
 
 function PdfPage({
-  pageNum, width, scale, index, onDelete,
+  pageNum, width, scale, index, onDelete, onClick,
 }) {
   const pageNumStr = pageNum.toString();
   return (
@@ -20,6 +20,7 @@ function PdfPage({
           {...provided.dragHandleProps}
         >
           <Page
+            onClick={(e) => onClick(e, pageNum)}
             className="rounded-md border-4 border-indigo-500"
             renderTextLayer={false}
             renderAnnotationLayer={false}
@@ -45,6 +46,7 @@ PdfPage.propTypes = {
   scale: PropTypes.number.isRequired,
   index: PropTypes.number.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default PdfPage;
