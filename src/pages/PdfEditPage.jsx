@@ -17,7 +17,7 @@ function PdfEditPage() {
   const [numPages, setNumPages] = useState(0);
   const [pdfPageList, setPdfPageList] = useState([]);
   const [pageNum, setPageNum] = useState(1);
-  const pageNumIndex = useRef(0);
+  const currentPageIndex = useRef(0);
 
   const handleOnDocumentLoadSuccess = (pdf) => {
     setNumPages(pdf.numPages);
@@ -26,12 +26,12 @@ function PdfEditPage() {
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    switch (pageNumIndex.current) {
+    switch (currentPageIndex.current) {
       case result.source.index:
-        pageNumIndex.current = result.destination.index;
+        currentPageIndex.current = result.destination.index;
         break;
       case result.destination.index:
-        pageNumIndex.current = result.source.index;
+        currentPageIndex.current = result.source.index;
         break;
       default:
         break;
@@ -46,27 +46,30 @@ function PdfEditPage() {
     setPdfPageList((prevList) => prevList.filter((item, index) => item !== num - 1));
   };
 
-  const handleClick = (e, num) => {
-    if (pageNum !== num) { setPageNum(num); }
+  const handleClick = (e, num, index) => {
+    if (pageNum !== num) {
+      setPageNum(num);
+      currentPageIndex.current = index;
+    }
   };
 
   const handleNavigationClickForward = () => {
     if (pdfPageList.length === 1) return;
-    pageNumIndex.current = (pageNumIndex.current + 1) % pdfPageList.length;
-    setPageNum(pdfPageList[pageNumIndex.current] + 1);
+    currentPageIndex.current = (currentPageIndex.current + 1) % pdfPageList.length;
+    setPageNum(pdfPageList[currentPageIndex.current] + 1);
   };
 
   const handleNavigationClickBack = () => {
     if (pdfPageList.length === 1) return;
-    pageNumIndex.current = pageNumIndex.current === 0
-      ? pdfPageList.length - 1 : (pageNumIndex.current - 1) % pdfPageList.length;
-    setPageNum(pdfPageList[pageNumIndex.current] + 1);
+    currentPageIndex.current = currentPageIndex.current === 0
+      ? pdfPageList.length - 1 : (currentPageIndex.current - 1) % pdfPageList.length;
+    setPageNum(pdfPageList[currentPageIndex.current] + 1);
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-stone-200">
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex flex-col items-center w-1/5 border-4 border-black overflow-y-auto">
+        <div className="flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
           <Document file={fileRef.current} onLoadSuccess={handleOnDocumentLoadSuccess}>
             <Droppable droppableId={uuid().toString()}>
               {(provided) => (
@@ -99,7 +102,7 @@ function PdfEditPage() {
       </DragDropContext>
 
       <div className="relative flex flex-col items-center justify-center w-4/5">
-        <form className="absolute top-0 left-0 rounded-md border-4 border-indigo-500">
+        <form className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
           <select name="pdfSelect">
             <option>PDF1</option>
             <option>PDF2</option>
@@ -108,14 +111,14 @@ function PdfEditPage() {
         </form>
         <button
           onClick={handleNavigationClickForward}
-          className="transition ease-in-out duration-300 hover:bg-sky-500 rounded-md border-4 border-indigo-500 absolute right-0"
+          className="transition ease-in-out duration-300 hover:bg-purple-300 rounded-md border-4 border-violet-400 absolute right-0"
           type="button"
         >
           <ForwardIcon />
         </button>
         <button
           onClick={handleNavigationClickBack}
-          className="transition ease-in-out duration-300 hover:bg-sky-500 rounded-md border-4 border-indigo-500 absolute left-0"
+          className="transition ease-in-out duration-300 hover:bg-purple-300 rounded-md border-4 border-violet-400 absolute left-0"
           type="button"
         >
           <BackIcon />
@@ -126,7 +129,7 @@ function PdfEditPage() {
           onLoadSuccess={handleOnDocumentLoadSuccess}
         >
           <Page
-            className="rounded-md border-4 border-indigo-500"
+            className="rounded-md border-4 border-purple-500 shadow-2xl"
             renderTextLayer={false}
             renderAnnotationLayer={false}
             pageNumber={pageNum}
