@@ -133,6 +133,7 @@ function PdfEditPage() {
           file={fileRef.current}
           onLoadSuccess={handleOnDocumentLoadSuccess}
         >
+          {pdfPageList.length > 0 && (
           <Page
             className="rounded-md border-4 border-purple-500 shadow-2xl"
             renderTextLayer={false}
@@ -140,6 +141,7 @@ function PdfEditPage() {
             pageNumber={pageNum}
             width={500}
           />
+          )}
 
         </Document>
       </div>
