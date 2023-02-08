@@ -2,7 +2,7 @@ import React from 'react';
 import { Page } from 'react-pdf';
 import PropTypes from 'prop-types';
 import { Draggable } from '@hello-pangea/dnd';
-import { ReactComponent as AddIcon } from '../assets/remove.svg';
+import { ReactComponent as RemoveIcon } from '../assets/remove.svg';
 
 function PdfPage({
   pageNum, width, scale, index, onDelete, onClick,
@@ -20,8 +20,8 @@ function PdfPage({
           {...provided.dragHandleProps}
         >
           <Page
-            onClick={(e) => onClick(e, pageNum)}
-            className="rounded-md border-4 border-indigo-500"
+            onClick={(e) => onClick(e, pageNum, index)}
+            className="rounded-md border-4 border-purple-500"
             renderTextLayer={false}
             renderAnnotationLayer={false}
             pageNumber={pageNum}
@@ -29,8 +29,8 @@ function PdfPage({
             scale={scale}
 
           />
-          <button type="submit" onClick={() => onDelete(pageNum)} className="absolute hover:bg-[#dc2626] transition ease-in-out duration-300 border-2 rounded-md border-indigo-500">
-            <AddIcon />
+          <button type="submit" onClick={() => onDelete(pageNum, index)} className="absolute hover:bg-[#dc2626] transition ease-in-out duration-300 border-2 rounded-md border-purple-500">
+            <RemoveIcon />
           </button>
         </div>
 

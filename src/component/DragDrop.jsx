@@ -1,9 +1,8 @@
 import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import pdfImg from '../assets/file-pdf-solid-240.png';
 
-function DragDrop(props) {
+function DragDrop() {
   const inputFile = useRef(null);
   const [fileData, setFileData] = useState(null);
   const navigate = useNavigate();

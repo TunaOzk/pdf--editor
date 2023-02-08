@@ -8,6 +8,8 @@ import uuid from 'react-uuid';
 import PdfPage from '../component/PdfPage';
 import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
 import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
+import PdfScrollArea from '../component/PdfScrollArea';
+import PdfPreviewArea from '../component/PdfPreviewArea';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -17,7 +19,7 @@ function PdfEditPage() {
   const [numPages, setNumPages] = useState(0);
   const [pdfPageList, setPdfPageList] = useState([]);
   const [pageNum, setPageNum] = useState(1);
-  const pageNumIndex = useRef(0);
+  const currentPageIndex = useRef(0);
 
   const handleOnDocumentLoadSuccess = (pdf) => {
     setNumPages(pdf.numPages);
@@ -26,12 +28,12 @@ function PdfEditPage() {
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    switch (pageNumIndex.current) {
+    switch (currentPageIndex.current) {
       case result.source.index:
-        pageNumIndex.current = result.destination.index;
+        currentPageIndex.current = result.destination.index;
         break;
       case result.destination.index:
-        pageNumIndex.current = result.source.index;
+        currentPageIndex.current = result.source.index;
         break;
       default:
         break;
@@ -42,31 +44,48 @@ function PdfEditPage() {
     setPdfPageList(newPageList);
   };
 
-  const handleDelete = (num) => {
+  const handleDelete = (num, pageIndex) => {
     setPdfPageList((prevList) => prevList.filter((item, index) => item !== num - 1));
+    if (pageIndex === currentPageIndex.current) {
+      const nextPageIndex = (currentPageIndex.current + 1) % pdfPageList.length;
+      setPageNum(pdfPageList[nextPageIndex] + 1);
+    }
+    if (pageIndex < currentPageIndex.current) { currentPageIndex.current -= 1; }
   };
 
-  const handleClick = (e, num) => {
-    if (pageNum !== num) { setPageNum(num); }
+  const handleClick = (e, num, index) => {
+    if (pageNum !== num) {
+      setPageNum(num);
+      currentPageIndex.current = index;
+    }
   };
 
   const handleNavigationClickForward = () => {
     if (pdfPageList.length === 1) return;
-    pageNumIndex.current = (pageNumIndex.current + 1) % pdfPageList.length;
-    setPageNum(pdfPageList[pageNumIndex.current] + 1);
+    currentPageIndex.current = (currentPageIndex.current + 1) % pdfPageList.length;
+    setPageNum(pdfPageList[currentPageIndex.current] + 1);
   };
 
   const handleNavigationClickBack = () => {
     if (pdfPageList.length === 1) return;
-    pageNumIndex.current = pageNumIndex.current === 0
-      ? pdfPageList.length - 1 : (pageNumIndex.current - 1) % pdfPageList.length;
-    setPageNum(pdfPageList[pageNumIndex.current] + 1);
+    currentPageIndex.current = currentPageIndex.current === 0
+      ? pdfPageList.length - 1 : (currentPageIndex.current - 1) % pdfPageList.length;
+    setPageNum(pdfPageList[currentPageIndex.current] + 1);
   };
 
   return (
-    <div className="flex h-screen">
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex flex-col items-center w-1/5 border-4 border-black overflow-y-auto">
+    <div className="flex h-screen bg-stone-200">
+      <PdfScrollArea
+        dragEnd={handleDragEnd}
+        file={fileRef.current}
+        docLoadSucces={handleOnDocumentLoadSuccess}
+        pageList={pdfPageList}
+        onDelete={handleDelete}
+        onClick={handleClick}
+      />
+      {/* <DragDropContext onDragEnd={handleDragEnd}>
+        <div
+        className="flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
           <Document file={fileRef.current} onLoadSuccess={handleOnDocumentLoadSuccess}>
             <Droppable droppableId={uuid().toString()}>
               {(provided) => (
@@ -96,44 +115,56 @@ function PdfEditPage() {
             </Droppable>
           </Document>
         </div>
-      </DragDropContext>
+      </DragDropContext> */}
 
       <div className="relative flex flex-col items-center justify-center w-4/5">
-        <form className="absolute top-0 left-0 rounded-md border-4 border-indigo-500">
+
+        <form className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
           <select name="pdfSelect">
             <option>PDF1</option>
             <option>PDF2</option>
             <option>PDF3</option>
           </select>
         </form>
+
         <button
           onClick={handleNavigationClickForward}
-          className="transition ease-in-out duration-300 hover:bg-sky-500 rounded-md border-4 border-indigo-500 absolute right-0"
+          className="transition ease-in-out duration-300 hover:bg-purple-300 rounded-md border-4 border-violet-400 absolute right-0"
           type="button"
         >
           <ForwardIcon />
         </button>
         <button
           onClick={handleNavigationClickBack}
-          className="transition ease-in-out duration-300 hover:bg-sky-500 rounded-md border-4 border-indigo-500 absolute left-0"
+          className="transition ease-in-out duration-300 hover:bg-purple-300 rounded-md border-4 border-violet-400 absolute left-0"
           type="button"
         >
           <BackIcon />
         </button>
 
-        <Document
+        <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4" type="button">Merge Your PDF Files</button>
+
+        <PdfPreviewArea
+          file={fileRef.current}
+          docLoadSucces={handleOnDocumentLoadSuccess}
+          pageList={pdfPageList}
+          pageNum={pageNum}
+        />
+        {/* <Document
           file={fileRef.current}
           onLoadSuccess={handleOnDocumentLoadSuccess}
         >
+          {pdfPageList.length > 0 && (
           <Page
-            className="rounded-md border-4 border-indigo-500"
+            className="rounded-md border-4 border-purple-500 shadow-2xl"
             renderTextLayer={false}
             renderAnnotationLayer={false}
             pageNumber={pageNum}
             width={500}
           />
+          )}
 
-        </Document>
+        </Document> */}
       </div>
     </div>
 
