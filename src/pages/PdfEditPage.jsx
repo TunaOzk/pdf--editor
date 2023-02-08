@@ -107,6 +107,7 @@ function PdfEditPage() {
       </DragDropContext>
 
       <div className="relative flex flex-col items-center justify-center w-4/5">
+
         <form className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
           <select name="pdfSelect">
             <option>PDF1</option>
@@ -114,6 +115,7 @@ function PdfEditPage() {
             <option>PDF3</option>
           </select>
         </form>
+
         <button
           onClick={handleNavigationClickForward}
           className="transition ease-in-out duration-300 hover:bg-purple-300 rounded-md border-4 border-violet-400 absolute right-0"
@@ -128,6 +130,8 @@ function PdfEditPage() {
         >
           <BackIcon />
         </button>
+
+        <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4" type="button">Merge Your PDF Files</button>
 
         <Document
           file={fileRef.current}
