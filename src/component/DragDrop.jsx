@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { useNavigate, Link } from 'react-router-dom';
 import pdfImg from '../assets/file-pdf-solid-240.png';
 
-function DragDrop() {
+function DragDrop(props) {
   const inputFile = useRef(null);
-  const [fileData, setFileData] = useState(null);
+  const [fileData, setFileData] = useState([]);
   const navigate = useNavigate();
 
   function convertDataURIToBinary(dataURI) {
@@ -18,7 +19,10 @@ function DragDrop() {
     for (let i = 0; i < rawLength; i += 1) {
       array[i] = raw.charCodeAt(i);
     }
-    setFileData(array);
+    setFileData((newData) => {
+      const newArr = [...newData, array];
+      return newArr;
+    });
   }
 
   const convertFileToUint8Array = (file) => {
@@ -73,7 +77,7 @@ function DragDrop() {
     const tenMB = 10485760;
     const fileExtention = getExtension(event.target.files[0].name).toLowerCase();
     const fileSize = event.target.files[0].size;
-    if (newFile && fileCount === 0 && fileSize <= tenMB && fileExtention === 'pdf') {
+    if (newFile && fileCount < 3 && fileSize <= tenMB && fileExtention === 'pdf') {
       convertFileToUint8Array(newFile);
 
       const updatedList = [...fileList, newFile];
@@ -84,25 +88,26 @@ function DragDrop() {
       setFileSizeState(false);
       setFileExtentionState(false);
       setFileCount(fileCount + 1);
+      console.log(fileCount);
     } else if (fileExtention !== 'pdf') {
       setFileExtentionState(true);
       setFileSizeState(false);
       setFileCountError(false);
-    } else if (fileSize > tenMB && fileCount === 0) {
+    } else if (fileSize > tenMB && fileCount < 3) {
       setFileSizeState(true);
       setFileExtentionState(false);
-    } else {
+    } else if (fileCount === 3) {
       setFileCountError(true);
       setFileExtentionState(false);
       setFileSizeState(false);
     }
   };
   const fileRemove = (file) => {
-    setFileCount(fileCount - 1);
     const updatedList = [...fileList];
-    const updatedList2 = updatedList.slice(fileList.indexOf(file), 0);
-    console.log(updatedList2);
-    setFileList(updatedList2);
+    updatedList.splice(fileList.indexOf(file), 1);
+    console.log(updatedList);
+    setFileList(updatedList);
+    setFileCount(fileCount - 1);
   };
 
   return (
@@ -130,7 +135,7 @@ function DragDrop() {
           fileList.length > 0 ? (
             <div className="">
               <div className="flex flex-col items-center justify-center text-red-600 text-xl">
-                <p>{fileCountError ? 'You can upload just one file' : null}</p>
+                <p>{fileCountError ? 'You can not upload more than three files' : null}</p>
               </div>
               <p className="flex flex-col items-center justify-center">
                 Ready to upload
@@ -151,6 +156,7 @@ function DragDrop() {
           ) : null
         }
         <form className="flex justify-between mt-2 w-1/2">
+          {console.log(fileData)}
           <button className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8" type="button" onClick={() => navigate('/pdf-edit', { state: fileData })}>
             Submit
           </button>
