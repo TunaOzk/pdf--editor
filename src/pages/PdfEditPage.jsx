@@ -42,8 +42,13 @@ function PdfEditPage() {
     setPdfPageList(newPageList);
   };
 
-  const handleDelete = (num) => {
+  const handleDelete = (num, pageIndex) => {
     setPdfPageList((prevList) => prevList.filter((item, index) => item !== num - 1));
+    if (pageIndex === currentPageIndex.current) {
+      const nextPageIndex = (currentPageIndex.current + 1) % pdfPageList.length;
+      setPageNum(pdfPageList[nextPageIndex] + 1);
+    }
+    if (pageIndex < currentPageIndex.current) { currentPageIndex.current -= 1; }
   };
 
   const handleClick = (e, num, index) => {
