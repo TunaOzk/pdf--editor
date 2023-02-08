@@ -8,6 +8,8 @@ import uuid from 'react-uuid';
 import PdfPage from '../component/PdfPage';
 import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
 import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
+import PdfScrollArea from '../component/PdfScrollArea';
+import PdfPreviewArea from '../component/PdfPreviewArea';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -73,8 +75,17 @@ function PdfEditPage() {
 
   return (
     <div className="flex h-screen bg-stone-200">
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
+      <PdfScrollArea
+        dragEnd={handleDragEnd}
+        file={fileRef.current}
+        docLoadSucces={handleOnDocumentLoadSuccess}
+        pageList={pdfPageList}
+        onDelete={handleDelete}
+        onClick={handleClick}
+      />
+      {/* <DragDropContext onDragEnd={handleDragEnd}>
+        <div
+        className="flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
           <Document file={fileRef.current} onLoadSuccess={handleOnDocumentLoadSuccess}>
             <Droppable droppableId={uuid().toString()}>
               {(provided) => (
@@ -104,7 +115,7 @@ function PdfEditPage() {
             </Droppable>
           </Document>
         </div>
-      </DragDropContext>
+      </DragDropContext> */}
 
       <div className="relative flex flex-col items-center justify-center w-4/5">
 
@@ -133,7 +144,13 @@ function PdfEditPage() {
 
         <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4" type="button">Merge Your PDF Files</button>
 
-        <Document
+        <PdfPreviewArea
+          file={fileRef.current}
+          docLoadSucces={handleOnDocumentLoadSuccess}
+          pageList={pdfPageList}
+          pageNum={pageNum}
+        />
+        {/* <Document
           file={fileRef.current}
           onLoadSuccess={handleOnDocumentLoadSuccess}
         >
@@ -147,7 +164,7 @@ function PdfEditPage() {
           />
           )}
 
-        </Document>
+        </Document> */}
       </div>
     </div>
 
