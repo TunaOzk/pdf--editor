@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import uuid from 'react-uuid';
+import axios from 'axios';
 import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
 import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
 import PdfScrollArea from '../component/PdfScrollArea';
@@ -24,6 +25,17 @@ function PdfEditPage() {
   const [pageNum, setPageNum] = useState(1);
   const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
   const [selectedPdfOnDropDown, setSelectedPdfOnDropDown] = useState(0);
+
+  async function postFile(event) {
+    event.preventDefault();
+    try {
+      await axios.post('http://localhost:4000/pdfFile', {
+        currentFile,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleOnDocumentLoadSuccess = (pdf) => {
     const pdfPages = [...Array(pdf.numPages).keys()];
@@ -131,7 +143,13 @@ function PdfEditPage() {
           <BackIcon />
         </button>
 
-        <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4" type="button">Merge Your PDF Files</button>
+        <button
+          className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4"
+          type="button"
+          onClick={postFile}
+        >
+          Merge Your PDF Files
+        </button>
         <PdfPreviewArea
           file={currentFile}
           pageList={currentPdfPages}

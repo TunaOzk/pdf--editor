@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import pdfImg from '../assets/file-pdf-solid-240.png';
 
@@ -52,6 +53,18 @@ function DragDrop(props) {
 
   const onDrop = () => wrapperRef.current.classList.remove('dragover');
 
+  async function postFile2(event) {
+    event.preventDefault();
+    const data = new FormData();
+    data.append('file', fileList);
+    try {
+      await axios.post('http://localhost:4000/pdfFile2', {
+        data,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const handleDrop = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -87,7 +100,6 @@ function DragDrop(props) {
       setFileSizeState(false);
       setFileExtentionState(false);
       setFileCount(fileCount + 1);
-      console.log(fileCount);
     } else if (fileExtention !== 'pdf') {
       setFileExtentionState(true);
       setFileSizeState(false);
@@ -154,9 +166,15 @@ function DragDrop(props) {
             </div>
           ) : null
         }
-        <form className="flex justify-between mt-2 w-1/2">
-          {console.log(fileData)}
-          <button className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8" type="button" onClick={() => navigate('/pdf-edit', { state: fileData })}>
+        <form id="form" className="flex justify-between mt-2 w-1/2">
+          <button
+            className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8"
+            type="button"
+            onClick={(event) => {
+              postFile2(event);
+              navigate('/pdf-edit', { state: fileData });
+            }}
+          >
             Submit
           </button>
         </form>
