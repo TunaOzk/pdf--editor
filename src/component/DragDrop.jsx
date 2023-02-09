@@ -87,6 +87,7 @@ function DragDrop(props) {
       setFileSizeState(false);
       setFileExtentionState(false);
       setFileCount(fileCount + 1);
+      console.log(fileCount);
     } else if (fileExtention !== 'pdf') {
       setFileExtentionState(true);
       setFileSizeState(false);
@@ -103,6 +104,7 @@ function DragDrop(props) {
   const fileRemove = (file) => {
     const updatedList = [...fileList];
     updatedList.splice(fileList.indexOf(file), 1);
+
     setFileList(updatedList);
     setFileCount(fileCount - 1);
   };
@@ -153,6 +155,7 @@ function DragDrop(props) {
           ) : null
         }
         <form className="flex justify-between mt-2 w-1/2">
+          {console.log(fileData)}
           <button className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8" type="button" onClick={() => navigate('/pdf-edit', { state: fileData })}>
             Submit
           </button>
