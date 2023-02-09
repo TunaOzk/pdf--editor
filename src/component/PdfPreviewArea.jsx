@@ -1,14 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import PropTypes, { number } from 'prop-types';
 
 function PdfPreviewArea({
-  file, docLoadSucces, pageList, pageNum,
+  file, pageList, pageNum,
 }) {
   return (
     <Document
       file={file}
-      onLoadSuccess={docLoadSucces}
     >
       {pageList.length > 0 && (
       <Page
@@ -26,7 +25,6 @@ function PdfPreviewArea({
 
 PdfPreviewArea.propTypes = {
   file: PropTypes.shape({ data: PropTypes.objectOf(number) }).isRequired,
-  docLoadSucces: PropTypes.func.isRequired,
   pageList: PropTypes.arrayOf(number).isRequired,
   pageNum: PropTypes.number.isRequired,
 };

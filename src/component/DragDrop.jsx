@@ -81,7 +81,6 @@ function DragDrop(props) {
       convertFileToUint8Array(newFile);
 
       const updatedList = [...fileList, newFile];
-      console.log(updatedList);
 
       setFileList(updatedList);
       setFileCountError(false);
@@ -105,7 +104,7 @@ function DragDrop(props) {
   const fileRemove = (file) => {
     const updatedList = [...fileList];
     updatedList.splice(fileList.indexOf(file), 1);
-    console.log(updatedList);
+
     setFileList(updatedList);
     setFileCount(fileCount - 1);
   };
