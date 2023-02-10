@@ -24,6 +24,7 @@ function PdfPage({
             className="rounded-md border-4 border-purple-500"
             renderTextLayer={false}
             renderAnnotationLayer={false}
+            loading={() => {}}
             pageNumber={pageNum}
             width={width}
             scale={scale}

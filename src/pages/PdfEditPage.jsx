@@ -103,9 +103,9 @@ function PdfEditPage() {
         onClick={handleClick}
       />
 
-      <div className="relative flex flex-col items-center justify-center w-4/5">
+      <form className="relative flex flex-col items-center justify-center w-4/5">
 
-        <form className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
+        <div className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
           <select value={selectedPdfOnDropDown} onChange={handleOptionClick} name="pdfSelect">
             {[...Array(numOfFiles)].map((value, index) => (
               <option key={uuid()} value={index}>
@@ -114,7 +114,7 @@ function PdfEditPage() {
               </option>
             ))}
           </select>
-        </form>
+        </div>
 
         <button
           onClick={handleNavigationClickForward}
@@ -131,13 +131,29 @@ function PdfEditPage() {
           <BackIcon />
         </button>
 
-        <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4" type="button">Merge Your PDF Files</button>
+        <button
+          className="transition ease-in-out delay-150 hover:-translate-y-1
+        hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4"
+          type="button"
+        >
+          Merge Your All PDF Files
+
+        </button>
+        <button
+          className="transition ease-in-out delay-150 hover:-translate-y-1
+        hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md
+        absolute bottom-28 right-10 p-4"
+          type="button"
+        >
+          Export The Current File
+
+        </button>
         <PdfPreviewArea
           file={currentFile}
           pageList={currentPdfPages}
           pageNum={pageNum}
         />
-      </div>
+      </form>
     </div>
 
   );

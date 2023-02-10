@@ -4,14 +4,17 @@ import { Document } from 'react-pdf';
 import uuid from 'react-uuid';
 import PropTypes, { number } from 'prop-types';
 import PdfPage from './PdfPage';
+import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfScrollArea({
   dragEnd, docLoadSucces, file, pageList, onDelete, onClick,
 }) {
+  const handleLoading = () => <LoadingIcon className="animate-spin" />;
+
   return (
     <DragDropContext onDragEnd={dragEnd}>
       <div className="flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
-        <Document file={file} onLoadSuccess={docLoadSucces}>
+        <Document file={file} onLoadSuccess={docLoadSucces} loading={handleLoading}>
           <Droppable droppableId={uuid().toString()}>
             {(provided) => (
               <div
