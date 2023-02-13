@@ -18,10 +18,6 @@ function DragDrop() {
         const newArr = [...newData, uri];
         return newArr;
       });
-      setFileData((newData) => {
-        const newArr = [...newData, uri];
-        return newArr;
-      });
     });
   };
 

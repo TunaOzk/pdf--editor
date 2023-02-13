@@ -7,7 +7,7 @@ import PdfPage from './PdfPage';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfScrollArea({
-  file, currFileIndex, numOfFiles, setPageNum, setNoPagesLeftBoolean, noPageLeft,
+  file, currFileIndex, numOfFiles, setPageNum, setNoPagesLeftBoolean, noPageLeft, onExportClick,
 }) {
   const currentPageIndex = useRef(0);
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
@@ -92,7 +92,7 @@ function PdfScrollArea({
             {(provided) => (
               <div
                 ref={provided.innerRef}
-                  // eslint-disable-next-line react/jsx-props-no-spreading
+                // eslint-disable-next-line react/jsx-props-no-spreading
                 {...provided.droppableProps}
                 className="flex flex-col items-center"
               >
@@ -127,6 +127,7 @@ PdfScrollArea.propTypes = {
   setPageNum: PropTypes.func.isRequired,
   setNoPagesLeftBoolean: PropTypes.func.isRequired,
   noPageLeft: PropTypes.bool.isRequired,
+  onExportClick: PropTypes.func.isRequired,
 };
 
 export default PdfScrollArea;

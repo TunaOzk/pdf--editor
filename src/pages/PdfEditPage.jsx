@@ -89,6 +89,9 @@ function PdfEditPage() {
     setCurrentFile(fileList[index]);
     setNoPagesLeftBoolean(false);
   };
+  const handleExportClick = () => {
+
+  };
 
   // const memoizedPdfPreviewArea = useMemo(() => (
   //   <PdfPreviewArea
@@ -146,6 +149,7 @@ function PdfEditPage() {
       hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md
       absolute bottom-28 right-10 p-4"
           type="button"
+          onClick={handleExportClick}
         >
           Export The Current File
 
