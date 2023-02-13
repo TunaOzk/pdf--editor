@@ -20,7 +20,8 @@ mergePDF("./output.pdf", "./demo.pdf")
 
 async function reorderPDFpage(mainFile, fileName, arr) {
 
-    const mainPdf = await PDFDocument.load(mainFile);
+    //const mainPdf = await PDFDocument.load(mainFile);
+    const mainPdf = await PDFDocument.load(fs.readFileSync(mainFile));
 
     let pagesArray = await mainPdf.copyPages(mainPdf, mainPdf.getPageIndices());
 

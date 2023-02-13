@@ -42,7 +42,7 @@ function DragDrop() {
       console.log(names[i]);
     }
     try {
-      await axios.post('http://localhost:4000/pdfFile2', {
+      await axios.post('http://localhost:4004/pdfFile3', {
         fileData,
         name: names,
       });

@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import uuid from 'react-uuid';
+import axios from 'axios';
 import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 
@@ -12,7 +13,7 @@ function PdfEditPage() {
   const numOfFiles = location.state.length;
   const fileList = location.state;
 
-  // const [currentPdfPages, setCurrentPdfPages] = useState([]);
+  const [currentPdfPages, setCurrentPdfPages] = useState([]);
   const [currentFile, setCurrentFile] = useState(fileList[0]);
   const [pageNum, setPageNum] = useState(1);
   // const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
@@ -89,9 +90,17 @@ function PdfEditPage() {
     setCurrentFile(fileList[index]);
     setNoPagesLeftBoolean(false);
   };
-  const handleExportClick = () => {
-
-  };
+  async function postIndex(event) {
+    event.preventDefault();
+    try {
+      console.log(currentPdfPages);
+      await axios.post('http://localhost:4000/pdfFile2', {
+        currentPdfPages,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // const memoizedPdfPreviewArea = useMemo(() => (
   //   <PdfPreviewArea
@@ -103,6 +112,8 @@ function PdfEditPage() {
 
   const memoizedPdfScrollArea = useMemo(() => (
     <PdfScrollArea
+      currentPdfPages={currentPdfPages}
+      setCurrentPdfPages={setCurrentPdfPages}
       file={currentFile}
       currFileIndex={fileListIndex}
       setPageNum={setPageNum}
@@ -110,7 +121,8 @@ function PdfEditPage() {
       noPageLeft={noPagesLeftBoolean}
       numOfFiles={numOfFiles}
     />
-  ), [currentFile, fileListIndex, noPagesLeftBoolean, numOfFiles]);
+  ), [currentFile, fileListIndex, noPagesLeftBoolean,
+    numOfFiles, currentPdfPages, setCurrentPdfPages]);
   return (
     <div className="flex h-screen bg-stone-200">
       {memoizedPdfScrollArea}
@@ -149,7 +161,7 @@ function PdfEditPage() {
       hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md
       absolute bottom-28 right-10 p-4"
           type="button"
-          onClick={handleExportClick}
+          onClick={(event) => postIndex(event)}
         >
           Export The Current File
 
