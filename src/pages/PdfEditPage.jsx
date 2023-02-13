@@ -1,9 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import uuid from 'react-uuid';
-import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
-import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
+import axios from 'axios';
 import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 
@@ -11,102 +10,58 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 function PdfEditPage() {
   const location = useLocation();
-
   const numOfFiles = location.state.length;
-  const fileList = [...Array(numOfFiles)]
-    .map((value, index) => ({ data: location.state[index] }));
-
-  const currentPageIndex = useRef(0);
-  const currentFileIndex = useRef(0);
+  const fileList = [...Array(numOfFiles)].map((value, index) => location.state[index].base64);
+  const fileNames = [...Array(numOfFiles)].map((value, index) => location.state[index].name);
 
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
-  const [currentFile, setCurrentFile] = useState({ data: location.state[0] });
+  const [currentFile, setCurrentFile] = useState(fileList[0]);
   const [pageNum, setPageNum] = useState(1);
-  const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
-  const [selectedPdfOnDropDown, setSelectedPdfOnDropDown] = useState(0);
-
-  const handleOnDocumentLoadSuccess = (pdf) => {
-    const pdfPages = [...Array(pdf.numPages).keys()];
-    setCurrentPdfPages(() => {
-      if (!pdfPagesList[currentFileIndex.current].length) {
-        pdfPagesList[currentFileIndex.current] = pdfPages;
-        return pdfPages;
-      }
-      return pdfPagesList[currentFileIndex.current];
-    });
-    currentPageIndex.current = 0;
-    setPageNum(1);
-  };
-
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-    switch (currentPageIndex.current) {
-      case result.source.index:
-        currentPageIndex.current = result.destination.index;
-        break;
-      case result.destination.index:
-        currentPageIndex.current = result.source.index;
-        break;
-      default:
-        break;
-    }
-    const newPageList = currentPdfPages;
-    const [reorderedPage] = newPageList.splice(result.source.index, 1);
-    newPageList.splice(result.destination.index, 0, reorderedPage);
-    setCurrentPdfPages(newPageList);
-  };
-
-  const handleDelete = (num, pageIndex) => {
-    setCurrentPdfPages((prevList) => prevList.filter((item, index) => item !== num - 1));
-    if (pageIndex === currentPageIndex.current) {
-      const nextPageIndex = (currentPageIndex.current + 1) % currentPdfPages.length;
-      setPageNum(currentPdfPages[nextPageIndex] + 1);
-    }
-    if (pageIndex < currentPageIndex.current) { currentPageIndex.current -= 1; }
-  };
-
-  const handleClick = (e, num, index) => {
-    if (pageNum !== num) {
-      setPageNum(num);
-      currentPageIndex.current = index;
-    }
-  };
-
-  const handleNavigationClickForward = () => {
-    if (currentPdfPages.length === 1) return;
-    currentPageIndex.current = (currentPageIndex.current + 1) % currentPdfPages.length;
-    setPageNum(currentPdfPages[currentPageIndex.current] + 1);
-  };
-
-  const handleNavigationClickBack = () => {
-    if (currentPdfPages.length === 1) return;
-    currentPageIndex.current = currentPageIndex.current === 0
-      ? currentPdfPages.length - 1 : (currentPageIndex.current - 1) % currentPdfPages.length;
-    setPageNum(currentPdfPages[currentPageIndex.current] + 1);
-  };
+  const [fileListIndex, setFileListIndex] = useState(0);
+  const [noPagesLeftBoolean, setNoPagesLeftBoolean] = useState(false);
 
   const handleOptionClick = (e) => {
-    const index = e.target.value;
-    setSelectedPdfOnDropDown(index);
-    currentFileIndex.current = index;
+    const index = Number(e.target.value);
+    setFileListIndex(index);
     setCurrentFile(fileList[index]);
+    setNoPagesLeftBoolean(false);
   };
+  async function postIndex(event) {
+    event.preventDefault();
+    const currentFileName = fileNames[fileListIndex];
+    try {
+      await axios.post('http://localhost:4000/pdfFile2', {
+        currentPdfPages,
+        currentFile,
+        currentFileName,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const memoizedPdfScrollArea = useMemo(() => (
+    <PdfScrollArea
+      currentPdfPages={currentPdfPages}
+      setCurrentPdfPages={setCurrentPdfPages}
+      file={currentFile}
+      currFileIndex={fileListIndex}
+      setPageNum={setPageNum}
+      setNoPagesLeftBoolean={setNoPagesLeftBoolean}
+      noPageLeft={noPagesLeftBoolean}
+      numOfFiles={numOfFiles}
+    />
+  ), [currentFile, fileListIndex, noPagesLeftBoolean,
+    numOfFiles, currentPdfPages, setCurrentPdfPages]);
 
   return (
     <div className="flex h-screen bg-stone-200">
-      <PdfScrollArea
-        dragEnd={handleDragEnd}
-        file={currentFile}
-        pageList={currentPdfPages}
-        docLoadSucces={handleOnDocumentLoadSuccess}
-        onDelete={handleDelete}
-        onClick={handleClick}
-      />
+      {memoizedPdfScrollArea}
 
-      <div className="relative flex flex-col items-center justify-center w-4/5">
+      <form className="relative flex flex-col items-center justify-center w-4/5">
 
-        <form className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
-          <select value={selectedPdfOnDropDown} onChange={handleOptionClick} name="pdfSelect">
+        <div className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
+          <select value={fileListIndex} onChange={handleOptionClick} name="pdfSelect">
             {[...Array(numOfFiles)].map((value, index) => (
               <option key={uuid()} value={index}>
                 PDF
@@ -114,30 +69,34 @@ function PdfEditPage() {
               </option>
             ))}
           </select>
-        </form>
+        </div>
 
         <button
-          onClick={handleNavigationClickForward}
-          className="transition ease-in-out duration-300 hover:bg-purple-300 rounded-md border-4 border-violet-400 absolute right-0"
+          className="transition ease-in-out delay-75 hover:-translate-y-1
+      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
+  rounded-md absolute bottom-10 right-10 p-4"
           type="button"
         >
-          <ForwardIcon />
+          Merge Your All PDF Files
+
         </button>
         <button
-          onClick={handleNavigationClickBack}
-          className="transition ease-in-out duration-300 hover:bg-purple-300 rounded-md border-4 border-violet-400 absolute left-0"
+          className="transition ease-in-out delay-75 hover:-translate-y-1
+      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md
+      absolute bottom-28 right-10 p-4"
           type="button"
+          onClick={(event) => postIndex(event)}
         >
-          <BackIcon />
-        </button>
+          Export The Current File
 
-        <button className="transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md absolute bottom-10 right-10 p-4" type="button">Merge Your PDF Files</button>
+        </button>
         <PdfPreviewArea
           file={currentFile}
-          pageList={currentPdfPages}
+          setPageNum={setPageNum}
+          noPageLeft={noPagesLeftBoolean}
           pageNum={pageNum}
         />
-      </div>
+      </form>
     </div>
 
   );

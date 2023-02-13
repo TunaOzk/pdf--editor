@@ -1,36 +1,23 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import pdfImg from '../assets/file-pdf-solid-240.png';
 
-function DragDrop(props) {
+function DragDrop() {
   const inputFile = useRef(null);
   const [fileData, setFileData] = useState([]);
   const navigate = useNavigate();
-
-  function convertDataURIToBinary(dataURI) {
-    const BASE64_MARKER = ';base64,';
-    const base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-    const base64 = dataURI.substring(base64Index);
-    const raw = window.atob(base64);
-    const rawLength = raw.length;
-    const array = new Uint8Array(new ArrayBuffer(rawLength));
-
-    for (let i = 0; i < rawLength; i += 1) {
-      array[i] = raw.charCodeAt(i);
-    }
-    setFileData((newData) => {
-      const newArr = [...newData, array];
-      return newArr;
-    });
-  }
 
   const convertFileToUint8Array = (file) => {
     const fReader = new FileReader();
     fReader.readAsDataURL(file);
     fReader.onloadend = ((event) => {
       const uri = event.target.result;
-      convertDataURIToBinary(uri);
+      setFileData((prevData) => {
+        const newArr = [...prevData, { base64: uri, name: file.name }];
+        return newArr;
+      });
     });
   };
 
@@ -46,11 +33,23 @@ function DragDrop(props) {
   const [fileSizeState, setFileSizeState] = useState(false);
   const [fileExtentionState, setFileExtentionState] = useState(false);
 
-  const onDragEnter = () => wrapperRef.current.classList.add('dragover');
-
-  const onDragLeave = () => wrapperRef.current.classList.remove('dragover');
-
-  const onDrop = () => wrapperRef.current.classList.remove('dragover');
+  async function postFile2(event) {
+    event.preventDefault();
+    const names = [];
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < fileList.length; i++) {
+      names[i] = fileList[i].name;
+      console.log(names[i]);
+    }
+    try {
+      await axios.post('http://localhost:4004/pdfFile3', {
+        fileData,
+        name: names,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleDrop = (event) => {
     event.preventDefault();
@@ -87,7 +86,6 @@ function DragDrop(props) {
       setFileSizeState(false);
       setFileExtentionState(false);
       setFileCount(fileCount + 1);
-      console.log(fileCount);
     } else if (fileExtention !== 'pdf') {
       setFileExtentionState(true);
       setFileSizeState(false);
@@ -154,9 +152,15 @@ function DragDrop(props) {
             </div>
           ) : null
         }
-        <form className="flex justify-between mt-2 w-1/2">
-          {console.log(fileData)}
-          <button className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8" type="button" onClick={() => navigate('/pdf-edit', { state: fileData })}>
+        <form id="form" className="flex justify-between mt-2 w-1/2">
+          <button
+            className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8"
+            type="button"
+            onClick={(event) => {
+              postFile2(event);
+              navigate('/pdf-edit', { state: fileData });
+            }}
+          >
             Submit
           </button>
         </form>
