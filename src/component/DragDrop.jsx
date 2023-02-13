@@ -4,11 +4,12 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import pdfImg from '../assets/file-pdf-solid-240.png';
 
-function DragDrop(props) {
+function DragDrop() {
   const inputFile = useRef(null);
   const [fileData, setFileData] = useState([]);
   const navigate = useNavigate();
 
+  /*
   function convertDataURIToBinary(dataURI) {
     const BASE64_MARKER = ';base64,';
     const base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
@@ -20,18 +21,18 @@ function DragDrop(props) {
     for (let i = 0; i < rawLength; i += 1) {
       array[i] = raw.charCodeAt(i);
     }
-    setFileData((newData) => {
-      const newArr = [...newData, array];
-      return newArr;
-    });
   }
+  */
 
   const convertFileToUint8Array = (file) => {
     const fReader = new FileReader();
     fReader.readAsDataURL(file);
     fReader.onloadend = ((event) => {
       const uri = event.target.result;
-      convertDataURIToBinary(uri);
+      setFileData((newData) => {
+        const newArr = [...newData, uri];
+        return newArr;
+      });
     });
   };
 
@@ -47,24 +48,24 @@ function DragDrop(props) {
   const [fileSizeState, setFileSizeState] = useState(false);
   const [fileExtentionState, setFileExtentionState] = useState(false);
 
-  const onDragEnter = () => wrapperRef.current.classList.add('dragover');
-
-  const onDragLeave = () => wrapperRef.current.classList.remove('dragover');
-
-  const onDrop = () => wrapperRef.current.classList.remove('dragover');
-
   async function postFile2(event) {
     event.preventDefault();
-    const data = new FormData();
-    data.append('file', fileList);
+    const names = [];
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < fileList.length; i++) {
+      names[i] = fileList[i].name;
+      console.log(names[i]);
+    }
     try {
       await axios.post('http://localhost:4000/pdfFile2', {
-        data,
+        fileData,
+        name: names,
       });
     } catch (error) {
       console.log(error);
     }
   }
+
   const handleDrop = (event) => {
     event.preventDefault();
     event.stopPropagation();

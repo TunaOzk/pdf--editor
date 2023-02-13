@@ -1,6 +1,7 @@
 const { PDFDocument } = require('pdf-lib');
 fs = require('fs');
 
+
 async function mergePDF(mainFile, mergeFile) {
     const mainPdf = await PDFDocument.load(fs.readFileSync(mainFile));
     const mergePdf = await PDFDocument.load(fs.readFileSync(mergeFile));
@@ -17,9 +18,9 @@ async function mergePDF(mainFile, mergeFile) {
 mergePDF("./output.pdf", "./demo.pdf")
 
 
+async function reorderPDFpage(mainFile, fileName, arr) {
 
-async function reorderPDFpage(mainFile, arr) {
-    const mainPdf = await PDFDocument.load(fs.readFileSync(mainFile));
+    const mainPdf = await PDFDocument.load(mainFile);
 
     let pagesArray = await mainPdf.copyPages(mainPdf, mainPdf.getPageIndices());
 
@@ -27,32 +28,23 @@ async function reorderPDFpage(mainFile, arr) {
         let [orderPage] = await mainPdf.copyPages(mainPdf, [arr[i]]);
         mainPdf.addPage(orderPage);
     }
-    for (let i = 0; i < arr.length; i++) {
+    for (let i = 0; i < pagesArray.length; i++) {
         mainPdf.removePage(0);
 
     }
 
-    fs.writeFileSync(mainFile, await mainPdf.save());
+    fs.writeFileSync(fileName, await mainPdf.save());
 
 
 }
-var a = []
-for (a = [], i = 0; i < 3; ++i) a[i] = i;
 
-function shuffle(array) {
-    var tmp, current, top = array.length;
-    if (top) while (--top) {
-        current = Math.floor(Math.random() * (top + 1));
-        tmp = array[current];
-        array[current] = array[top];
-        array[top] = tmp;
-    }
-    return array;
-}
+//a = shuffle(a);
+//console.log(a)
+//reorderPDFpage("./kira-sozlesmesi.pdf", a)
 
-a = shuffle(a);
-console.log(a)
-reorderPDFpage("./kira-sozlesmesi.pdf", a)
+module.exports.reorderPDFpage = reorderPDFpage;
+module.exports.mergePDF = mergePDF;
+
 
 /** 
 async function removePage(file, removePage) {
