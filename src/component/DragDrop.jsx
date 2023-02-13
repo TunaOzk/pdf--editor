@@ -14,8 +14,8 @@ function DragDrop() {
     fReader.readAsDataURL(file);
     fReader.onloadend = ((event) => {
       const uri = event.target.result;
-      setFileData((newData) => {
-        const newArr = [...newData, uri];
+      setFileData((prevData) => {
+        const newArr = [...prevData, { base64: uri, name: file.name }];
         return newArr;
       });
     });

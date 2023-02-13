@@ -34,11 +34,10 @@ a = shuffle(a);
 console.log(a)
 
 app.post("/pdfFile2", async (req, res) => {
-    let { currentPdfPages } = req.body;
-    console.log(currentPdfPages);
+    let { currentPdfPages, currentFile, currentFileName } = req.body;
 
     for (let index = 0; index < 1; index++) {
-        await reorderPDFpage('./tuna.pdf', 'denem.pdf', currentPdfPages);
+        await reorderPDFpage(currentFile, currentFileName, currentPdfPages);
     }
 })
 

@@ -11,78 +11,14 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 function PdfEditPage() {
   const location = useLocation();
   const numOfFiles = location.state.length;
-  const fileList = location.state;
+  const fileList = [...Array(numOfFiles)].map((value, index) => location.state[index].base64);
+  const fileNames = [...Array(numOfFiles)].map((value, index) => location.state[index].name);
 
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
   const [currentFile, setCurrentFile] = useState(fileList[0]);
   const [pageNum, setPageNum] = useState(1);
-  // const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
   const [fileListIndex, setFileListIndex] = useState(0);
   const [noPagesLeftBoolean, setNoPagesLeftBoolean] = useState(false);
-
-  // const handleOnDocumentLoadSuccess = (pdf) => {
-  //   const pdfPages = [...Array(pdf.numPages).keys()];
-  //   setCurrentPdfPages(() => {
-  //     if (!pdfPagesList[currentFileIndex.current].length) {
-  //       pdfPagesList[currentFileIndex.current] = pdfPages;
-  //       return pdfPages;
-  //     }
-  //     return pdfPagesList[currentFileIndex.current];
-  //   });
-  //   currentPageIndex.current = 0;
-  //   setPageNum(1);
-  // };
-
-  // const handleDragEnd = (result) => {
-  //   if (!result.destination) return;
-  //   switch (currentPageIndex.current) {
-  //     case result.source.index:
-  //       currentPageIndex.current = result.destination.index;
-  //       break;
-  //     case result.destination.index:
-  //       currentPageIndex.current = result.source.index;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   const newPageList = currentPdfPages;
-  //   const [reorderedPage] = newPageList.splice(result.source.index, 1);
-  //   newPageList.splice(result.destination.index, 0, reorderedPage);
-  //   setCurrentPdfPages(newPageList);
-  // };
-
-  // const handleDelete = (num, pageIndex) => {
-  //   setCurrentPdfPages((prevList) => {
-  //     const newList = prevList.filter((item, index) => item !== num - 1);
-  //     if (!newList.length) { setNoPagesLeftBoolean(true); }
-  //     return newList;
-  //   });
-  //   if (pageIndex === currentPageIndex.current) {
-  //     const nextPageIndex = (currentPageIndex.current + 1) % currentPdfPages.length;
-  //     setPageNum(currentPdfPages[nextPageIndex] + 1);
-  //   }
-  //   if (pageIndex < currentPageIndex.current) { currentPageIndex.current -= 1; }
-  // };
-
-  // const handleClick = (e, num, index) => {
-  //   if (pageNum !== num) {
-  //     setPageNum(num);
-  //     currentPageIndex.current = index;
-  //   }
-  // };
-
-  // const handleNavigationClickForward = () => {
-  //   if (currentPdfPages.length === 1) return;
-  //   currentPageIndex.current = (currentPageIndex.current + 1) % currentPdfPages.length;
-  //   setPageNum(currentPdfPages[currentPageIndex.current] + 1);
-  // };
-
-  // const handleNavigationClickBack = () => {
-  //   if (currentPdfPages.length === 1) return;
-  //   currentPageIndex.current = currentPageIndex.current === 0
-  //     ? currentPdfPages.length - 1 : (currentPageIndex.current - 1) % currentPdfPages.length;
-  //   setPageNum(currentPdfPages[currentPageIndex.current] + 1);
-  // };
 
   const handleOptionClick = (e) => {
     const index = Number(e.target.value);
@@ -92,23 +28,17 @@ function PdfEditPage() {
   };
   async function postIndex(event) {
     event.preventDefault();
+    const currentFileName = fileNames[fileListIndex];
     try {
-      console.log(currentPdfPages);
       await axios.post('http://localhost:4000/pdfFile2', {
         currentPdfPages,
+        currentFile,
+        currentFileName,
       });
     } catch (error) {
       console.log(error);
     }
   }
-
-  // const memoizedPdfPreviewArea = useMemo(() => (
-  //   <PdfPreviewArea
-  //     file={currentFile}
-  //     noPageLeft={noPagesLeftBoolean}
-  //     pageNum={pageNum}
-  //   />
-  // ), [currentFile, noPagesLeftBoolean, pageNum]);
 
   const memoizedPdfScrollArea = useMemo(() => (
     <PdfScrollArea
@@ -123,16 +53,10 @@ function PdfEditPage() {
     />
   ), [currentFile, fileListIndex, noPagesLeftBoolean,
     numOfFiles, currentPdfPages, setCurrentPdfPages]);
+
   return (
     <div className="flex h-screen bg-stone-200">
       {memoizedPdfScrollArea}
-      {/* <PdfScrollArea
-        file={currentFile}
-        currFileIndex={currentFileIndex.current}
-        setPageNum={setPageNum}
-        setNoPagesLeftBoolean={setNoPagesLeftBoolean}
-        numOfFiles={numOfFiles}
-      /> */}
 
       <form className="relative flex flex-col items-center justify-center w-4/5">
 
