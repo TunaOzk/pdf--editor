@@ -9,26 +9,15 @@ function DragDrop() {
   const [fileData, setFileData] = useState([]);
   const navigate = useNavigate();
 
-  /*
-  function convertDataURIToBinary(dataURI) {
-    const BASE64_MARKER = ';base64,';
-    const base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-    const base64 = dataURI.substring(base64Index);
-    const raw = window.atob(base64);
-    const rawLength = raw.length;
-    const array = new Uint8Array(new ArrayBuffer(rawLength));
-
-    for (let i = 0; i < rawLength; i += 1) {
-      array[i] = raw.charCodeAt(i);
-    }
-  }
-  */
-
   const convertFileToUint8Array = (file) => {
     const fReader = new FileReader();
     fReader.readAsDataURL(file);
     fReader.onloadend = ((event) => {
       const uri = event.target.result;
+      setFileData((newData) => {
+        const newArr = [...newData, uri];
+        return newArr;
+      });
       setFileData((newData) => {
         const newArr = [...newData, uri];
         return newArr;

@@ -1,4 +1,5 @@
 import React from 'react';
+// import { useInView } from 'react-intersection-observer';
 import { Page } from 'react-pdf';
 import PropTypes from 'prop-types';
 import { Draggable } from '@hello-pangea/dnd';
@@ -8,6 +9,7 @@ function PdfPage({
   pageNum, width, scale, index, onDelete, onClick,
 }) {
   const pageNumStr = pageNum.toString();
+  // const { ref, inView } = useInView();
   return (
     <Draggable draggableId={pageNumStr} index={index}>
       {(provided) => (
@@ -24,11 +26,26 @@ function PdfPage({
             className="rounded-md border-4 border-purple-500"
             renderTextLayer={false}
             renderAnnotationLayer={false}
+            loading={() => {}}
             pageNumber={pageNum}
             width={width}
             scale={scale}
-
           />
+          {/* <div ref={ref}>
+            { inView ? (
+              <Page
+                onRenderSuccess={() => { console.log('rendered'); }}
+                onClick={(e) => onClick(e, pageNum, index)}
+                className="rounded-md border-4 border-purple-500"
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                loading={() => {}}
+                pageNumber={pageNum}
+                width={width}
+                scale={scale}
+              />
+            ) : <div style={{ height: width }} />}
+          </div> */}
           <button type="submit" onClick={() => onDelete(pageNum, index)} className="absolute hover:bg-[#dc2626] transition ease-in-out duration-300 border-2 rounded-md border-purple-500">
             <RemoveIcon />
           </button>
