@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Document } from 'react-pdf';
 import uuid from 'react-uuid';
