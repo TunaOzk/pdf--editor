@@ -34,7 +34,6 @@ function PdfPage({
           {/* <div ref={ref}>
             { inView ? (
               <Page
-                onRenderSuccess={() => { console.log('rendered'); }}
                 onClick={(e) => onClick(e, pageNum, index)}
                 className="rounded-md border-4 border-purple-500"
                 renderTextLayer={false}
@@ -44,7 +43,7 @@ function PdfPage({
                 width={width}
                 scale={scale}
               />
-            ) : <div style={{ height: width }} />}
+            ) : <div style={{ height: width * scale }} />}
           </div> */}
           <button type="submit" onClick={() => onDelete(pageNum, index)} className="absolute hover:bg-[#dc2626] transition ease-in-out duration-300 border-2 rounded-md border-purple-500">
             <RemoveIcon />
