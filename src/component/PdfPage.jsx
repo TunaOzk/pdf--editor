@@ -43,7 +43,7 @@ function PdfPage({
                 width={width}
                 scale={scale}
               />
-            ) : <div style={{ height: width * scale }} />}
+            ) : <div style={{ height: 225, width: 200 }} />}
           </div> */}
           <button type="submit" onClick={() => onDelete(pageNum, index)} className="absolute hover:bg-[#dc2626] transition ease-in-out duration-300 border-2 rounded-md border-purple-500">
             <RemoveIcon />

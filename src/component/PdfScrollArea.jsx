@@ -11,7 +11,6 @@ function PdfScrollArea({
   noPageLeft, currentPdfPages, setCurrentPdfPages,
 }) {
   const currentPageIndex = useRef(0);
-  const numOfRenderedPages = useRef(0);
 
   const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
 
@@ -111,9 +110,7 @@ function PdfScrollArea({
                   />
                 ))}
                 {provided.placeholder}
-
               </div>
-
             )}
           </Droppable>
         </Document>
