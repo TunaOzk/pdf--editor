@@ -33,24 +33,6 @@ function DragDrop() {
   const [fileSizeState, setFileSizeState] = useState(false);
   const [fileExtentionState, setFileExtentionState] = useState(false);
 
-  async function postFile2(event) {
-    event.preventDefault();
-    const names = [];
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < fileList.length; i++) {
-      names[i] = fileList[i].name;
-      console.log(names[i]);
-    }
-    try {
-      await axios.post('http://localhost:4004/pdfFile3', {
-        fileData,
-        name: names,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const handleDrop = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -156,10 +138,7 @@ function DragDrop() {
           <button
             className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8"
             type="button"
-            onClick={(event) => {
-              postFile2(event);
-              navigate('/pdf-edit', { state: fileData });
-            }}
+            onClick={() => { navigate('/pdf-edit', { state: fileData }); }}
           >
             Submit
           </button>

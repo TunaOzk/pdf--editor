@@ -16,7 +16,7 @@ function PdfEditPage() {
 
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
   const [currentFile, setCurrentFile] = useState(fileList[0]);
-  const [pageNum, setPageNum] = useState(1);
+  const [pageIndex, setPageIndex] = useState(0);
   const [fileListIndex, setFileListIndex] = useState(0);
   const [noPagesLeftBoolean, setNoPagesLeftBoolean] = useState(false);
 
@@ -36,7 +36,7 @@ function PdfEditPage() {
         currentFileName,
       });
     } catch (error) {
-      console.log(error);
+      throw new Error(error);
     }
   }
 
@@ -46,13 +46,12 @@ function PdfEditPage() {
       setCurrentPdfPages={setCurrentPdfPages}
       file={currentFile}
       currFileIndex={fileListIndex}
-      setPageNum={setPageNum}
+      setPageIndex={setPageIndex}
       setNoPagesLeftBoolean={setNoPagesLeftBoolean}
       noPageLeft={noPagesLeftBoolean}
       numOfFiles={numOfFiles}
     />
-  ), [currentFile, fileListIndex, noPagesLeftBoolean,
-    numOfFiles, currentPdfPages, setCurrentPdfPages]);
+  ), [currentPdfPages, currentFile, fileListIndex, noPagesLeftBoolean, numOfFiles]);
 
   return (
     <div className="flex h-screen bg-stone-200">
@@ -92,9 +91,10 @@ function PdfEditPage() {
         </button>
         <PdfPreviewArea
           file={currentFile}
-          setPageNum={setPageNum}
+          setPageIndex={setPageIndex}
           noPageLeft={noPagesLeftBoolean}
-          pageNum={pageNum}
+          pageIndex={pageIndex}
+          currentPdfPages={currentPdfPages}
         />
       </form>
     </div>
