@@ -1,14 +1,12 @@
 import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import pdfImg from '../assets/file-pdf-solid-240.png';
+import PopUp from './PopUp';
 
 function DragDrop() {
   const inputFile = useRef(null);
   const [fileData, setFileData] = useState([]);
   const navigate = useNavigate();
-
   const convertFileToUint8Array = (file) => {
     const fReader = new FileReader();
     fReader.readAsDataURL(file);
@@ -32,24 +30,8 @@ function DragDrop() {
   const [fileCountError, setFileCountError] = useState(false);
   const [fileSizeState, setFileSizeState] = useState(false);
   const [fileExtentionState, setFileExtentionState] = useState(false);
-
-  async function postFile2(event) {
-    event.preventDefault();
-    const names = [];
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < fileList.length; i++) {
-      names[i] = fileList[i].name;
-      console.log(names[i]);
-    }
-    try {
-      await axios.post('http://localhost:4004/pdfFile3', {
-        fileData,
-        name: names,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const [showPopUp, setshowPopUp] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleDrop = (event) => {
     event.preventDefault();
@@ -71,6 +53,19 @@ function DragDrop() {
     return filename.split('.').pop();
   }
 
+  function checkPopUp() {
+    if (fileSizeState) {
+      setErrorMessage('You can upload max 10 MB file');
+      setshowPopUp(false);
+    } else if (fileCountError) {
+      setErrorMessage('You can not upload more than three files');
+      setshowPopUp(false);
+    } else if (fileExtentionState) {
+      setErrorMessage('You can upload just .pdf extention files');
+      setshowPopUp(false);
+    }
+  }
+
   const handleChange = (event) => {
     const newFile = event.target.files[0];
     const tenMB = 10485760;
@@ -90,25 +85,40 @@ function DragDrop() {
       setFileExtentionState(true);
       setFileSizeState(false);
       setFileCountError(false);
+      setshowPopUp(false);
+      setErrorMessage('You can upload just .pdf extention files');
+
+      checkPopUp();
     } else if (fileSize > tenMB && fileCount < 3) {
       setFileSizeState(true);
       setFileExtentionState(false);
+      setshowPopUp(false);
+      setErrorMessage('You can upload max 10 MB file');
+
+      checkPopUp();
     } else if (fileCount === 3) {
       setFileCountError(true);
       setFileExtentionState(false);
       setFileSizeState(false);
+      setshowPopUp(false);
+      setErrorMessage('You can not upload more than three files');
+
+      checkPopUp();
     }
   };
   const fileRemove = (file) => {
     const updatedList = [...fileList];
     updatedList.splice(fileList.indexOf(file), 1);
-
     setFileList(updatedList);
     setFileCount(fileCount - 1);
+    setFileData((prevData) => prevData.filter((item, index) => item.name !== file.name));
   };
 
+  const handleOnClose = () => setshowPopUp(true);
   return (
+
     <div className="flex flex-col items-center justify-center h-screen bg-stone-200">
+
       <div className="flex flex-col items-center justify-center w-1/2 bg-slate-100 shadow-2xl">
         <div
           className="flex items-center  mt-8 justify-center w-1/2 border-2 border-dashed bg-violet-50 border-neutral-300 rounded-md h-96 group my-2"
@@ -125,15 +135,9 @@ function DragDrop() {
           <h1 className="opacity-50 text-xl transition ease-in-out group-hover:-translate-y-2">Drag or click to upload your PDF file</h1>
           <input className="hidden" type="file" id="file" ref={inputFile} onChange={handleChange} />
         </div>
-        <p className="text-red-600 text-xl">{fileSizeState ? 'You can upload max 10 MB file' : null}</p>
-        <p className="text-red-600 text-xl">{fileExtentionState ? 'You can upload just .pdf extention files' : null}</p>
-
         {
           fileList.length > 0 ? (
             <div className="">
-              <div className="flex flex-col items-center justify-center text-red-600 text-xl">
-                <p>{fileCountError ? 'You can not upload more than three files' : null}</p>
-              </div>
               <p className="flex flex-col items-center justify-center">
                 Ready to upload
               </p>
@@ -156,15 +160,14 @@ function DragDrop() {
           <button
             className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8"
             type="button"
-            onClick={(event) => {
-              postFile2(event);
-              navigate('/pdf-edit', { state: fileData });
-            }}
+            onClick={() => { navigate('/pdf-edit', { state: fileData }); }}
           >
             Submit
           </button>
         </form>
       </div>
+
+      <PopUp alert={showPopUp} onClose={handleOnClose} errorMessages={errorMessage} />
 
     </div>
   );

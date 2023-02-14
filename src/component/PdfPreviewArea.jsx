@@ -6,18 +6,18 @@ import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
 import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
 
 function PdfPreviewArea({
-  file, noPageLeft, pageNum, setPageNum,
+  file, noPageLeft, pageIndex, setPageIndex, currentPdfPages,
 }) {
   const pdfLength = useRef(0);
-
   const handleNavigationClickForward = () => {
-    setPageNum((prev) => (prev === pdfLength.current - 1
-      ? pdfLength.current : (prev + 1) % pdfLength.current));
+    if (!currentPdfPages.length) return;
+    setPageIndex((prev) => ((prev + 1) % pdfLength.current));
   };
 
   const handleNavigationClickBack = () => {
-    setPageNum((prev) => (prev === 1
-      ? pdfLength.current : (prev - 1) % pdfLength.current));
+    if (!currentPdfPages.length) return;
+    setPageIndex((prev) => (prev === 0
+      ? pdfLength.current - 1 : (prev - 1) % pdfLength.current));
   };
 
   const handleLoadSucces = (pdf) => {
@@ -38,7 +38,7 @@ function PdfPreviewArea({
           renderTextLayer={false}
           renderAnnotationLayer={false}
           loading={() => {}}
-          pageNumber={pageNum}
+          pageNumber={currentPdfPages[pageIndex] + 1}
           width={1}
           scale={500}
         />
@@ -67,9 +67,10 @@ function PdfPreviewArea({
 
 PdfPreviewArea.propTypes = {
   file: PropTypes.string.isRequired,
-  pageNum: PropTypes.number.isRequired,
+  pageIndex: PropTypes.number.isRequired,
   noPageLeft: PropTypes.bool.isRequired,
-  setPageNum: PropTypes.func.isRequired,
+  setPageIndex: PropTypes.func.isRequired,
+  currentPdfPages: PropTypes.arrayOf(number).isRequired,
 };
 
 export default PdfPreviewArea;

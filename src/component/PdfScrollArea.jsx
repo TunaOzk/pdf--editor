@@ -7,12 +7,13 @@ import PdfPage from './PdfPage';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfScrollArea({
-  file, currFileIndex, numOfFiles, setPageNum, setNoPagesLeftBoolean,
+  file, currFileIndex, numOfFiles, setPageIndex, setNoPagesLeftBoolean,
   noPageLeft, currentPdfPages, setCurrentPdfPages,
 }) {
   const currentPageIndex = useRef(0);
-  // const [currentPdfPages, setCurrentPdfPages] = useState([]);
+
   const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
+
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
 
   const handleOnDocumentLoadSuccess = (pdf) => {
@@ -32,7 +33,7 @@ function PdfScrollArea({
       return pdfPagesList[currFileIndex];
     });
     currentPageIndex.current = 0;
-    setPageNum(1);
+    setPageIndex(0);
   };
 
   const handleDragEnd = (result) => {
@@ -54,7 +55,7 @@ function PdfScrollArea({
   };
 
   const handleClick = (e, num, index) => {
-    setPageNum(num);
+    setPageIndex(index);
     currentPageIndex.current = index;
   };
 
@@ -73,17 +74,17 @@ function PdfScrollArea({
 
       return newList;
     });
-
-    if (pageIndex === currentPageIndex.current) {
-      const nextPageIndex = (currentPageIndex.current + 1) % currentPdfPages.length;
-      setPageNum(currentPdfPages[nextPageIndex] + 1);
+    if (pageIndex === currentPdfPages.length - 1) {
+      setPageIndex(0);
+    } else if (pageIndex < currentPageIndex.current) {
+      currentPageIndex.current -= 1;
+      setPageIndex(currentPageIndex.current);
     }
-    if (pageIndex < currentPageIndex.current) { currentPageIndex.current -= 1; }
   };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
+      <div className="relative flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
         <Document
           file={file}
           onLoadSuccess={handleOnDocumentLoadSuccess}
@@ -107,12 +108,9 @@ function PdfScrollArea({
                     onDelete={handleDelete}
                     onClick={handleClick}
                   />
-
                 ))}
                 {provided.placeholder}
-
               </div>
-
             )}
           </Droppable>
         </Document>
@@ -125,7 +123,7 @@ PdfScrollArea.propTypes = {
   file: PropTypes.string.isRequired,
   numOfFiles: PropTypes.number.isRequired,
   currFileIndex: PropTypes.number.isRequired,
-  setPageNum: PropTypes.func.isRequired,
+  setPageIndex: PropTypes.func.isRequired,
   setNoPagesLeftBoolean: PropTypes.func.isRequired,
   noPageLeft: PropTypes.bool.isRequired,
   currentPdfPages: PropTypes.arrayOf(number).isRequired,
