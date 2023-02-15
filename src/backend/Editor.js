@@ -1,8 +1,5 @@
-const download = require('downloadjs');
 const { PDFDocument } = require('pdf-lib');
 fs = require('fs');
-download = require("downloadjs");
-
 
 async function mergePDF(pdfPagesList, currentFileName, fileList) {
     const mainPdf = await PDFDocument.load(fileList[0]);
@@ -29,33 +26,21 @@ async function mergePDF(pdfPagesList, currentFileName, fileList) {
         }
         for (let j = 0; j < pagesArray.length; j++) {
             mergePdf.removePage(0);
-    
+
         }
 
         pagesArray = await mainPdf.copyPages(mergePdf, mergePdf.getPageIndices())
         for (const page of pagesArray) {
             mainPdf.addPage(page);
         }
-        
+
     }
-    //const mergePdf = await PDFDocument.load(fs.readFileSync(mergeFile));
-
-    //let pagesArray = await mainPdf.copyPages(mergePdf, mergePdf.getPageIndices())
-
-    // for (const page of pagesArray) {
-    //     mainPdf.addPage(page);
-    // }
-
-    download(pdfBytes, "pdf-lib_creation_example.pdf", "application/pdf");
-
-
+    return await mainPdf.saveAsBase64({ dataUri: true });
 }
-
 
 async function reorderPDFpage(mainFile, fileName, arr) {
 
     const mainPdf = await PDFDocument.load(mainFile);
-    // const mainPdf = await PDFDocument.load(fs.readFileSync(mainFile));
 
     let pagesArray = await mainPdf.copyPages(mainPdf, mainPdf.getPageIndices());
 
@@ -67,26 +52,9 @@ async function reorderPDFpage(mainFile, fileName, arr) {
         mainPdf.removePage(0);
 
     }
-
-    fs.writeFileSync(fileName, await mainPdf.save());
-
+    return await mainPdf.saveAsBase64({ dataUri: true });
 
 }
-
-//a = shuffle(a);
-//console.log(a)
-//reorderPDFpage("./kira-sozlesmesi.pdf", a)
 
 module.exports.reorderPDFpage = reorderPDFpage;
 module.exports.mergePDF = mergePDF;
-
-
-/** 
-async function removePage(file, removePage) {
-    const mainPdf = await PDFDocument.load(fs.readFileSync(file));
-    mainPdf.removePage(removePage - 1)
-    fs.writeFileSync("reorder3.pdf", await mainPdf.save());
-
-}
-removePage("./reorder.pdf", 1)
-*/

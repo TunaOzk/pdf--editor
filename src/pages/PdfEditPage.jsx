@@ -35,12 +35,17 @@ function PdfEditPage() {
         currentPdfPages,
         currentFile,
         currentFileName,
+      }).then((res) => {
+        const a = document.createElement('a');
+        a.href = res.data;
+        a.download = currentFileName;
+        a.click();
+        a.remove();
       });
     } catch (error) {
       throw new Error(error);
     }
   }
-
   async function postMerge(event) {
     event.preventDefault();
     const currentFileName = fileNames[fileListIndex];
@@ -49,6 +54,12 @@ function PdfEditPage() {
         pdfPagesList,
         fileList,
         currentFileName,
+      }).then((res) => {
+        const a = document.createElement('a');
+        a.href = res.data;
+        a.download = 'MergedPdf.pdf';
+        a.click();
+        a.remove();
       });
     } catch (error) {
       throw new Error(error);
