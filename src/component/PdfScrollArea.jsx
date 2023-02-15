@@ -11,9 +11,6 @@ function PdfScrollArea({
   noPageLeft, currentPdfPages, setCurrentPdfPages, pdfPagesList, setPdfPagesList,
 }) {
   const currentPageIndex = useRef(0);
-
-  // const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
-  console.log(pdfPagesList);
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
 
   const handleOnDocumentLoadSuccess = (pdf) => {

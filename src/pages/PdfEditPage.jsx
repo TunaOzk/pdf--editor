@@ -49,9 +49,13 @@ function PdfEditPage() {
   async function postMerge(event) {
     event.preventDefault();
     const currentFileName = fileNames[fileListIndex];
+    const temp = pdfPagesList.map((value, index) => (!value.length
+      ? pdfjs.getDocument(fileList[index]).promise
+        .then((pdf) => Array.from(Array(pdf.numPages).keys())) : pdfPagesList[index]));
+    const finalPagesList = await Promise.all(temp);
     try {
       await axios.post('http://localhost:4000/pdfMerge', {
-        pdfPagesList,
+        finalPagesList,
         fileList,
         currentFileName,
       }).then((res) => {
