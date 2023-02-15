@@ -13,6 +13,7 @@ function PdfEditPage() {
   const numOfFiles = location.state.length;
   const fileList = [...Array(numOfFiles)].map((value, index) => location.state[index].base64);
   const fileNames = [...Array(numOfFiles)].map((value, index) => location.state[index].name);
+  const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
 
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
   const [currentFile, setCurrentFile] = useState(fileList[0]);
@@ -30,10 +31,35 @@ function PdfEditPage() {
     event.preventDefault();
     const currentFileName = fileNames[fileListIndex];
     try {
-      await axios.post('http://localhost:4000/pdfFile2', {
+      await axios.post('http://localhost:4000/pdfFileIndex', {
         currentPdfPages,
         currentFile,
         currentFileName,
+      }).then((res) => {
+        const a = document.createElement('a');
+        a.href = res.data;
+        a.download = currentFileName;
+        a.click();
+        a.remove();
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  async function postMerge(event) {
+    event.preventDefault();
+    const currentFileName = fileNames[fileListIndex];
+    try {
+      await axios.post('http://localhost:4000/pdfMerge', {
+        pdfPagesList,
+        fileList,
+        currentFileName,
+      }).then((res) => {
+        const a = document.createElement('a');
+        a.href = res.data;
+        a.download = 'MergedPdf.pdf';
+        a.click();
+        a.remove();
       });
     } catch (error) {
       throw new Error(error);
@@ -50,8 +76,11 @@ function PdfEditPage() {
       setNoPagesLeftBoolean={setNoPagesLeftBoolean}
       noPageLeft={noPagesLeftBoolean}
       numOfFiles={numOfFiles}
+      pdfPagesList={pdfPagesList}
+      setPdfPagesList={setPdfPagesList}
     />
-  ), [currentPdfPages, currentFile, fileListIndex, noPagesLeftBoolean, numOfFiles]);
+  ), [currentPdfPages, currentFile, fileListIndex, noPagesLeftBoolean,
+    numOfFiles, pdfPagesList, setPdfPagesList]);
 
   return (
     <div className="flex h-screen bg-stone-200">
@@ -75,6 +104,7 @@ function PdfEditPage() {
       hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
   rounded-md absolute bottom-10 right-10 p-4"
           type="button"
+          onClick={(event) => postMerge(event)}
         >
           Merge Your All PDF Files
 

@@ -2,18 +2,18 @@ import React, { useMemo, useRef, useState } from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Document } from 'react-pdf';
 import uuid from 'react-uuid';
-import PropTypes, { number } from 'prop-types';
+import PropTypes, { arrayOf, number } from 'prop-types';
 import PdfPage from './PdfPage';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfScrollArea({
   file, currFileIndex, numOfFiles, setPageIndex, setNoPagesLeftBoolean,
-  noPageLeft, currentPdfPages, setCurrentPdfPages,
+  noPageLeft, currentPdfPages, setCurrentPdfPages, pdfPagesList, setPdfPagesList,
 }) {
   const currentPageIndex = useRef(0);
 
-  const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
-
+  // const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
+  console.log(pdfPagesList);
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
 
   const handleOnDocumentLoadSuccess = (pdf) => {
@@ -128,7 +128,8 @@ PdfScrollArea.propTypes = {
   noPageLeft: PropTypes.bool.isRequired,
   currentPdfPages: PropTypes.arrayOf(number).isRequired,
   setCurrentPdfPages: PropTypes.func.isRequired,
-
+  pdfPagesList: PropTypes.arrayOf(arrayOf(number)).isRequired,
+  setPdfPagesList: PropTypes.func.isRequired,
 };
 
 export default PdfScrollArea;
