@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -26,7 +26,7 @@ function PdfEditPage() {
     setFileListIndex(index);
     setCurrentFile(fileList[index]);
   };
-  async function postIndex(event) {
+  const postIndex = async (event) => {
     event.preventDefault();
     setIsLoading(true);
     const currentFileName = fileNames[fileListIndex];
@@ -46,8 +46,8 @@ function PdfEditPage() {
     } catch (error) {
       throw new Error(error);
     }
-  }
-  async function postMerge(event) {
+  };
+  const postMerge = async (event) => {
     event.preventDefault();
     setIsLoading(true);
     const currentFileName = fileNames[fileListIndex];
@@ -71,7 +71,7 @@ function PdfEditPage() {
     } catch (error) {
       throw new Error(error);
     }
-  }
+  };
 
   const memoizedPdfScrollArea = useMemo(() => (
     <PdfScrollArea

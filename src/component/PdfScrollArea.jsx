@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Document } from 'react-pdf';
 import uuid from 'react-uuid';
@@ -58,6 +58,11 @@ function PdfScrollArea({
     setCurrentPdfPages((prevList) => {
       const newList = prevList.filter((item, index) => item !== num - 1);
       setDisableDeleteOnLastRemainingPage(newList.length === 1);
+      setPdfPagesList((prevPagesList) => {
+        const newPagesList = [...prevPagesList];
+        newPagesList[currFileIndex] = newList;
+        return newPagesList;
+      });
       return newList;
     });
     if (pageIndex === currentPdfPages.length - 1) {

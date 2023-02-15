@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Document, Page } from 'react-pdf';
 import PropTypes, { number } from 'prop-types';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
