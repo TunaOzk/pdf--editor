@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
-import uuid from 'react-uuid';
 import axios from 'axios';
 import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
@@ -14,20 +13,18 @@ function PdfEditPage() {
   const numOfFiles = location.state.length;
   const fileList = [...Array(numOfFiles)].map((value, index) => location.state[index].base64);
   const fileNames = [...Array(numOfFiles)].map((value, index) => location.state[index].name);
-  const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
 
+  const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
   const [currentFile, setCurrentFile] = useState(fileList[0]);
   const [pageIndex, setPageIndex] = useState(0);
   const [fileListIndex, setFileListIndex] = useState(0);
-  const [noPagesLeftBoolean, setNoPagesLeftBoolean] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOptionClick = (e) => {
     const index = Number(e.target.value);
     setFileListIndex(index);
     setCurrentFile(fileList[index]);
-    setNoPagesLeftBoolean(false);
   };
   async function postIndex(event) {
     event.preventDefault();
@@ -83,14 +80,10 @@ function PdfEditPage() {
       file={currentFile}
       currFileIndex={fileListIndex}
       setPageIndex={setPageIndex}
-      setNoPagesLeftBoolean={setNoPagesLeftBoolean}
-      noPageLeft={noPagesLeftBoolean}
-      numOfFiles={numOfFiles}
       pdfPagesList={pdfPagesList}
       setPdfPagesList={setPdfPagesList}
     />
-  ), [currentPdfPages, currentFile, fileListIndex, noPagesLeftBoolean,
-    numOfFiles, pdfPagesList, setPdfPagesList]);
+  ), [currentPdfPages, currentFile, fileListIndex, pdfPagesList, setPdfPagesList]);
 
   const loadingPopUp = (
     <div className="absolute z-10 flex fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm
@@ -145,7 +138,6 @@ function PdfEditPage() {
         <PdfPreviewArea
           file={currentFile}
           setPageIndex={setPageIndex}
-          noPageLeft={noPagesLeftBoolean}
           pageIndex={pageIndex}
           currentPdfPages={currentPdfPages}
         />

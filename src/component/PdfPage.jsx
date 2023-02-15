@@ -6,7 +6,7 @@ import { Draggable } from '@hello-pangea/dnd';
 import { ReactComponent as RemoveIcon } from '../assets/remove.svg';
 
 function PdfPage({
-  pageNum, width, scale, index, onDelete, onClick,
+  pageNum, width, scale, index, onDelete, onClick, isLastDelete,
 }) {
   // const { ref, inView } = useInView();
   const memoizedPdfPage = useMemo(() => (
@@ -44,14 +44,20 @@ function PdfPage({
             />
           ) : <div style={{ height: 225, width: 200 }} />}
         </div> */}
-          <button type="submit" onClick={() => onDelete(pageNum, index)} className="absolute hover:bg-[#dc2626] transition ease-in-out duration-300 border-2 rounded-md border-purple-500">
+          <button
+            disabled={isLastDelete}
+            type="submit"
+            onClick={() => onDelete(pageNum, index)}
+            className={`absolute ${!isLastDelete ? 'hover:bg-[#dc2626]' : 'hover:bg-gray-500'}  
+            transition ease-in-out duration-300 border-2 rounded-md border-purple-500`}
+          >
             <RemoveIcon />
           </button>
         </div>
 
       )}
     </Draggable>
-  ), [index, onClick, onDelete, pageNum, scale, width]);
+  ), [index, isLastDelete, onClick, onDelete, pageNum, scale, width]);
 
   return (<div>{memoizedPdfPage}</div>);
 }
@@ -63,6 +69,7 @@ PdfPage.propTypes = {
   index: PropTypes.number.isRequired,
   onDelete: PropTypes.func.isRequired,
   onClick: PropTypes.func.isRequired,
+  isLastDelete: PropTypes.bool.isRequired,
 };
 
 export default PdfPage;
