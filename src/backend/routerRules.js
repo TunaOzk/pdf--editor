@@ -13,8 +13,8 @@ app.use(cors());
 
 
 app.post("/pdfMerge", async (req, res) => {
-    let { pdfPagesList, currentFileName, fileList } = req.body;
-    let a = await mergePDF(pdfPagesList, currentFileName, fileList);
+    let { finalPagesList, currentFileName, fileList } = req.body;
+    let a = await mergePDF(finalPagesList, currentFileName, fileList);
     res.send(a)
 
 })

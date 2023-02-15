@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Document, Page } from 'react-pdf';
 import PropTypes, { number } from 'prop-types';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
@@ -6,7 +6,7 @@ import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
 import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
 
 function PdfPreviewArea({
-  file, noPageLeft, pageIndex, setPageIndex, currentPdfPages,
+  file, pageIndex, setPageIndex, currentPdfPages,
 }) {
   const pdfLength = useRef(0);
   const handleNavigationClickForward = () => {
@@ -32,7 +32,6 @@ function PdfPreviewArea({
         loading={handleLoading}
         onLoadSuccess={handleLoadSucces}
       >
-        {!noPageLeft && (
         <Page
           className="rounded-md border-4 border-purple-500 shadow-2xl"
           renderTextLayer={false}
@@ -42,7 +41,6 @@ function PdfPreviewArea({
           width={1}
           scale={500}
         />
-        )}
       </Document>
       <button
         onClick={handleNavigationClickForward}
@@ -68,7 +66,6 @@ function PdfPreviewArea({
 PdfPreviewArea.propTypes = {
   file: PropTypes.string.isRequired,
   pageIndex: PropTypes.number.isRequired,
-  noPageLeft: PropTypes.bool.isRequired,
   setPageIndex: PropTypes.func.isRequired,
   currentPdfPages: PropTypes.arrayOf(number).isRequired,
 };
