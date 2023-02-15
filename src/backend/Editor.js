@@ -1,21 +1,55 @@
+const download = require('downloadjs');
 const { PDFDocument } = require('pdf-lib');
 fs = require('fs');
+download = require("downloadjs");
 
 
-async function mergePDF(mainFile, mergeFile) {
-    const mainPdf = await PDFDocument.load(fs.readFileSync(mainFile));
-    const mergePdf = await PDFDocument.load(fs.readFileSync(mergeFile));
+async function mergePDF(pdfPagesList, currentFileName, fileList) {
+    const mainPdf = await PDFDocument.load(fileList[0]);
 
-    let pagesArray = await mainPdf.copyPages(mergePdf, mergePdf.getPageIndices())
+    let pagesArray = await mainPdf.copyPages(mainPdf, mainPdf.getPageIndices())
 
-    for (const page of pagesArray) {
-        mainPdf.addPage(page);
+    for (let j = 0; j < pdfPagesList[0].length; j++) {
+        let [orderPage] = await mainPdf.copyPages(mainPdf, [pdfPagesList[0][j]]);
+        mainPdf.addPage(orderPage);
+    }
+    for (let j = 0; j < pagesArray.length; j++) {
+        mainPdf.removePage(0);
+
     }
 
-    fs.writeFileSync("all-letters2.pdf", await mainPdf.save());
+    for (let i = 1; i < fileList.length; i++) {
+        const mergePdf = await PDFDocument.load(fileList[i]);
+
+        let pagesArray = await mainPdf.copyPages(mergePdf, mergePdf.getPageIndices())
+
+        for (let j = 0; j < pdfPagesList[i].length; j++) {
+            let [orderPage] = await mergePdf.copyPages(mergePdf, [pdfPagesList[i][j]]);
+            mergePdf.addPage(orderPage);
+        }
+        for (let j = 0; j < pagesArray.length; j++) {
+            mergePdf.removePage(0);
+    
+        }
+
+        pagesArray = await mainPdf.copyPages(mergePdf, mergePdf.getPageIndices())
+        for (const page of pagesArray) {
+            mainPdf.addPage(page);
+        }
+        
+    }
+    //const mergePdf = await PDFDocument.load(fs.readFileSync(mergeFile));
+
+    //let pagesArray = await mainPdf.copyPages(mergePdf, mergePdf.getPageIndices())
+
+    // for (const page of pagesArray) {
+    //     mainPdf.addPage(page);
+    // }
+
+    download(pdfBytes, "pdf-lib_creation_example.pdf", "application/pdf");
+
 
 }
-mergePDF("./output.pdf", "./demo.pdf")
 
 
 async function reorderPDFpage(mainFile, fileName, arr) {
