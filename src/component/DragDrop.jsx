@@ -33,22 +33,6 @@ function DragDrop() {
   const [showPopUp, setshowPopUp] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleDrop = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const newFile = event.dataTransfer.files[0];
-
-    if (event.dataTransfer.files && newFile && fileCount === 0) {
-      convertFileToUint8Array(newFile);
-
-      const updatedList = [...fileList, newFile];
-      setFileList(updatedList);
-      setFileCountError(false);
-      setFileCount(fileCount + 1);
-    } else {
-      setFileCountError(true);
-    }
-  };
   function getExtension(filename) {
     return filename.split('.').pop();
   }
@@ -65,12 +49,56 @@ function DragDrop() {
       setshowPopUp(false);
     }
   }
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const newFile = event.dataTransfer.files[0];
+    const tenMB = 10485760;
+    const fileExtention = getExtension(newFile.name).toLowerCase();
+    const fileSize = newFile.size;
+    console.log(event.dataTransfer.files[0]);
+    console.log(event.dataTransfer.files);
+
+    if (event.dataTransfer.files && newFile && fileCount < 3 && fileSize <= tenMB && fileExtention === 'pdf') {
+      convertFileToUint8Array(newFile);
+
+      const updatedList = [...fileList, newFile];
+      setFileList(updatedList);
+      setFileCountError(false);
+      setFileSizeState(false);
+      setFileExtentionState(false);
+      setFileCount(fileCount + 1);
+    } else if (fileExtention !== 'pdf') {
+      setFileExtentionState(true);
+      setFileSizeState(false);
+      setFileCountError(false);
+      setshowPopUp(false);
+      setErrorMessage('You can upload just .pdf extention files');
+
+      checkPopUp();
+    } else if (fileSize > tenMB && fileCount < 3) {
+      setFileSizeState(true);
+      setFileExtentionState(false);
+      setshowPopUp(false);
+      setErrorMessage('You can upload max 10 MB file');
+
+      checkPopUp();
+    } else if (fileCount === 3) {
+      setFileCountError(true);
+      setFileExtentionState(false);
+      setFileSizeState(false);
+      setshowPopUp(false);
+      setErrorMessage('You can not upload more than three files');
+
+      checkPopUp();
+    }
+  };
 
   const handleChange = (event) => {
     const newFile = event.target.files[0];
     const tenMB = 10485760;
-    const fileExtention = getExtension(event.target.files[0].name).toLowerCase();
-    const fileSize = event.target.files[0].size;
+    const fileExtention = getExtension(newFile.name).toLowerCase();
+    const fileSize = newFile.size;
     if (newFile && fileCount < 3 && fileSize <= tenMB && fileExtention === 'pdf') {
       convertFileToUint8Array(newFile);
 
