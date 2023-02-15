@@ -5,6 +5,7 @@ import uuid from 'react-uuid';
 import axios from 'axios';
 import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
+import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -20,6 +21,7 @@ function PdfEditPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [fileListIndex, setFileListIndex] = useState(0);
   const [noPagesLeftBoolean, setNoPagesLeftBoolean] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleOptionClick = (e) => {
     const index = Number(e.target.value);
@@ -29,6 +31,7 @@ function PdfEditPage() {
   };
   async function postIndex(event) {
     event.preventDefault();
+    setIsLoading(true);
     const currentFileName = fileNames[fileListIndex];
     try {
       await axios.post('http://localhost:4000/pdfFileIndex', {
@@ -36,6 +39,7 @@ function PdfEditPage() {
         currentFile,
         currentFileName,
       }).then((res) => {
+        setIsLoading(false);
         const a = document.createElement('a');
         a.href = res.data;
         a.download = currentFileName;
@@ -48,6 +52,7 @@ function PdfEditPage() {
   }
   async function postMerge(event) {
     event.preventDefault();
+    setIsLoading(true);
     const currentFileName = fileNames[fileListIndex];
     const temp = pdfPagesList.map((value, index) => (!value.length
       ? pdfjs.getDocument(fileList[index]).promise
@@ -64,6 +69,7 @@ function PdfEditPage() {
         a.download = 'MergedPdf.pdf';
         a.click();
         a.remove();
+        setIsLoading(false);
       });
     } catch (error) {
       throw new Error(error);
@@ -86,16 +92,29 @@ function PdfEditPage() {
   ), [currentPdfPages, currentFile, fileListIndex, noPagesLeftBoolean,
     numOfFiles, pdfPagesList, setPdfPagesList]);
 
+  const loadingPopUp = (
+    <div className="absolute z-10 flex fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm
+  flex justify-center items-center"
+    >
+      <div className="flex flex-col bg-white w-1/2 h-1/3 p-2 rounded flex items-center justify-center">
+        <LoadingIcon className="animate-spin" />
+        <p className="text-purple-500 text-xl">We are getting everything ready for you. Please take a moment...</p>
+
+      </div>
+
+    </div>
+  );
+
   return (
     <div className="flex h-screen bg-stone-200">
       {memoizedPdfScrollArea}
-
+      {isLoading && loadingPopUp}
       <form className="relative flex flex-col items-center justify-center w-4/5">
 
         <div className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
           <select value={fileListIndex} onChange={handleOptionClick} name="pdfSelect">
             {[...Array(numOfFiles)].map((value, index) => (
-              <option key={uuid()} value={index}>
+              <option key={`pdf_${index + 1}`} value={index}>
                 PDF
                 {index + 1}
               </option>
