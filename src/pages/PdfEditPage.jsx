@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -20,6 +20,7 @@ function PdfEditPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [fileListIndex, setFileListIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef(null);
 
   const handleOptionClick = (e) => {
     const index = Number(e.target.value);
@@ -128,7 +129,7 @@ function PdfEditPage() {
         <button
           className="transition ease-in-out delay-75 hover:-translate-y-1
       hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md
-      absolute bottom-28 right-10 p-4"
+      absolute bottom-28 right-10 p-4 px-5"
           type="button"
           onClick={(event) => postIndex(event)}
         >
@@ -140,7 +141,9 @@ function PdfEditPage() {
           setPageIndex={setPageIndex}
           pageIndex={pageIndex}
           currentPdfPages={currentPdfPages}
+          inputRef={inputRef}
         />
+
       </form>
     </div>
 
