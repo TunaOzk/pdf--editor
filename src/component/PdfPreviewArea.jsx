@@ -63,7 +63,7 @@ function PdfPreviewArea({
         onClickBack={handleNavigationClickBack}
         onClickForward={handleNavigationClickForward}
         innerRef={inputRef}
-        inputValue={currentPdfPages[pageIndex] + 1}
+        inputValue={pageIndex + 1}
         onChange={handleChange}
         pdfLength={currentPdfPages.length}
       />
