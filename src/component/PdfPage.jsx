@@ -45,6 +45,7 @@ function PdfPage({
           ) : <div style={{ height: 225, width: 200 }} />}
         </div> */}
           <button
+            title="Delete"
             disabled={isLastDelete}
             type="submit"
             onClick={() => onDelete(pageNum, index)}
