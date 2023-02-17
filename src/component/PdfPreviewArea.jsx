@@ -9,19 +9,16 @@ function PdfPreviewArea({
 }) {
   const [scale, setScale] = useState(1);
   const [pdfLength, setPdfLength] = useState(0);
-  const [inputValue, setInputValue] = useState(1);
 
   const handleNavigationClickForward = () => {
     if (currentPdfPages.length === 1) return;
     setPageIndex((prev) => ((prev + 1) % currentPdfPages.length));
-    setInputValue((prev) => (prev !== currentPdfPages.length ? (prev + 1) : 1));
   };
 
   const handleNavigationClickBack = () => {
     if (currentPdfPages.length === 1) return;
     setPageIndex((prev) => (prev === 0
       ? pdfLength - 1 : (prev - 1) % currentPdfPages.length));
-    setInputValue((prev) => (prev !== 1 ? (prev - 1) : currentPdfPages.length));
   };
 
   const handleLoadSucces = (pdf) => {
