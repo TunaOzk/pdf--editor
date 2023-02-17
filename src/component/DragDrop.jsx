@@ -170,7 +170,7 @@ function DragDrop() {
 
               {
                 fileList.map((item, index) => (
-                  <div key={index.id} className="flex relavtive mb-6 mt-6 bg-slate-200 rounded-xl">
+                  <div key={item.name} className="flex relavtive mb-6 mt-6 bg-slate-200 rounded-xl">
                     <img src={pdfImg} alt="" className="w-10 mr-5 mt-2 mb-2" />
                     <div className="flex flex-col justify-between mx-0 my-auto w-96">
                       <p>{item.name}</p>

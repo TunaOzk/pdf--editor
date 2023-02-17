@@ -15,6 +15,7 @@ function PdfScrollArea({
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
 
   const handleOnDocumentLoadSuccess = (pdf) => {
+    setDisableDeleteOnLastRemainingPage(pdfPagesList[currFileIndex].length === 1);
     const pdfPages = [...Array(pdf.numPages).keys()];
     setCurrentPdfPages(() => {
       if (!pdfPagesList[currFileIndex].length) {
