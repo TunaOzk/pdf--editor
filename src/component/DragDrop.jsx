@@ -143,11 +143,11 @@ function DragDrop() {
   const handleOnClose = () => setshowPopUp(true);
   return (
 
-    <div className="flex flex-col items-center justify-center h-screen bg-stone-200">
+    <div className=" flex flex-col items-center justify-center h-screen bg-stone-200">
 
-      <div className="flex flex-col items-center justify-center w-1/2 bg-slate-100 shadow-2xl">
+      <div className="min-[300px]:overflow-hidden min-[300px]:w-5/6  min-[300px]:rounded-lg flex flex-col items-center justify-center lg:w-1/2 bg-slate-100 shadow-2xl">
         <div
-          className="flex items-center  mt-8 justify-center w-1/2 border-2 border-dashed bg-violet-50 border-neutral-300 rounded-md h-96 group my-2"
+          className="min-[300px]:w-5/6  flex items-center  mt-8 justify-center lg:w-3/5 border-2 border-dashed bg-violet-50 border-neutral-300 rounded-md md:h-96 min-[300px]:h-96 group my-2"
           role="button"
           tabIndex={0}
           onKeyDown={() => { }}
@@ -172,10 +172,10 @@ function DragDrop() {
                 fileList.map((item, index) => (
                   <div key={item.name} className="flex relavtive mb-6 mt-6 bg-slate-200 rounded-xl">
                     <img src={pdfImg} alt="" className="w-10 mr-5 mt-2 mb-2" />
-                    <div className="flex flex-col justify-between mx-0 my-auto w-96">
-                      <p>{item.name}</p>
+                    <div className="min-[300px]:w-auto flex flex-col justify-between mx-0 my-auto md:w-96">
+                      <p className="min-[300px]:text-xs sm:text-sm md:text-base">{item.name}</p>
                     </div>
-                    <span className="hover:bg-slate-300 rounded-xl w-10 h-10 mx-0 my-auto flex items-center justify-center cursor-pointer" onClick={() => fileRemove(item)} tabIndex={0} onKeyDown={() => { }} role="button">x</span>
+                    <span className=" hover:bg-slate-300 rounded-xl mr-0 ml-auto w-10 h-10 mx-0 my-auto flex items-center justify-center cursor-pointer" onClick={() => fileRemove(item)} tabIndex={0} onKeyDown={() => { }} role="button">x</span>
                   </div>
                 ))
               }
@@ -184,7 +184,7 @@ function DragDrop() {
         }
         <form id="form" className="flex justify-between mt-2 w-1/2">
           <button
-            className="bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8"
+            className=" bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8"
             type="button"
             onClick={() => { navigate('/pdf-edit', { state: fileData }); }}
           >
