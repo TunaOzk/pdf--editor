@@ -56,8 +56,6 @@ function DragDrop() {
     const tenMB = 10485760;
     const fileExtention = getExtension(newFile.name).toLowerCase();
     const fileSize = newFile.size;
-    console.log(event.dataTransfer.files[0]);
-    console.log(event.dataTransfer.files);
 
     if (event.dataTransfer.files && newFile && fileCount < 3 && fileSize <= tenMB && fileExtention === 'pdf') {
       convertFileToUint8Array(newFile);

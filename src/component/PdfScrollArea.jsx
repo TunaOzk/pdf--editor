@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Document } from 'react-pdf';
 import uuid from 'react-uuid';
@@ -7,21 +7,16 @@ import PdfPage from './PdfPage';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfScrollArea({
-  file, currFileIndex, numOfFiles, setPageIndex, setNoPagesLeftBoolean,
-  noPageLeft, currentPdfPages, setCurrentPdfPages, pdfPagesList, setPdfPagesList,
+  file, currFileIndex, setPageIndex,
+  currentPdfPages, setCurrentPdfPages, pdfPagesList, setPdfPagesList,
 }) {
   const currentPageIndex = useRef(0);
-
-  // const [pdfPagesList, setPdfPagesList] = useState([...Array(numOfFiles)].map(() => []));
-  console.log(pdfPagesList);
+  const [disableDeleteOnLastRemainingPage, setDisableDeleteOnLastRemainingPage] = useState(false);
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
 
   const handleOnDocumentLoadSuccess = (pdf) => {
     const pdfPages = [...Array(pdf.numPages).keys()];
     setCurrentPdfPages(() => {
-      if (pdfPagesList[currFileIndex][0] === -1) {
-        setNoPagesLeftBoolean(true);
-      }
       if (!pdfPagesList[currFileIndex].length) {
         setPdfPagesList((prevList) => {
           const newList = [...prevList];
@@ -62,16 +57,12 @@ function PdfScrollArea({
   const handleDelete = (num, pageIndex) => {
     setCurrentPdfPages((prevList) => {
       const newList = prevList.filter((item, index) => item !== num - 1);
-
+      setDisableDeleteOnLastRemainingPage(newList.length === 1);
       setPdfPagesList((prevPagesList) => {
         const newPagesList = [...prevPagesList];
-        if (!newList.length) {
-          newPagesList[currFileIndex] = [-1];
-          setNoPagesLeftBoolean(true);
-        } else { newPagesList[currFileIndex] = newList; }
+        newPagesList[currFileIndex] = newList;
         return newPagesList;
       });
-
       return newList;
     });
     if (pageIndex === currentPdfPages.length - 1) {
@@ -98,7 +89,7 @@ function PdfScrollArea({
                 {...provided.droppableProps}
                 className="flex flex-col items-center"
               >
-                {!noPageLeft && currentPdfPages.map((value, index) => (
+                {currentPdfPages.map((value, index) => (
                   <PdfPage
                     key={value}
                     pageNum={value + 1}
@@ -107,6 +98,7 @@ function PdfScrollArea({
                     index={index}
                     onDelete={handleDelete}
                     onClick={handleClick}
+                    isLastDelete={disableDeleteOnLastRemainingPage}
                   />
                 ))}
                 {provided.placeholder}
@@ -121,11 +113,8 @@ function PdfScrollArea({
 
 PdfScrollArea.propTypes = {
   file: PropTypes.string.isRequired,
-  numOfFiles: PropTypes.number.isRequired,
   currFileIndex: PropTypes.number.isRequired,
   setPageIndex: PropTypes.func.isRequired,
-  setNoPagesLeftBoolean: PropTypes.func.isRequired,
-  noPageLeft: PropTypes.bool.isRequired,
   currentPdfPages: PropTypes.arrayOf(number).isRequired,
   setCurrentPdfPages: PropTypes.func.isRequired,
   pdfPagesList: PropTypes.arrayOf(arrayOf(number)).isRequired,
