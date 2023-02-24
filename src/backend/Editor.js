@@ -73,11 +73,11 @@ async function fillForm(textAreaList, currPage, file, pageHeight) {
     //const page = mainPdf.addPage(orderPage);   
     //console.log(page)
     const form = mainPdf.getForm()
-    
+    console.log(page.getHeight());
     const fillableField = form.createTextField('fillable.Field')
     fillableField.setText(values.content);
 
-     fillableField.addToPage(page, { x: values.x, y: (pageHeight - values.y),
+     fillableField.addToPage(page, { x: (values.x ), y: (page.getHeight() - values.y - heightValue),
          width: widthValue,
          height: heightValue,
      })
