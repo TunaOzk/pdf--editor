@@ -3,7 +3,7 @@ import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Document } from 'react-pdf';
 import uuid from 'react-uuid';
 import PropTypes, { arrayOf, number } from 'prop-types';
-import PdfPage from './PdfPage';
+import ScrollAreaPage from './ScrollAreaPage';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfScrollArea({
@@ -91,7 +91,7 @@ function PdfScrollArea({
                 className="flex flex-col items-center"
               >
                 {currentPdfPages.map((value, index) => (
-                  <PdfPage
+                  <ScrollAreaPage
                     key={value}
                     pageNum={value + 1}
                     width={100}

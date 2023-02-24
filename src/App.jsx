@@ -4,15 +4,21 @@ import {
   Route,
 } from 'react-router-dom';
 
-import { HOME_PAGE_PATH, PDF_EDIT_PAGE_PATH } from './constants/routePaths';
+import {
+  HOME_PAGE_PATH, PDF_EDIT_PAGE_PATH, OPERATION_PAGE_PATH, EDIT_PDF_PAGE_PATH,
+} from './constants/routePaths';
+import EditPdfPage from './pages/EditPdfPage';
 import HomePage from './pages/HomePage';
-import PdfEditPage from './pages/PdfEditPage';
+import OperationPage from './pages/OperationPage';
+import PdfMergePage from './pages/PdfMergePage';
 
 function App() {
   return (
     <Routes>
       <Route path={HOME_PAGE_PATH} element={<HomePage />} />
-      <Route path={PDF_EDIT_PAGE_PATH} element={<PdfEditPage />} />
+      <Route path={PDF_EDIT_PAGE_PATH} element={<PdfMergePage />} />
+      <Route path={OPERATION_PAGE_PATH} element={<OperationPage />} />
+      <Route path={EDIT_PDF_PAGE_PATH} element={<EditPdfPage />} />
     </Routes>
 
   );
