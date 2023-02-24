@@ -25,7 +25,6 @@ function EditPdfPage() {
   const startY = useRef(null);
   const prev = useRef(null);
   const [textAreaList, setTextAreaList] = useState([[]]);
-
   useEffect(() => {
     if (!overlayCanvasRef.current || !actualCanvasRef.current[pageIndex]) return;
     if (prev.current) { prev.current.className = 'absolute z-10 hidden'; }
@@ -171,7 +170,7 @@ function EditPdfPage() {
     setTextAreaList((prevArr) => {
       const newArr = [...prevArr];
       const temp = [...newArr[pageIndex], {
-        x: 0, y: 0, width: '50px', height: '50px', _content: 'TEXT AREA',
+        x: 0, y: 0, width: '50px', height: '50px', content: 'TEXT AREA', ID: newArr[pageIndex].length,
       }];
       newArr[pageIndex] = temp;
       return newArr;
@@ -191,7 +190,6 @@ function EditPdfPage() {
         </div>
         <div className="h-1/3">
           <h1>Text</h1>
-          {/* <TextPalette /> */}
           <button type="button" onClick={handleAddClick} className="bg-purple-500">Click me</button>
         </div>
       </div>
@@ -231,6 +229,7 @@ function EditPdfPage() {
               axisY={val.y}
               _width={val.width}
               _height={val.height}
+              _content={val.content}
               setTextAreaList={setTextAreaList}
               pageIndex={pageIndex}
               key={`txt_area${index + 1}`}
