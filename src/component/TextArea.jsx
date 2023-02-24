@@ -1,34 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Rnd } from 'react-rnd';
 import PropTypes from 'prop-types';
+import { ReactComponent as DeleteIcon } from '../assets/delete.svg';
 
 function TextArea({
-  setTextAreaList, id, axisX, axisY, _width, _height, pageIndex,
+  setTextAreaList, id, axisX, axisY, _width, _height, pageIndex, _content,
 }) {
-  const [content, setContent] = useState('TEXT AREA');
   const [textArea, setTextArea] = useState({
-    x: axisX, y: axisY, width: _width, height: _height, _content: content, ID: id,
+    x: axisX, y: axisY, width: _width, height: _height, content: _content, ID: id,
   });
-
   useEffect(() => {
-    setTextArea(() => {
-      const newTextArea = {
-        x: axisX, y: axisY, width: _width, height: _height, _content: content, ID: id,
-      };
-      // setTextAreaList((prev) => {
-      //   const newArr = [...prev];
-      //   newArr[pageIndex][id] = textArea;
-      //   return newArr;
-      // });
-      return newTextArea;
+    setTextArea({
+      x: axisX, y: axisY, width: _width, height: _height, content: _content, ID: id,
     });
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [axisX, axisY, _width, _height, id, content]);
+  }, [axisX, axisY, _width, _height, id, _content]);
 
   const handleChange = (e) => {
     const { value } = e.target;
-    setContent(value);
+    setTextArea((prev) => {
+      const newTextArea = {
+        ...prev, content: value,
+      };
+      setTextAreaList((prevList) => {
+        const newArr = [...prevList];
+        newArr[pageIndex][id] = newTextArea;
+        return newArr;
+      });
+      return newTextArea;
+    });
+  };
+  const handleDeleteClick = () => {
+    setTextAreaList((prev) => {
+      const newArr = [...prev];
+      const temp = newArr[pageIndex].filter((val, index) => val.ID !== id);
+      newArr[pageIndex] = temp.map((val, index) => (val.ID > id
+        ? { ...val, ID: val.ID - 1 } : val));
+      return newArr;
+    });
   };
   return (
     <Rnd
@@ -61,7 +69,7 @@ function TextArea({
           const newTextArea = {
             width: ref.style.width,
             height: ref.style.height,
-            _content: content,
+            content: _content,
             x: position.x,
             y: position.y,
             ID: id,
@@ -78,10 +86,13 @@ function TextArea({
     >
       <textarea
         onChange={handleChange}
-        value={content}
+        value={textArea.content}
         spellCheck={false}
-        className="overflow-hidden resize-none h-full w-full bg-transparent outline-none focus:border-2 focus:border-dashed focus:border-violet-600"
+        className="overflow-hidden resize-none h-full w-full bg-transparent outline-none
+        focus:border-2 focus:border-dashed focus:border-violet-600"
       />
+      <DeleteIcon onClick={handleDeleteClick} className="hover:cursor-pointer hover:bg-red-600 border-2 border-black" />
+
     </Rnd>
   );
 }
@@ -93,5 +104,6 @@ TextArea.propTypes = {
   _width: PropTypes.string.isRequired,
   _height: PropTypes.string.isRequired,
   pageIndex: PropTypes.number.isRequired,
+  _content: PropTypes.string.isRequired,
 };
 export default TextArea;
