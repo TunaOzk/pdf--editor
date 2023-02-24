@@ -1,11 +1,11 @@
 import React, {
-  useEffect, useMemo, useRef, useState,
+  useEffect, useRef, useState,
 } from 'react';
-import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 import ShapePalette from '../component/ShapePalette';
 import ColorPalette from '../component/ColorPalette';
+import TextArea from '../component/TextArea';
 
 function EditPdfPage() {
   const location = useLocation();
@@ -23,8 +23,8 @@ function EditPdfPage() {
   const [selectedShape, setSelectedShape] = useState('free');
   const startX = useRef(null);
   const startY = useRef(null);
-
   const prev = useRef(null);
+  const [textAreaList, setTextAreaList] = useState([[]]);
 
   useEffect(() => {
     if (!overlayCanvasRef.current || !actualCanvasRef.current[pageIndex]) return;
@@ -121,13 +121,13 @@ function EditPdfPage() {
   const startDrawing = ({ nativeEvent }) => {
     nativeEvent.preventDefault();
     nativeEvent.stopPropagation();
+    setIsDrawing(true);
     actualContextRef.current.restore();
     const { offsetX, offsetY } = nativeEvent;
     startX.current = offsetX;
     startY.current = offsetY;
     actualContextRef.current.beginPath();
     actualContextRef.current.moveTo(startX.current, startY.current);
-    setIsDrawing(true);
   };
 
   const finishDrawing = ({ nativeEvent }) => {
@@ -160,41 +160,26 @@ function EditPdfPage() {
   };
   const handleLoadSucces = (pdf) => {
     setNumPages(Array.from(Array(pdf.numPages).keys()));
-    // [...Array(pdf.numPages)].map((val, index) => (index !== 0
-    //   ? actualCanvasRef.current.push(null) : actualCanvasRef.current[index]));
-
+    setTextAreaList([...Array(pdf.numPages)].map((val, index) => []));
     pdf.getPage(1).then((page) => {
       const viewPort = page.getViewport({ scale: 1 });
-
-      // setCanvasArray([...Array(pdf.numPages)].map((val, index) => (
-      //   <canvas
-      //     key={`canvas${index + 1}`}
-      //       // eslint-disable-next-line no-return-assign
-      //     ref={(ref) => biktim.current[0] = ref}
-      //     className="absolute z-10"
-      //     style={{ width: viewPort.width, height: viewPort.height }}
-      //   />
-      // )));
       setCanvasSize({ width: viewPort.width, height: viewPort.height });
     });
   };
 
-  const memo = useMemo(() => {
-    console.log('here', pageIndex);
-    return (numPages.filter(
-      (val, index) => index === pageIndex,
-    ).map((val, index) => (
-      <canvas
-        key={`canvas${index + 1}`}
-      // eslint-disable-next-line no-return-assign
-        ref={(ref) => actualCanvasRef.current[index] = ref}
-        className="absolute z-10"
-        style={{ width: canvasSize.width, height: index + 100 }}
-      />
-    )));
-  }, [canvasSize.width, numPages, pageIndex]);
+  const handleAddClick = () => {
+    setTextAreaList((prevArr) => {
+      const newArr = [...prevArr];
+      const temp = [...newArr[pageIndex], {
+        x: 0, y: 0, width: '50px', height: '50px', _content: 'TEXT AREA',
+      }];
+      newArr[pageIndex] = temp;
+      return newArr;
+    });
+  };
   return (
     <div className="h-screen w-screen flex">
+
       <div className="flex flex-col w-1/6 border-4 border-violet-400 overflow-y-auto">
         <div className="h-1/3">
           <h1>Colors</h1>
@@ -206,6 +191,8 @@ function EditPdfPage() {
         </div>
         <div className="h-1/3">
           <h1>Text</h1>
+          {/* <TextPalette /> */}
+          <button type="button" onClick={handleAddClick} className="bg-purple-500">Click me</button>
         </div>
       </div>
       <div className="flex flex-col items-center justify-center w-5/6">
@@ -227,26 +214,29 @@ function EditPdfPage() {
             style={{ width: canvasSize.width, height: canvasSize.height }}
           />
         ))}
-        {/* {memo} */}
-        {/* <canvas
-          ref={(ref) => {
-            if (!actualCanvasRef.current[pageIndex]) {
-              actualCanvasRef.current[pageIndex] = ref;
-            }
-            return actualCanvasRef.current[pageIndex];
-          }}
-          className="absolute z-10"
-          style={{ width: canvasSize.width, height: canvasSize.height }}
-        /> */}
-        <PdfPreviewArea
-          onLoadSuccessForEditPage={handleLoadSucces}
-          file={fileList[0]}
-          pageIndex={pageIndex}
-          setPageIndex={setPageIndex}
-          currentPdfPages={numPages}
-          setCanvasSize={setCanvasSize}
-          width={null}
-        />
+        <div>
+          <PdfPreviewArea
+            onLoadSuccessForEditPage={handleLoadSucces}
+            file={fileList[0]}
+            pageIndex={pageIndex}
+            setPageIndex={setPageIndex}
+            currentPdfPages={numPages}
+            setCanvasSize={setCanvasSize}
+            width={null}
+          />
+          {textAreaList[pageIndex].map((val, index) => (
+            <TextArea
+              id={index}
+              axisX={val.x}
+              axisY={val.y}
+              _width={val.width}
+              _height={val.height}
+              setTextAreaList={setTextAreaList}
+              pageIndex={pageIndex}
+              key={`txt_area${index + 1}`}
+            />
+          ))}
+        </div>
 
       </div>
 
