@@ -1,4 +1,5 @@
 const { PDFDocument } = require('pdf-lib');
+const { string, number } = require('prop-types');
 fs = require('fs');
 
 async function mergePDF(pdfPagesList, currentFileName, fileList) {
@@ -56,27 +57,37 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 }
 
-async function fillForm(x, y, width, height, content, ID) {
-    const mainPdf = await PDFDocument.load(fs.readFileSync("./deneme.pdf"));
-    let [orderPage] = await mainPdf.copyPages(mainPdf, [1]);
-    const page = mainPdf.insertPage(1, orderPage)
-    mainPdf.removePage(2);
+async function fillForm(textAreaList, currPage, file, pageHeight) {
+    console.log(textAreaList);
+    console.log(currPage);
+    const [values] = textAreaList;
+    console.log(typeof values.width);
+    const widthValue = Number(values.width.substring(0, values.width.indexOf("p")))
+    const heightValue = Number(values.height.substring(0, values.height.indexOf("p")))
+
+    console.log(heightValue);
+    const mainPdf = await PDFDocument.load(file);
+    let [orderPage] = await mainPdf.copyPages(mainPdf, [currPage]);
+    const page = mainPdf.insertPage(currPage, orderPage)
+    mainPdf.removePage(currPage+1);
     //const page = mainPdf.addPage(orderPage);   
-    console.log(page)
+    //console.log(page)
     const form = mainPdf.getForm()
     
-    page.drawText('Enter your favorite Tuniko:', { x: 50, y: 710, size: 10 })
+    const fillableField = form.createTextField('fillable.Field')
+    fillableField.setText(values.content);
 
-    const superheroField = form.createTextField('favorite.superhero')
-    superheroField.addToPage(page, { x: 55, y: 640,
-        width: 50,
-        height: 50,})
-  
+     fillableField.addToPage(page, { x: values.x, y: (pageHeight - values.y),
+         width: widthValue,
+         height: heightValue,
+     })
+    
+    //return await mainPdf.saveAsBase64({ dataUri: true });
 
     fs.writeFileSync("all-letters2.pdf", await mainPdf.save());
 
 }
-fillForm();
 
 module.exports.reorderPDFpage = reorderPDFpage;
 module.exports.mergePDF = mergePDF;
+module.exports.fillForm = fillForm;
