@@ -1,14 +1,15 @@
 import React, { useRef, useState } from 'react';
 import { Document, Page } from 'react-pdf';
-import PropTypes, { number } from 'prop-types';
+import PropTypes from 'prop-types';
 import NavBar from './NavBar';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfPreviewArea({
-  file, pageIndex, setPageIndex, currentPdfPages, inputRef,
+  file, pageIndex, setPageIndex, currentPdfPages, width, onLoadSuccessForEditPage,
 }) {
   const [scale, setScale] = useState(1);
   const [pdfLength, setPdfLength] = useState(0);
+  const inputRef = useRef(null);
 
   const handleNavigationClickForward = () => {
     if (currentPdfPages.length === 1) return;
@@ -18,7 +19,7 @@ function PdfPreviewArea({
   const handleNavigationClickBack = () => {
     if (currentPdfPages.length === 1) return;
     setPageIndex((prev) => (prev === 0
-      ? pdfLength - 1 : (prev - 1) % currentPdfPages.length));
+      ? currentPdfPages.length - 1 : (prev - 1) % currentPdfPages.length));
   };
 
   const handleLoadSucces = (pdf) => {
@@ -44,7 +45,7 @@ function PdfPreviewArea({
       <Document
         file={file}
         loading={handleLoading}
-        onLoadSuccess={handleLoadSucces}
+        onLoadSuccess={!onLoadSuccessForEditPage ? handleLoadSucces : onLoadSuccessForEditPage}
       >
         <Page
           className="rounded-md border-4 border-purple-500 shadow-2xl"
@@ -52,7 +53,7 @@ function PdfPreviewArea({
           renderAnnotationLayer={false}
           loading={() => {}}
           pageNumber={currentPdfPages[pageIndex] + 1}
-          width={500}
+          width={width}
           scale={scale}
         />
       </Document>
@@ -113,8 +114,14 @@ PdfPreviewArea.propTypes = {
   file: PropTypes.string.isRequired,
   pageIndex: PropTypes.number.isRequired,
   setPageIndex: PropTypes.func.isRequired,
-  currentPdfPages: PropTypes.arrayOf(number).isRequired,
-  inputRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }).isRequired,
+  currentPdfPages: PropTypes.arrayOf(PropTypes.number).isRequired,
+  width: PropTypes.number,
+  onLoadSuccessForEditPage: PropTypes.func,
+};
+
+PdfPreviewArea.defaultProps = {
+  width: null,
+  onLoadSuccessForEditPage: null,
 };
 
 export default PdfPreviewArea;

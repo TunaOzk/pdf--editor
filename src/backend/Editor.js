@@ -56,7 +56,7 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 }
 
-async function fillForm() {
+async function fillForm(x, y, width, height, content, ID) {
     const mainPdf = await PDFDocument.load(fs.readFileSync("./deneme.pdf"));
     let [orderPage] = await mainPdf.copyPages(mainPdf, [1]);
     const page = mainPdf.insertPage(1, orderPage)

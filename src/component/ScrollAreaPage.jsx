@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Draggable } from '@hello-pangea/dnd';
 import { ReactComponent as RemoveIcon } from '../assets/remove.svg';
 
-function PdfPage({
+function ScrollAreaPage({
   pageNum, width, scale, index, onDelete, onClick, isLastDelete,
 }) {
   // const { ref, inView } = useInView();
@@ -63,7 +63,7 @@ function PdfPage({
   return (<div>{memoizedPdfPage}</div>);
 }
 
-PdfPage.propTypes = {
+ScrollAreaPage.propTypes = {
   pageNum: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   scale: PropTypes.number.isRequired,
@@ -73,4 +73,4 @@ PdfPage.propTypes = {
   isLastDelete: PropTypes.bool.isRequired,
 };
 
-export default PdfPage;
+export default ScrollAreaPage;
