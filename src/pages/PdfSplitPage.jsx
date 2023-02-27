@@ -13,19 +13,32 @@ function PdfSplitPage() {
   const fileList = [...Array(numOfFiles)].map((value, index) => location.state[index].base64);
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
   const [currentFile, setCurrentFile] = useState(fileList[0]);
+  const [splitPdfPages, setSplitPdfPages] = useState([]);
+  // array1 = array1.filter(val => !array2.includes(val));
 
   const memoizedPdfScrollArea = useMemo(() => (
     <PdfSplitPreviewArea
-      currentPdfPages={currentPdfPages}
+      setCurrentPdfPages={setCurrentPdfPages}
+      setSplitPdfPages={setSplitPdfPages}
       file={currentFile}
     />
-  ), [currentPdfPages, currentFile]);
+  ), [currentFile]);
   return (
-    <div>
+    <div className="flex flex-col  items-center  justify-center h-screen overflow-hidden">
       {memoizedPdfScrollArea}
-      <div>
-        <h1>deneme</h1>
+      {console.log(splitPdfPages)}
+      <div className="">
+        {console.log(splitPdfPages)}
 
+        <button
+          className="transition ease-in-out delay-75 hover:-translate-y-1
+      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
+  rounded-md absolute bottom-10 right-10 p-4"
+          type="button"
+        >
+          bana bas
+
+        </button>
       </div>
     </div>
   );
