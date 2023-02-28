@@ -1,5 +1,5 @@
 const express = require("express");
-const { reorderPDFpage, mergePDF, fillForm} = require('./Editor');
+const { reorderPDFpage, mergePDF, fillForm, pdfSplit} = require('./Editor');
 const app = express();
 const port = 4000;
 const cors = require("cors");
@@ -21,16 +21,23 @@ app.post("/pdfMerge", async (req, res) => {
 app.post("/pdfFileIndex", async (req, res) => {
     let { currentPdfPages, currentFile, currentFileName } = req.body;
 
-    let pdf = await reorderPDFpage(currentFile, currentFileName, currentPdfPages);
+    let [pdf] = await reorderPDFpage(currentFile, currentFileName, currentPdfPages);
     res.send(pdf);
 
 })
+app.post("/pdfSplitFileIndex", async (req, res) => {
+    let { splitPdfPages, currentFile } = req.body;
 
+    let pdf = await pdfSplit(currentFile, splitPdfPages);
+
+    res.send(pdf);
+
+
+})
 app.post("/pdfFileFillable", async (req, res) => {
     let {textAreaList, fileList, canvasSize} = req.body;
     const file = fileList[0]
-    console.log(canvasSize.height)
-    console.log(canvasSize.width)
+
 
     let page = 0; 
     const pageHeight = canvasSize.height;
@@ -38,13 +45,10 @@ app.post("/pdfFileFillable", async (req, res) => {
         const [x] = textAreaList[i];
 
         if(typeof x !== 'undefined'){
-            console.log(i);
             page = i;
         }
         
     }
-    console.log("heheee");
-
 
     pdf = await fillForm(textAreaList[page], page, file, pageHeight);
     

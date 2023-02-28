@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Document, Page } from 'react-pdf';
 import PropTypes, { number } from 'prop-types';
+import { last } from 'pdf-lib';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 import IntervalBar from './IntervalBar';
 
@@ -24,37 +25,38 @@ function PdfSplitPreviewArea({
     setCurrPdfPages(pdfPages);
     setCurrentPdfPages(() => pdfPages);
   };
+  const handleNavigationClickForward = () => {
+    setPageIndexFirst(pageIndexFirst + 1);
+  };
+
+  const handleNavigationClickBack = () => {
+    setPageIndexFirst(pageIndexFirst - 1);
+  };
   function range(start, end) {
     return Array(end - start + 1).fill().map((_, idx) => start + idx);
   }
 
-  const deneme = () => {
-    const pdfPages = range(pageIndexFirst, pageIndexLast);
-    setCurrSplitPdfPages(pdfPages);
-    console.log(currSplitPdfPages);
-    setSplitPdfPages(() => pdfPages);
-  };
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
   const handleChangeFirst = (e) => {
     const pageNum = Number(e.target.value);
-    if (pageNum > 0 && pageNum <= pdfLength) {
+    if (pageNum > 0 && pageNum <= pdfLength && pageNum <= pageIndexLast) {
       setPageIndexFirst(pageNum);
     }
   };
 
   const handleChangeLast = (e) => {
     const pageNum = Number(e.target.value);
-    if (pageNum > 0 && pageNum <= pdfLength) {
+    if (pageNum > 0 && pageNum <= pdfLength && pageNum >= pageIndexFirst) {
       setPageIndexLast(pageNum);
-      deneme();
     }
   };
 
   useEffect(() => {
-    const pdfPages = range(pageIndexFirst, pageIndexLast);
+    const pdfPages = range(pageIndexFirst - 1, pageIndexLast - 1);
     setCurrSplitPdfPages(pdfPages);
     // console.log(currSplitPdfPages);
     setSplitPdfPages(() => pdfPages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndexFirst, pageIndexLast, setSplitPdfPages]);
 
   return (
@@ -72,7 +74,7 @@ function PdfSplitPreviewArea({
             renderAnnotationLayer={false}
             loading={() => {}}
             pageNumber={1}
-            width={250}
+            width={150}
           />
           <h1 className="grid place-items-center text-xl"> ... </h1>
           <Page
@@ -81,10 +83,12 @@ function PdfSplitPreviewArea({
             renderAnnotationLayer={false}
             loading={() => {}}
             pageNumber={pdfLength}
-            width={250}
+            width={150}
           />
         </Document>
         <IntervalBar
+          onClickBack={handleNavigationClickBack}
+          onClickForward={handleNavigationClickForward}
           inputFirstRef={inputFirstRef}
           inputLastRef={inputLastRef}
           inputFirstValue={pageIndexFirst}

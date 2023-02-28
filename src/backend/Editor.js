@@ -58,22 +58,15 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 }
 
 async function fillForm(textAreaList, currPage, file, pageHeight) {
-    console.log(textAreaList);
-    console.log(currPage);
     const [values] = textAreaList;
-    console.log(typeof values.width);
     const widthValue = Number(values.width.substring(0, values.width.indexOf("p")))
     const heightValue = Number(values.height.substring(0, values.height.indexOf("p")))
 
-    console.log(heightValue);
     const mainPdf = await PDFDocument.load(file);
     let [orderPage] = await mainPdf.copyPages(mainPdf, [currPage]);
     const page = mainPdf.insertPage(currPage, orderPage)
     mainPdf.removePage(currPage+1);
-    //const page = mainPdf.addPage(orderPage);   
-    //console.log(page)
     const form = mainPdf.getForm()
-    console.log(page.getHeight());
     const fillableField = form.createTextField('fillable.Field')
     fillableField.setText(values.content);
 
@@ -82,12 +75,34 @@ async function fillForm(textAreaList, currPage, file, pageHeight) {
          height: heightValue,
      })
     
-    //return await mainPdf.saveAsBase64({ dataUri: true });
-
-    fs.writeFileSync("all-letters2.pdf", await mainPdf.save());
+    return await mainPdf.saveAsBase64({ dataUri: true });
 
 }
+// async function pdfSplit(mainFile, currentPages, splitPages){
+async function pdfSplit(mainFile, splitPages){
+    const mainPdf = await PDFDocument.load(mainFile);
+    const pdfDoc = await PDFDocument.create();
 
+    let pagesArray = await mainPdf.copyPages(mainPdf, mainPdf.getPageIndices());
+
+    for (let i = 0; i < splitPages.length; i++) {
+        let [orderPage] = await pdfDoc.copyPages(mainPdf, [splitPages[i]]);
+        const page = pdfDoc.addPage(orderPage);
+    }
+    console.log( pagesArray.length)
+    for (let i = 0; i < splitPages.length; i++) {
+        mainPdf.removePage(splitPages[0]);
+    }
+    var array = [];
+    array[0] = await mainPdf.saveAsBase64({ dataUri: true });
+    array[1] = await pdfDoc.saveAsBase64({ dataUri: true })
+    array.push(10);
+
+    return array;
+
+}
 module.exports.reorderPDFpage = reorderPDFpage;
 module.exports.mergePDF = mergePDF;
 module.exports.fillForm = fillForm;
+module.exports.pdfSplit = pdfSplit;
+

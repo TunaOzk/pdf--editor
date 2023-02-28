@@ -11,7 +11,7 @@ function IntervalBar({
 }) {
   return (
     <div className="flex transition ease-in-out p-4
-    text-white text-lg delay-75 opacity-25 hover:opacity-100 absolute bottom-10 rounded-md bg-purple-500"
+    text-white text-lg delay-75 opacity-25 hover:opacity-100 absolute max-[770px]:bottom-20 md:bottom-10 rounded-md bg-purple-500"
     >
       <div>
         <button
@@ -31,15 +31,6 @@ function IntervalBar({
           onClick={onClickForward}
         >
           <ForwardIcon />
-        </button>
-      </div>
-
-      <div className="flex">
-        <button title="Zoom In" className="ml-4 transition ease-in-out delay-75 hover:-translate-y-1" type="button">
-          <ZoomInIcon />
-        </button>
-        <button title="Zoom Out" className="ml-4 transition ease-in-out delay-75 hover:-translate-y-1" type="button">
-          <ZoomOutIcon />
         </button>
       </div>
 

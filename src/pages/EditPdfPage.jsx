@@ -35,11 +35,11 @@ function EditPdfPage() {
         fileList,
         canvasSize,
       }).then((res) => {
-        const a = document.createElement('a');
-        a.href = res.data;
-        a.download = 'fillable.pdf';
-        a.click();
-        a.remove();
+        const downloadFile = document.createElement('a');
+        downloadFile.href = res.data;
+        downloadFile.download = 'fillable.pdf';
+        downloadFile.click();
+        downloadFile.remove();
       });
     } catch (error) {
       throw new Error(error);

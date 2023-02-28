@@ -186,7 +186,7 @@ function DragDrop() {
           <button
             className=" bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md w-screen mb-2 h-8"
             type="button"
-            onClick={() => { navigate('/pdf-split', { state: fileData }); }}
+            onClick={() => { navigate('/select-operation', { state: fileData }); }}
           >
             Submit
           </button>

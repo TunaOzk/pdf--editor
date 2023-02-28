@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -14,7 +14,32 @@ function PdfSplitPage() {
   const [currentPdfPages, setCurrentPdfPages] = useState([]);
   const [currentFile, setCurrentFile] = useState(fileList[0]);
   const [splitPdfPages, setSplitPdfPages] = useState([]);
-  // array1 = array1.filter(val => !array2.includes(val));
+
+  const postSplitPdf = async (event) => {
+    event.preventDefault();
+    try {
+      await axios.post('http://localhost:4000/pdfSplitFileIndex', {
+        currentFile,
+        splitPdfPages,
+      }).then((res) => {
+        const firstDownload = document.createElement('a');
+        const allPdfs = res.data;
+        // eslint-disable-next-line prefer-destructuring
+        firstDownload.href = allPdfs[0];
+        firstDownload.download = 'firstSplit.pdf';
+        firstDownload.click();
+        firstDownload.remove();
+        const secondDownload = document.createElement('a');
+        // eslint-disable-next-line prefer-destructuring
+        secondDownload.href = allPdfs[1];
+        secondDownload.download = 'secondSplit.pdf';
+        secondDownload.click();
+        secondDownload.remove();
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
 
   const memoizedPdfScrollArea = useMemo(() => (
     <PdfSplitPreviewArea
@@ -23,20 +48,27 @@ function PdfSplitPage() {
       file={currentFile}
     />
   ), [currentFile]);
+  useEffect(() => {
+    const a = currentPdfPages.filter((val) => !splitPdfPages.includes(val));
+    console.log(a);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPdfPages, splitPdfPages]);
+
   return (
     <div className="flex flex-col  items-center  justify-center h-screen overflow-hidden">
       {memoizedPdfScrollArea}
-      {console.log(splitPdfPages)}
-      <div className="">
+      <div className="ablolute -10">
         {console.log(splitPdfPages)}
+        {console.log(currentPdfPages)}
 
         <button
           className="transition ease-in-out delay-75 hover:-translate-y-1
       hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
-  rounded-md absolute bottom-10 right-10 p-4"
+  rounded-md absolute md:bottom-10  max-[770px]:bottom-4 max-[770px]:inset-x-2 md:right-14 p-4"
           type="button"
+          onClick={(event) => postSplitPdf(event)}
         >
-          bana bas
+          Split Pages
 
         </button>
       </div>
