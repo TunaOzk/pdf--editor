@@ -51,7 +51,7 @@ function PdfPreviewArea({
           className="rounded-md border-4 border-purple-500 shadow-2xl"
           renderTextLayer={false}
           renderAnnotationLayer={false}
-          loading={() => {}}
+          loading={() => { }}
           pageNumber={currentPdfPages[pageIndex] + 1}
           width={width}
           scale={scale}
@@ -92,7 +92,6 @@ function PdfPreviewArea({
             <ForwardIcon />
           </button>
         </div>
-
         <div className="flex">
           <button title="Zoom In" className="ml-4 transition ease-in-out
           delay-75 hover:-translate-y-1" type="button">
@@ -103,7 +102,6 @@ function PdfPreviewArea({
             <ZoomOutIcon />
           </button>
         </div>
-
       </div> */}
     </div>
 
