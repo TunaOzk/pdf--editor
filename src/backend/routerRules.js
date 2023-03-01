@@ -1,6 +1,8 @@
 const express = require("express");
 const { reorderPDFpage } = require('./Editor');
 const { mergePDF } = require('./Editor');
+const { addCanvasToPDF } = require('./Editor');
+const { fillForm } = require('./Editor');
 const app = express();
 const port = 4000;
 const cors = require("cors");
@@ -23,6 +25,13 @@ app.post("/pdfFileIndex", async (req, res) => {
     let { currentPdfPages, currentFile, currentFileName } = req.body;
 
     let a = await reorderPDFpage(currentFile, currentFileName, currentPdfPages);
+    res.send(a);
+
+})
+
+app.post("/pdfEdit", async (req, res) => {
+    let { textAreaList, file, base64Canvas } = req.body;
+    let a = await fillForm(textAreaList, file, base64Canvas);
     res.send(a);
 
 })

@@ -2,15 +2,18 @@ import React, {
   useEffect, useRef, useState,
 } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 import ShapePalette from '../component/ShapePalette';
 import ColorPalette from '../component/ColorPalette';
 import TextArea from '../component/TextArea';
+import TextAreaPalette from '../component/TextAreaPalette';
 
 function EditPdfPage() {
   const location = useLocation();
   const numOfFiles = location.state.length;
   const fileList = [...Array(numOfFiles)].map((value, index) => location.state[index].base64);
+  const fileNames = [...Array(numOfFiles)].map((value, index) => location.state[index].name);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [pageIndex, setPageIndex] = useState(0);
   const [numPages, setNumPages] = useState([]);
@@ -19,8 +22,9 @@ function EditPdfPage() {
   const actualCanvasRef = useRef([null]);
   const actualContextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [selectedColor, setSelectedColor] = useState('rgb(0 0 0)');
+  const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState('free');
+  const [lineWidth, setLineWidth] = useState(1);
   const startX = useRef(null);
   const startY = useRef(null);
   const prev = useRef(null);
@@ -51,19 +55,41 @@ function EditPdfPage() {
     overlayContextRef.current = context;
     context.lineCap = 'round';
     context.strokeStyle = selectedColor;
-    context.lineWidth = 3;
+    context.lineWidth = lineWidth;
 
     const canvas2 = actualCanvasRef.current[pageIndex];
     const context2 = canvas2.getContext('2d');
     actualContextRef.current = context2;
     context2.lineCap = 'round';
     context2.strokeStyle = selectedColor;
-    context2.lineWidth = 3;
-  }, [pageIndex, selectedColor, canvasSize]);
+    context2.lineWidth = lineWidth;
+  }, [pageIndex, selectedColor, canvasSize, lineWidth]);
   const drawFreeHand = (x1, y1) => {
     actualContextRef.current.lineTo(x1, y1);
     actualContextRef.current.stroke();
   };
+  const postEditContent = async () => {
+    const base64Canvas = actualCanvasRef.current.map((item) => item.toDataURL(''));
+    const file = fileList[0];
+    const fileName = fileNames[0];
+    try {
+      await axios.post('http://localhost:4000/pdfEdit', {
+        textAreaList,
+        file,
+        base64Canvas,
+      })
+        .then((res) => {
+          const a = document.createElement('a');
+          a.href = res.data;
+          a.download = fileName;
+          a.click();
+          a.remove();
+        });
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   const drawCircle = (ref, x1, y1, x2, y2) => {
     overlayContextRef.current
       .clearRect(0, 0, overlayCanvasRef.current.width, overlayCanvasRef.current.height);
@@ -108,6 +134,8 @@ function EditPdfPage() {
     switch (shape) {
       case 'free':
         return drawFreeHand(x1, y1);
+      case 'eraser':
+        return drawFreeHand(x1, y1);
       case 'circle':
         return drawCircle(ref, x2, y2, x1, y1);
       case 'rectangle':
@@ -120,8 +148,8 @@ function EditPdfPage() {
   const startDrawing = ({ nativeEvent }) => {
     nativeEvent.preventDefault();
     nativeEvent.stopPropagation();
+    overlayCanvasRef.current.className = 'absolute z-30';
     setIsDrawing(true);
-    actualContextRef.current.restore();
     const { offsetX, offsetY } = nativeEvent;
     startX.current = offsetX;
     startY.current = offsetY;
@@ -132,6 +160,7 @@ function EditPdfPage() {
   const finishDrawing = ({ nativeEvent }) => {
     nativeEvent.preventDefault();
     nativeEvent.stopPropagation();
+    overlayCanvasRef.current.className = 'absolute z-20';
     const { offsetX, offsetY } = nativeEvent;
     actualContextRef.current.closePath();
 
@@ -155,7 +184,7 @@ function EditPdfPage() {
   };
 
   const handleClickShape = (e) => {
-    setSelectedShape(e.target.name);
+    setSelectedShape(e.currentTarget.name);
   };
   const handleLoadSucces = (pdf) => {
     setNumPages(Array.from(Array(pdf.numPages).keys()));
@@ -166,34 +195,46 @@ function EditPdfPage() {
     });
   };
 
-  const handleAddClick = () => {
+  const handleTextAreaAdd = (_type) => {
     setTextAreaList((prevArr) => {
       const newArr = [...prevArr];
       const temp = [...newArr[pageIndex], {
-        x: 0, y: 0, width: '50px', height: '50px', content: 'TEXT AREA', ID: newArr[pageIndex].length,
+        x: 0,
+        y: 0,
+        width: '50px',
+        height: '50px',
+        content: 'TEXT AREA',
+        ID: newArr[pageIndex].length,
+        type: _type,
+        font: 'Courier',
+        fontSize: 16,
       }];
       newArr[pageIndex] = temp;
       return newArr;
     });
   };
   return (
-    <div className="h-screen w-screen flex">
+    <div className="h-screen w-screen flex flex-col bg-stone-200">
 
-      <div className="flex flex-col w-1/6 border-4 border-violet-400 overflow-y-auto">
-        <div className="h-1/3">
-          <h1>Colors</h1>
-          <ColorPalette onClick={handleClickColor} />
+      <div className="flex grid grid-cols-3 divide-x-4 divide-violet-400 h-min w-full border-4 border-violet-400">
+        <div className="">
+          <ColorPalette
+            onClicks={handleClickColor}
+            selectedColor={selectedColor}
+            lineWidth={lineWidth}
+            setLineWidth={setLineWidth}
+          />
         </div>
-        <div className="h-1/3">
-          <h1>Shapes</h1>
-          <ShapePalette onClick={handleClickShape} />
+        <div className="">
+          <ShapePalette onClicks={handleClickShape} eraserRef={actualContextRef} />
         </div>
-        <div className="h-1/3">
-          <h1>Text</h1>
-          <button type="button" onClick={handleAddClick} className="bg-purple-500">Click me</button>
+        <div className="h-full flex">
+          <TextAreaPalette
+            onTextAreaAdd={handleTextAreaAdd}
+          />
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center w-5/6">
+      <div className="flex flex-col items-center justify-center h-5/6 w-full">
         <canvas
           ref={overlayCanvasRef}
           onMouseDown={startDrawing}
@@ -230,12 +271,25 @@ function EditPdfPage() {
               _width={val.width}
               _height={val.height}
               _content={val.content}
+              _type={val.type}
+              _font={val.font}
+              _fontSize={val.fontSize}
               setTextAreaList={setTextAreaList}
               pageIndex={pageIndex}
               key={`txt_area${index + 1}`}
             />
           ))}
         </div>
+        <button
+          className="transition ease-in-out delay-75 hover:-translate-y-1
+      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
+  rounded-md absolute bottom-10 right-10 p-4"
+          type="button"
+          onClick={(event) => postEditContent(event)}
+        >
+          Export the PDF File
+
+        </button>
 
       </div>
 
