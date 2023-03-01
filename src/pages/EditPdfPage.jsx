@@ -224,7 +224,7 @@ function EditPdfPage() {
           className="absolute z-20"
           style={{ width: canvasSize.width, height: canvasSize.height }}
         />
-        { numPages.map((val, index) => (
+        {numPages.map((val, index) => (
           <canvas
             key={`canvas${index + 1}`}
             // eslint-disable-next-line no-return-assign

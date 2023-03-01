@@ -57,29 +57,43 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 }
 
-async function fillForm(textAreaList, currPage, file, pageHeight) {
-    const [values] = textAreaList;
-    const widthValue = Number(values.width.substring(0, values.width.indexOf("p")))
-    const heightValue = Number(values.height.substring(0, values.height.indexOf("p")))
-
+async function fillForm(textAreaList, file) {
+    let currPage = 0;
     const mainPdf = await PDFDocument.load(file);
-    let [orderPage] = await mainPdf.copyPages(mainPdf, [currPage]);
-    const page = mainPdf.insertPage(currPage, orderPage)
-    mainPdf.removePage(currPage+1);
-    const form = mainPdf.getForm()
-    const fillableField = form.createTextField('fillable.Field')
-    fillableField.setText(values.content);
 
-     fillableField.addToPage(page, { x: (values.x ), y: (page.getHeight() - values.y - heightValue),
-         width: widthValue,
-         height: heightValue,
-     })
-    
+    for (let i = 0; i < textAreaList.length; i++) {
+        const [x] = textAreaList[i];
+
+        if (typeof x !== 'undefined') {
+            currPage = i;
+            for (let j = 0; j < textAreaList[currPage].length; j++) {
+                const values = textAreaList[currPage][j];
+                const widthValue = Number(values.width.substring(0, values.width.indexOf("p")))
+                const heightValue = Number(values.height.substring(0, values.height.indexOf("p")))
+
+                let [orderPage] = await mainPdf.copyPages(mainPdf, [currPage]);
+                const page = mainPdf.insertPage(currPage, orderPage)
+                mainPdf.removePage(currPage + 1);
+                const form = mainPdf.getForm();
+                const fillableField = form.createTextField(values.content + [currPage] + '.Field');
+                fillableField.setText(values.content);
+
+                fillableField.addToPage(page, {
+                    x: (values.x), y: (page.getHeight() - values.y - heightValue),
+                    width: widthValue,
+                    height: heightValue,
+                })
+
+            }
+        }
+
+
+    }
     return await mainPdf.saveAsBase64({ dataUri: true });
 
 }
 // async function pdfSplit(mainFile, currentPages, splitPages){
-async function pdfSplit(mainFile, splitPages){
+async function pdfSplit(mainFile, splitPages) {
     const mainPdf = await PDFDocument.load(mainFile);
     const pdfDoc = await PDFDocument.create();
 
@@ -89,7 +103,7 @@ async function pdfSplit(mainFile, splitPages){
         let [orderPage] = await pdfDoc.copyPages(mainPdf, [splitPages[i]]);
         const page = pdfDoc.addPage(orderPage);
     }
-    console.log( pagesArray.length)
+    console.log(pagesArray.length)
     for (let i = 0; i < splitPages.length; i++) {
         mainPdf.removePage(splitPages[0]);
     }
