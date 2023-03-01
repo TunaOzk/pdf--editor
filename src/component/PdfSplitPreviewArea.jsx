@@ -9,6 +9,8 @@ function PdfSplitPreviewArea({
   file, setCurrentPdfPages, setSplitPdfPages,
 }) {
   const [pdfLength, setPdfLength] = useState(0);
+  const [screenScale, setScreenScale] = useState(0);
+
   const [currPdfPages, setCurrPdfPages] = useState([]);
   const [currSplitPdfPages, setCurrSplitPdfPages] = useState([]);
 
@@ -25,12 +27,28 @@ function PdfSplitPreviewArea({
     setCurrPdfPages(pdfPages);
     setCurrentPdfPages(() => pdfPages);
   };
-  const handleNavigationClickForward = () => {
-    setPageIndexFirst(pageIndexFirst + 1);
+  const handleNavigationClickForwardFirst = () => {
+    if (pageIndexFirst + 1 <= pageIndexLast) {
+      setPageIndexFirst(pageIndexFirst + 1);
+    }
   };
 
-  const handleNavigationClickBack = () => {
-    setPageIndexFirst(pageIndexFirst - 1);
+  const handleNavigationClickBackFirst = () => {
+    if (pageIndexFirst - 1 > 0) {
+      setPageIndexFirst(pageIndexFirst - 1);
+    }
+  };
+
+  const handleNavigationClickForwardLast = () => {
+    if (pageIndexLast + 1 <= pdfLength) {
+      setPageIndexLast(pageIndexLast + 1);
+    }
+  };
+
+  const handleNavigationClickBackLast = () => {
+    if (pageIndexLast - 1 >= pageIndexFirst) {
+      setPageIndexLast(pageIndexLast - 1);
+    }
   };
   function range(start, end) {
     return Array(end - start + 1).fill().map((_, idx) => start + idx);
@@ -56,11 +74,20 @@ function PdfSplitPreviewArea({
     setCurrSplitPdfPages(pdfPages);
     // console.log(currSplitPdfPages);
     setSplitPdfPages(() => pdfPages);
+    // eslint-disable-next-line no-restricted-globals
+    if (screen.width > 700) {
+      // eslint-disable-next-line no-restricted-globals
+      setScreenScale(1);
+    } else {
+      // eslint-disable-next-line no-restricted-globals
+      setScreenScale(0.7);
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndexFirst, pageIndexLast, setSplitPdfPages]);
 
   return (
-    pdfLength > 1 ? (
+    (pdfLength > 1 && pageIndexFirst !== pageIndexLast) ? (
       <div className=" flex flex-row items-center  justify-center">
         <Document
           className="flex flex-row place-items-center space-x-1"
@@ -72,23 +99,30 @@ function PdfSplitPreviewArea({
             className="rounded-md border-4 border-purple-500 shadow-2xl"
             renderTextLayer={false}
             renderAnnotationLayer={false}
-            loading={() => {}}
-            pageNumber={1}
-            width={150}
+            loading={() => { }}
+            pageNumber={pageIndexFirst}
+            // eslint-disable-next-line no-restricted-globals
+            height={2 * (screen.height / 5)}
+            scale={screenScale}
+
           />
           <h1 className="grid place-items-center text-xl"> ... </h1>
           <Page
             className="rounded-md border-4 border-purple-500 shadow-2xl"
             renderTextLayer={false}
             renderAnnotationLayer={false}
-            loading={() => {}}
-            pageNumber={pdfLength}
-            width={150}
+            loading={() => { }}
+            pageNumber={pageIndexLast}
+            // eslint-disable-next-line no-restricted-globals
+            height={2 * (screen.height / 5)}
+            scale={screenScale}
           />
         </Document>
         <IntervalBar
-          onClickBack={handleNavigationClickBack}
-          onClickForward={handleNavigationClickForward}
+          onClickBackFirst={handleNavigationClickBackFirst}
+          onClickForwardFirst={handleNavigationClickForwardFirst}
+          onClickBackLast={handleNavigationClickBackLast}
+          onClickForwardLast={handleNavigationClickForwardLast}
           inputFirstRef={inputFirstRef}
           inputLastRef={inputLastRef}
           inputFirstValue={pageIndexFirst}
@@ -111,12 +145,27 @@ function PdfSplitPreviewArea({
             className="rounded-md border-4 border-purple-500 shadow-2xl"
             renderTextLayer={false}
             renderAnnotationLayer={false}
-            loading={() => {}}
-            pageNumber={1}
-            width={250}
+            loading={() => { }}
+            pageNumber={pageIndexFirst}
+            // eslint-disable-next-line no-restricted-globals
+            height={2 * (screen.height / 5)}
+            scale={screenScale}
+
           />
         </Document>
-        <IntervalBar />
+        <IntervalBar
+          onClickBackFirst={handleNavigationClickBackFirst}
+          onClickForwardFirst={handleNavigationClickForwardFirst}
+          onClickBackLast={handleNavigationClickBackLast}
+          onClickForwardLast={handleNavigationClickForwardLast}
+          inputFirstRef={inputFirstRef}
+          inputLastRef={inputLastRef}
+          inputFirstValue={pageIndexFirst}
+          inputLastValue={pageIndexLast}
+          onChangeFirst={handleChangeFirst}
+          onChangeLast={handleChangeLast}
+          pdfLength={pdfLength}
+        />
       </div>
     )
   );
