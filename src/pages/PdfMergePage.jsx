@@ -37,11 +37,11 @@ function PdfEditPage() {
         currentFileName,
       }).then((res) => {
         setIsLoading(false);
-        const a = document.createElement('a');
-        a.href = res.data;
-        a.download = currentFileName;
-        a.click();
-        a.remove();
+        const downloadFile = document.createElement('a');
+        downloadFile.href = res.data;
+        downloadFile.download = currentFileName;
+        downloadFile.click();
+        downloadFile.remove();
       });
     } catch (error) {
       throw new Error(error);

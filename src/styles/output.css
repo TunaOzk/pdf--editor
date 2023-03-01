@@ -592,16 +592,16 @@ input[type="number"] {
   bottom: 2.5rem;
 }
 
+.right-10 {
+  right: 2.5rem;
+}
+
 .top-0 {
   top: 0px;
 }
 
 .left-0 {
   left: 0px;
-}
-
-.right-10 {
-  right: 2.5rem;
 }
 
 .bottom-28 {
@@ -798,8 +798,16 @@ input[type="number"] {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.flex-row {
+  flex-direction: row;
+}
+
 .flex-col {
   flex-direction: column;
+}
+
+.place-items-center {
+  place-items: center;
 }
 
 .items-center {
@@ -820,6 +828,12 @@ input[type="number"] {
 
 .gap-4 {
   gap: 1rem;
+}
+
+.space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .overflow-hidden {
@@ -995,6 +1009,18 @@ input[type="number"] {
   opacity: 0;
 }
 
+.opacity-100 {
+  opacity: 1;
+}
+
+.opacity-80 {
+  opacity: 0.8;
+}
+
+.opacity-70 {
+  opacity: 0.7;
+}
+
 .shadow-2xl {
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
@@ -1084,11 +1110,6 @@ input[type="number"] {
   background-color: rgb(107 114 128 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-black:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-red-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(220 38 38 / var(--tw-bg-opacity));
@@ -1117,13 +1138,23 @@ input[type="number"] {
           transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
-.group:hover .group-hover\:bg-black {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-}
-
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
+}
+
+@media (max-width: 770px) {
+  .max-\[770px\]\:inset-x-2 {
+    left: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .max-\[770px\]\:bottom-20 {
+    bottom: 5rem;
+  }
+
+  .max-\[770px\]\:bottom-4 {
+    bottom: 1rem;
+  }
 }
 
 @media (min-width: 300px) {
@@ -1161,6 +1192,14 @@ input[type="number"] {
 }
 
 @media (min-width: 768px) {
+  .md\:bottom-10 {
+    bottom: 2.5rem;
+  }
+
+  .md\:right-14 {
+    right: 3.5rem;
+  }
+
   .md\:h-96 {
     height: 24rem;
   }

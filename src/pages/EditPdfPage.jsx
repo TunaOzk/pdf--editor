@@ -2,6 +2,7 @@ import React, {
   useEffect, useRef, useState,
 } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 import ShapePalette from '../component/ShapePalette';
 import ColorPalette from '../component/ColorPalette';
@@ -25,6 +26,26 @@ function EditPdfPage() {
   const startY = useRef(null);
   const prev = useRef(null);
   const [textAreaList, setTextAreaList] = useState([[]]);
+
+  const postFillableContent = async (event) => {
+    event.preventDefault();
+    try {
+      await axios.post('http://localhost:4000/pdfFileFillable', {
+        textAreaList,
+        fileList,
+        canvasSize,
+      }).then((res) => {
+        const downloadFile = document.createElement('a');
+        downloadFile.href = res.data;
+        downloadFile.download = 'fillable.pdf';
+        downloadFile.click();
+        downloadFile.remove();
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   useEffect(() => {
     if (!overlayCanvasRef.current || !actualCanvasRef.current[pageIndex]) return;
     if (prev.current) { prev.current.className = 'absolute z-10 hidden'; }
@@ -203,7 +224,7 @@ function EditPdfPage() {
           className="absolute z-20"
           style={{ width: canvasSize.width, height: canvasSize.height }}
         />
-        { numPages.map((val, index) => (
+        {numPages.map((val, index) => (
           <canvas
             key={`canvas${index + 1}`}
             // eslint-disable-next-line no-return-assign
@@ -236,6 +257,16 @@ function EditPdfPage() {
             />
           ))}
         </div>
+        <button
+          className="transition ease-in-out delay-75 hover:-translate-y-1
+      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
+  rounded-md absolute bottom-10 right-10 p-4"
+          type="button"
+          onClick={(event) => postFillableContent(event)}
+        >
+          Merge Your All PDF Files
+
+        </button>
 
       </div>
 
