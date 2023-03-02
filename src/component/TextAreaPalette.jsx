@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { ReactComponent as SimpleTextAreaIcon } from '../assets/simple_text_area.svg';
 import { ReactComponent as FillableTextAreaIcon } from '../assets/fillable_text_area.svg';

@@ -6,14 +6,13 @@ import { ReactComponent as CircleDraw } from '../assets/draw_circle.svg';
 import { ReactComponent as RectangleDraw } from '../assets/draw_rectangle.svg';
 import { ReactComponent as EraserIcon } from '../assets/eraser.svg';
 
-function ColorPalette({ onClicks, eraserRef }) {
+function ColorPalette({ onClicks }) {
   return (
     <div className="h-full flex justify-evenly">
       <button
         className="transition ease-out hover:-translate-y-0.5"
         name="free"
         onClick={(e) => {
-          eraserRef.current.globalCompositeOperation = 'source-over';
           onClicks(e);
         }}
         type="button"
@@ -24,10 +23,7 @@ function ColorPalette({ onClicks, eraserRef }) {
       <button
         className="transition ease-out hover:-translate-y-0.5"
         name="circle"
-        onClick={(e) => {
-          eraserRef.current.globalCompositeOperation = 'source-over';
-          onClicks(e);
-        }}
+        onClick={onClicks}
         type="button"
       >
         <CircleDraw className="ml-2" />
@@ -36,10 +32,7 @@ function ColorPalette({ onClicks, eraserRef }) {
       <button
         className="transition ease-out hover:-translate-y-0.5"
         name="rectangle"
-        onClick={(e) => {
-          eraserRef.current.globalCompositeOperation = 'source-over';
-          onClicks(e);
-        }}
+        onClick={onClicks}
         type="button"
       >
         <RectangleDraw className="ml-5" />
@@ -47,10 +40,7 @@ function ColorPalette({ onClicks, eraserRef }) {
       </button>
       <button
         name="eraser"
-        onClick={(e) => {
-          eraserRef.current.globalCompositeOperation = 'destination-out';
-          onClicks(e);
-        }}
+        onClick={onClicks}
         className="transition ease-out hover:-translate-y-0.5"
         type="button"
       >
@@ -63,7 +53,6 @@ function ColorPalette({ onClicks, eraserRef }) {
 
 ColorPalette.propTypes = {
   onClicks: PropTypes.func.isRequired,
-  eraserRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }).isRequired,
 };
 
 export default ColorPalette;

@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useRef, useState,
+  useEffect, useMemo, useRef, useState,
 } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -8,70 +8,24 @@ import ShapePalette from '../component/ShapePalette';
 import ColorPalette from '../component/ColorPalette';
 import TextArea from '../component/TextArea';
 import TextAreaPalette from '../component/TextAreaPalette';
+import DrawArea from '../component/DrawArea';
 
 function EditPdfPage() {
   const location = useLocation();
-  const numOfFiles = location.state.length;
-  const fileList = [...Array(numOfFiles)].map((value, index) => location.state[index].base64);
-  const fileNames = [...Array(numOfFiles)].map((value, index) => location.state[index].name);
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const file = location.state.base64;
+  const fileName = location.state.name;
   const [pageIndex, setPageIndex] = useState(0);
-  const [numPages, setNumPages] = useState([]);
-  const overlayCanvasRef = useRef(null);
-  const overlayContextRef = useRef(null);
-  const actualCanvasRef = useRef([null]);
-  const actualContextRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState('free');
   const [lineWidth, setLineWidth] = useState(1);
-  const startX = useRef(null);
-  const startY = useRef(null);
-  const prev = useRef(null);
   const [textAreaList, setTextAreaList] = useState([[]]);
-  useEffect(() => {
-    if (!overlayCanvasRef.current || !actualCanvasRef.current[pageIndex]) return;
-    if (prev.current) { prev.current.className = 'absolute z-10 hidden'; }
-    actualCanvasRef.current[pageIndex].className = 'absolute z-10 ';
-    prev.current = actualCanvasRef.current[pageIndex];
-  });
+  const actualCanvasRef = useRef([]);
+  const [pageAttributes, setPageAttributes] = useState(
+    { numPages: [], canvasWidth: 0, canvasHeight: 0 },
+  );
 
-  useEffect(() => {
-    if (!overlayCanvasRef.current || !actualCanvasRef.current[0]) return;
-    actualCanvasRef.current.forEach((item, index, arr) => {
-      const element = arr[index];
-      element.width = canvasSize.width;
-      element.height = canvasSize.height;
-    });
-    overlayCanvasRef.current.width = canvasSize.width;
-    overlayCanvasRef.current.height = canvasSize.height;
-  }, [canvasSize.height, canvasSize.width]);
-
-  useEffect(() => {
-    if (!overlayCanvasRef.current || !actualCanvasRef.current[pageIndex]) return;
-    const canvas = overlayCanvasRef.current;
-    const context = canvas.getContext('2d');
-
-    overlayContextRef.current = context;
-    context.lineCap = 'round';
-    context.strokeStyle = selectedColor;
-    context.lineWidth = lineWidth;
-
-    const canvas2 = actualCanvasRef.current[pageIndex];
-    const context2 = canvas2.getContext('2d');
-    actualContextRef.current = context2;
-    context2.lineCap = 'round';
-    context2.strokeStyle = selectedColor;
-    context2.lineWidth = lineWidth;
-  }, [pageIndex, selectedColor, canvasSize, lineWidth]);
-  const drawFreeHand = (x1, y1) => {
-    actualContextRef.current.lineTo(x1, y1);
-    actualContextRef.current.stroke();
-  };
   const postEditContent = async () => {
     const base64Canvas = actualCanvasRef.current.map((item) => item.toDataURL(''));
-    const file = fileList[0];
-    const fileName = fileNames[0];
     try {
       await axios.post('http://localhost:4000/pdfEdit', {
         textAreaList,
@@ -89,95 +43,6 @@ function EditPdfPage() {
       throw new Error(error);
     }
   };
-
-  const drawCircle = (ref, x1, y1, x2, y2) => {
-    overlayContextRef.current
-      .clearRect(0, 0, overlayCanvasRef.current.width, overlayCanvasRef.current.height);
-    ref.current.beginPath();
-    const rad = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
-    ref.current.arc(x1, y1, rad, 0, 2 * Math.PI);
-    // overlayContextRef.current.moveTo(startX.current, startY.current + (y - startY.current) / 2);
-    // overlayContextRef.current.bezierCurveTo(
-    //   startX.current,
-    //   startY.current,
-    //   x,
-    //   startY.current,
-    //   x,
-    //   startY.current + (y - startY.current) / 2,
-    // );
-    // overlayContextRef.current.bezierCurveTo(
-    //   x,
-    //   y,
-    //   startX.current,
-    //   y,
-    //   startX.current,
-    //   startY.current + (y - startY.current) / 2,
-    // );
-    ref.current.closePath();
-    ref.current.stroke();
-  };
-
-  const drawRectangle = (ref, x1, y1, x2, y2) => {
-    const w = x1 - x2;
-    const h = y1 - y2;
-    overlayContextRef.current
-      .clearRect(0, 0, overlayCanvasRef.current.width, overlayCanvasRef.current.height);
-    ref.current.strokeRect(
-      x2,
-      y2,
-      w,
-      h,
-    );
-  };
-
-  const drawShape = (ref, shape, x1, y1, x2, y2) => {
-    switch (shape) {
-      case 'free':
-        return drawFreeHand(x1, y1);
-      case 'eraser':
-        return drawFreeHand(x1, y1);
-      case 'circle':
-        return drawCircle(ref, x2, y2, x1, y1);
-      case 'rectangle':
-        return drawRectangle(ref, x2, y2, x1, y1);
-      default:
-        return drawFreeHand(ref, x1, y1);
-    }
-  };
-
-  const startDrawing = ({ nativeEvent }) => {
-    nativeEvent.preventDefault();
-    nativeEvent.stopPropagation();
-    overlayCanvasRef.current.className = 'absolute z-30';
-    setIsDrawing(true);
-    const { offsetX, offsetY } = nativeEvent;
-    startX.current = offsetX;
-    startY.current = offsetY;
-    actualContextRef.current.beginPath();
-    actualContextRef.current.moveTo(startX.current, startY.current);
-  };
-
-  const finishDrawing = ({ nativeEvent }) => {
-    nativeEvent.preventDefault();
-    nativeEvent.stopPropagation();
-    overlayCanvasRef.current.className = 'absolute z-20';
-    const { offsetX, offsetY } = nativeEvent;
-    actualContextRef.current.closePath();
-
-    setIsDrawing(false);
-    if (selectedShape !== 'free') {
-      drawShape(actualContextRef, selectedShape, offsetX, offsetY, startX.current, startY.current);
-    }
-  };
-
-  const draw = ({ nativeEvent }) => {
-    nativeEvent.preventDefault();
-    nativeEvent.stopPropagation();
-    if (!isDrawing) return;
-    const { offsetX, offsetY } = nativeEvent;
-    drawShape(overlayContextRef, selectedShape, offsetX, offsetY, startX.current, startY.current);
-  };
-
   const handleClickColor = (e) => {
     const { backgroundColor } = e.target.style;
     setSelectedColor(backgroundColor);
@@ -187,11 +52,15 @@ function EditPdfPage() {
     setSelectedShape(e.currentTarget.name);
   };
   const handleLoadSucces = (pdf) => {
-    setNumPages(Array.from(Array(pdf.numPages).keys()));
     setTextAreaList([...Array(pdf.numPages)].map((val, index) => []));
+
     pdf.getPage(1).then((page) => {
       const viewPort = page.getViewport({ scale: 1 });
-      setCanvasSize({ width: viewPort.width, height: viewPort.height });
+      setPageAttributes({
+        numPages: Array.from(Array(pdf.numPages).keys()),
+        canvasWidth: viewPort.width,
+        canvasHeight: viewPort.height,
+      });
     });
   };
 
@@ -213,6 +82,16 @@ function EditPdfPage() {
       return newArr;
     });
   };
+  const memoizedDrawArea = useMemo(() => (
+    <DrawArea
+      pageAttributes={pageAttributes}
+      selectedColor={selectedColor}
+      selectedShape={selectedShape}
+      pageIndex={pageIndex}
+      lineWidth={lineWidth}
+      actualCanvasRef={actualCanvasRef}
+    />
+  ), [pageAttributes, lineWidth, pageIndex, selectedColor, selectedShape]);
   return (
     <div className="h-screen w-screen flex flex-col bg-stone-200">
 
@@ -226,7 +105,7 @@ function EditPdfPage() {
           />
         </div>
         <div className="">
-          <ShapePalette onClicks={handleClickShape} eraserRef={actualContextRef} />
+          <ShapePalette onClicks={handleClickShape} />
         </div>
         <div className="h-full flex">
           <TextAreaPalette
@@ -235,32 +114,14 @@ function EditPdfPage() {
         </div>
       </div>
       <div className="flex flex-col items-center justify-center h-5/6 w-full">
-        <canvas
-          ref={overlayCanvasRef}
-          onMouseDown={startDrawing}
-          onMouseUp={finishDrawing}
-          onMouseMove={draw}
-          onMouseLeave={() => { setIsDrawing(false); }}
-          className="absolute z-20"
-          style={{ width: canvasSize.width, height: canvasSize.height }}
-        />
-        { numPages.map((val, index) => (
-          <canvas
-            key={`canvas${index + 1}`}
-            // eslint-disable-next-line no-return-assign
-            ref={(ref) => actualCanvasRef.current[index] = ref}
-            className="absolute z-10 hidden"
-            style={{ width: canvasSize.width, height: canvasSize.height }}
-          />
-        ))}
+        {memoizedDrawArea}
         <div>
           <PdfPreviewArea
             onLoadSuccessForEditPage={handleLoadSucces}
-            file={fileList[0]}
+            file={file}
             pageIndex={pageIndex}
             setPageIndex={setPageIndex}
-            currentPdfPages={numPages}
-            setCanvasSize={setCanvasSize}
+            currentPdfPages={pageAttributes.numPages}
             width={null}
           />
           {textAreaList[pageIndex].map((val, index) => (
@@ -292,7 +153,6 @@ function EditPdfPage() {
         </button>
 
       </div>
-
     </div>
   );
 }
