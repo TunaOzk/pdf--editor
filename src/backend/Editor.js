@@ -56,21 +56,22 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 }
 
-async function fillForm(textAreaList, file, base64Canvas) {
+async function fillForm(textAreaList, file, base64Canvas, screenSize) {
     const mainPdf = await PDFDocument.load(file);
-    for(let i = 0; i < textAreaList.length; i++) {
+    for (let i = 0; i < textAreaList.length; i++) {
         textAreaList[i].forEach(async textArea => {
             const font = await mainPdf.embedFont(`${textArea.font}`);
             const page = mainPdf.getPage(i);
             page.setFont(font);
             const widthValue = Number(textArea.width.substring(0, textArea.width.indexOf("p")))
             const heightValue = Number(textArea.height.substring(0, textArea.height.indexOf("p")))
-            
-            if(textArea.type === 'S') {
+
+            const rate = page.getHeight() / screenSize
+            if (textArea.type === 'S') {
                 const multiText = layoutMultilineText(textArea.content, {
                     font: font,
                     fontSize: textArea.fontSize,
-                    bounds: { x:textArea.x, y:(page.getHeight() - textArea.y- heightValue), width: widthValue, height: heightValue  },
+                    bounds: { x: textArea.x * rate, y: (screenSize - textArea.y - heightValue) * rate, width: widthValue, height: heightValue },
                 })
                 multiText.lines.forEach(line => {
                     page.drawText(line.text, {
@@ -81,13 +82,13 @@ async function fillForm(textAreaList, file, base64Canvas) {
                     )
                 });
             }
-            else if(textArea.type === 'F') {
+            else if (textArea.type === 'F') {
                 const form = mainPdf.getForm();
                 const fillableField = form.createTextField(`textArea.Field${i}${textArea.ID}`);
                 fillableField.setText(textArea.content);
-                fillableField.addToPage(page, { 
-                    x: textArea.x, 
-                    y: (page.getHeight() - textArea.y - heightValue),
+                fillableField.addToPage(page, {
+                    x: textArea.x * rate,
+                    y: (screenSize - textArea.y - heightValue) * rate,
                     width: widthValue,
                     height: heightValue,
                 })
@@ -107,10 +108,10 @@ async function addCanvasToPDF(file, base64Canvas) {
         const canvas = await mainPdf.embedPng(base64Canvas[i]);
         const firstPage = mainPdf.getPage(i);
         firstPage.drawImage(canvas, {
-            x:0,
-            y:0,
-            width:canvas.width,
-            height:canvas.height,
+            x: 0,
+            y: 0,
+            width: canvas.width,
+            height: canvas.height,
         })
     }
     return await mainPdf.saveAsBase64({ dataUri: true });

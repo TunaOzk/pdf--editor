@@ -23,6 +23,8 @@ function EditPdfPage() {
   const [pageAttributes, setPageAttributes] = useState(
     { numPages: [], canvasWidth: 0, canvasHeight: 0 },
   );
+  // eslint-disable-next-line no-restricted-globals
+  const screenSize = (2 * (screen.height / 3));
 
   const postEditContent = async () => {
     const base64Canvas = actualCanvasRef.current.map((item) => item.toDataURL(''));
@@ -31,6 +33,7 @@ function EditPdfPage() {
         textAreaList,
         file,
         base64Canvas,
+        screenSize,
       })
         .then((res) => {
           const a = document.createElement('a');

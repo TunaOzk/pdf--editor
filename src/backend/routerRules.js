@@ -30,8 +30,8 @@ app.post("/pdfFileIndex", async (req, res) => {
 })
 
 app.post("/pdfEdit", async (req, res) => {
-    let { textAreaList, file, base64Canvas } = req.body;
-    let a = await fillForm(textAreaList, file, base64Canvas);
+    let { textAreaList, file, base64Canvas, screenSize } = req.body;
+    let a = await fillForm(textAreaList, file, base64Canvas, screenSize);
     res.send(a);
 
 })

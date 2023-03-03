@@ -47,13 +47,18 @@ function PdfPreviewArea({
         loading={handleLoading}
         onLoadSuccess={!onLoadSuccessForEditPage ? handleLoadSucces : onLoadSuccessForEditPage}
       >
+        {// eslint-disable-next-line no-restricted-globals
+          console.log(2 * (screen.height / 3))
+        }
+
         <Page
           className="rounded-md border-4 border-purple-500 shadow-2xl"
           renderTextLayer={false}
           renderAnnotationLayer={false}
-          loading={() => {}}
+          loading={() => { }}
           pageNumber={currentPdfPages[pageIndex] + 1}
-          width={width}
+          // eslint-disable-next-line no-restricted-globals
+          height={2 * (screen.height / 3)}
           scale={scale}
         />
       </Document>

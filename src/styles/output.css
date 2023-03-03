@@ -749,25 +749,13 @@ input[type="number"] {
   height: fit-content;
 }
 
-.h-1\/6 {
-  height: 16.666667%;
-}
-
-.h-5\/6 {
-  height: 83.333333%;
-}
-
 .h-min {
   height: -webkit-min-content;
   height: min-content;
 }
 
-.h-3\/6 {
-  height: 50%;
-}
-
-.h-4\/6 {
-  height: 66.666667%;
+.h-5\/6 {
+  height: 83.333333%;
 }
 
 .w-6 {
@@ -812,10 +800,6 @@ input[type="number"] {
   width: 80%;
 }
 
-.w-8 {
-  width: 2rem;
-}
-
 @-webkit-keyframes spin {
   to {
     -webkit-transform: rotate(360deg);
@@ -837,10 +821,6 @@ input[type="number"] {
 
 .cursor-pointer {
   cursor: pointer;
-}
-
-.cursor-crosshair {
-  cursor: crosshair;
 }
 
 .resize-none {
@@ -910,32 +890,12 @@ input[type="number"] {
   border-color: rgb(167 139 250 / var(--tw-divide-opacity));
 }
 
-.overflow-auto {
-  overflow: auto;
-}
-
 .overflow-hidden {
   overflow: hidden;
 }
 
-.overflow-scroll {
-  overflow: scroll;
-}
-
 .overflow-y-auto {
   overflow-y: auto;
-}
-
-.overflow-x-hidden {
-  overflow-x: hidden;
-}
-
-.overflow-y-hidden {
-  overflow-y: hidden;
-}
-
-.overflow-y-scroll {
-  overflow-y: scroll;
 }
 
 .rounded-md {
