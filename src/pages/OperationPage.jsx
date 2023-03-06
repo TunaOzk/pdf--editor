@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PDF_EDIT_PAGE_PATH, EDIT_PDF_PAGE_PATH } from '../constants/routePaths';
+import { PDF_MERGE_PAGE_PATH, EDIT_PDF_PAGE_PATH } from '../constants/routePaths';
 import pdfImg from '../assets/file-pdf-solid-240.png';
 import { ReactComponent as EditIcon } from '../assets/edit.svg';
 import { ReactComponent as MergeIcon } from '../assets/merge.svg';
@@ -15,7 +15,6 @@ function OperationPage() {
   return (
     <div className="h-screen w-screen flex items-center justify-around bg-stone-200">
       <div
-        // onClick={() => navigate(EDIT_PDF_PAGE_PATH, { state: location.state })}
         onClick={() => setIsVisible((prev) => !prev)}
         tabIndex={0}
         onKeyDown={() => { }}
@@ -38,7 +37,7 @@ function OperationPage() {
           </p>
         </div>
 
-        <div className={`absolute transition-opacity ease-in duration-300 
+        <div className={`absolute transition-opacity ease-in duration-300
         ${!isVisible ? 'opacity-0' : 'opacity-100'} grid grid-rows-${fileNames.length} gap-4`}
         >
           <p className="text-center text-xl">Please select a PDF</p>
@@ -51,16 +50,14 @@ function OperationPage() {
               key={`file_${val}`}
             >
               <img src={pdfImg} alt="" className="w-10" />
-              <div>
-                {val}
-              </div>
+              <textarea readOnly value={val} disabled className="w-fit resize-none overflow-hidden hover:cursor-pointer" />
             </button>
           ))}
         </div>
       </div>
 
       <div
-        onClick={() => navigate(PDF_EDIT_PAGE_PATH, { state: location.state })}
+        onClick={() => navigate(PDF_MERGE_PAGE_PATH, { state: location.state })}
         tabIndex={0}
         onKeyDown={() => { }}
         role="button"

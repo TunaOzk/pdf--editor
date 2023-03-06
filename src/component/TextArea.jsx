@@ -67,6 +67,7 @@ function TextArea({
   return (
     <Rnd
       className="absolute z-20"
+      bounds="parent"
       onResizeStart={(e, direction, ref) => {
         const rndRef = ref;
         rndRef.className = 'absolute z-20 border-2 border-dashed border-violet-600';
@@ -110,7 +111,7 @@ function TextArea({
             className="absolute hover:cursor-pointer hover:bg-red-600 border-2 border-black"
           />
           { visible && (
-          <div className="flex justify-between absolute right-0 w-64 h-fit bg-transparent border-2 border-violet-400">
+          <div className="flex justify-between absolute right-0 w-52 h-fit bg-transparent border-2 border-violet-400">
             <select value={textArea.font} onChange={handleFontChange} name="font-select" id="font">
               {fonts.map((val) => (<option value={val} key={`font_${val}`}>{val}</option>))}
             </select>

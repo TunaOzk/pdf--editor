@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useMemo, useRef, useState,
+  useMemo, useRef, useState,
 } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -14,20 +14,35 @@ function EditPdfPage() {
   const location = useLocation();
   const file = location.state.base64;
   const fileName = location.state.name;
+  // eslint-disable-next-line no-restricted-globals
+  const screenSize = (screen.height * 0.6);
   const [pageIndex, setPageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState('#000000');
-  const [selectedShape, setSelectedShape] = useState('free');
+  const [selectedShape, setSelectedShape] = useState('');
   const [lineWidth, setLineWidth] = useState(1);
   const [textAreaList, setTextAreaList] = useState([[]]);
   const actualCanvasRef = useRef([]);
   const [pageAttributes, setPageAttributes] = useState(
     { numPages: [], canvasWidth: 0, canvasHeight: 0 },
   );
-  // eslint-disable-next-line no-restricted-globals
-  const screenSize = (2 * (screen.height / 3));
+  const actualCanvasSize = useRef({ width: 0, height: 0 });
 
   const postEditContent = async () => {
-    const base64Canvas = actualCanvasRef.current.map((item) => item.toDataURL(''));
+    const base64Canvas = actualCanvasRef.current.map((item) => {
+      const newCanvas = document.createElement('canvas');
+      newCanvas.width = actualCanvasSize.current.width;
+      newCanvas.height = actualCanvasSize.current.height;
+      newCanvas.getContext('2d').drawImage(
+        item,
+        0,
+        0,
+        newCanvas.width,
+        newCanvas.height,
+      );
+      const dataUri = newCanvas.toDataURL('');
+      newCanvas.remove();
+      return dataUri;
+    });
     try {
       await axios.post('http://localhost:4000/pdfEdit', {
         textAreaList,
@@ -59,15 +74,19 @@ function EditPdfPage() {
 
     pdf.getPage(1).then((page) => {
       const viewPort = page.getViewport({ scale: 1 });
+      actualCanvasSize.current = { width: viewPort.width, height: viewPort.height };
       setPageAttributes({
         numPages: Array.from(Array(pdf.numPages).keys()),
-        canvasWidth: viewPort.width,
-        canvasHeight: viewPort.height,
+        // canvasWidth: viewPort.width,
+        // canvasHeight: viewPort.height,
+        canvasWidth: (screenSize / viewPort.height) * viewPort.width,
+        canvasHeight: screenSize,
       });
     });
   };
 
   const handleTextAreaAdd = (_type) => {
+    setSelectedShape('');
     setTextAreaList((prevArr) => {
       const newArr = [...prevArr];
       const temp = [...newArr[pageIndex], {
@@ -125,7 +144,8 @@ function EditPdfPage() {
             pageIndex={pageIndex}
             setPageIndex={setPageIndex}
             currentPdfPages={pageAttributes.numPages}
-            width={null}
+            // // eslint-disable-next-line no-restricted-globals
+            // height={3 * (screen.height / 5)}
           />
           {textAreaList[pageIndex].map((val, index) => (
             <TextArea

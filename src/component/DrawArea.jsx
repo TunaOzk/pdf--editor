@@ -107,8 +107,7 @@ function DrawArea({
         actualContextRef.current.globalCompositeOperation = 'source-over';
         return drawRectangle(ref, x2, y2, x1, y1);
       default:
-        actualContextRef.current.globalCompositeOperation = 'source-over';
-        return drawFreeHand(ref, x1, y1);
+        return null;
     }
   };
 
@@ -130,7 +129,6 @@ function DrawArea({
     overlayCanvasRef.current.className = 'z-20';
     const { offsetX, offsetY } = nativeEvent;
     actualContextRef.current.closePath();
-
     setIsDrawing(false);
     if (selectedShape !== 'free') {
       drawShape(
@@ -163,9 +161,9 @@ function DrawArea({
     <div className="absolute flex justify-center">
       <canvas
         ref={overlayCanvasRef}
-        onMouseDown={startDrawing}
-        onMouseUp={finishDrawing}
-        onMouseMove={draw}
+        onMouseDown={selectedShape && startDrawing}
+        onMouseUp={selectedShape && finishDrawing}
+        onMouseMove={selectedShape && draw}
         onMouseLeave={() => { setIsDrawing(false); }}
         className="z-20"
         style={{ width: pageAttributes.canvasWidth, height: pageAttributes.canvasHeight }}
@@ -180,7 +178,6 @@ function DrawArea({
           style={{ width: pageAttributes.canvasWidth, height: pageAttributes.canvasHeight }}
         />
       ))}
-
     </div>
   );
 }
