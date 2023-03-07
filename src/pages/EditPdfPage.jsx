@@ -20,7 +20,7 @@ function EditPdfPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState({ name: '' });
-  const [lineWidth, setLineWidth] = useState(1);
+  const [lineWidth, setLineWidth] = useState(10);
   const [textAreaList, setTextAreaList] = useState([[]]);
   const fabricRef = useRef([]);
   const [pageAttributes, setPageAttributes] = useState(
