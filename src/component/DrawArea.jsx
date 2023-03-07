@@ -41,6 +41,14 @@ function DrawArea({
     if (!fabricRef.current[pageIndex]) return;
     fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
     fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
+    const objects = fabricRef.current[pageIndex].getActiveObjects();
+    if (objects) {
+      objects.forEach((obj) => {
+        obj.set('stroke', selectedColor);
+        obj.set('strokeWidth', lineWidth);
+      });
+      fabricRef.current[pageIndex].renderAll();
+    }
   }, [pageIndex, selectedColor, lineWidth]);
 
   const drawFreeHand = () => {
