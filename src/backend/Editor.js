@@ -108,8 +108,8 @@ async function pdfSplit(mainFile, splitPages) {
         mainPdf.removePage(splitPages[0]);
     }
     var array = [];
-    array[0] = await mainPdf.saveAsBase64({ dataUri: true });
-    array[1] = await pdfDoc.saveAsBase64({ dataUri: true })
+    array[0] = await mainPdf.saveAsBase64();
+    array[1] = await pdfDoc.saveAsBase64()
     array.push(10);
 
     return array;

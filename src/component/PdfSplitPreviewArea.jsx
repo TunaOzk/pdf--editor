@@ -4,9 +4,11 @@ import PropTypes, { number } from 'prop-types';
 import { last } from 'pdf-lib';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 import IntervalBar from './IntervalBar';
+import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
+import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
 
 function PdfSplitPreviewArea({
-  file, setCurrentPdfPages, setSplitPdfPages,
+  file, setCurrentPdfPages, setSplitPdfPages, toggleOparation, setRangeNumber,
 }) {
   const [pdfLength, setPdfLength] = useState(0);
   const [screenScale, setScreenScale] = useState(0);
@@ -19,6 +21,7 @@ function PdfSplitPreviewArea({
 
   const [pageIndexFirst, setPageIndexFirst] = useState(1);
   const [pageIndexLast, setPageIndexLast] = useState(1);
+  const [rangeIndex, setRangeIndex] = useState(0);
 
   const handleLoadSucces = (pdf) => {
     setPdfLength(pdf.numPages);
@@ -27,6 +30,18 @@ function PdfSplitPreviewArea({
     setCurrPdfPages(pdfPages);
     setCurrentPdfPages(() => pdfPages);
   };
+  const handleRangeClickForwardFirst = () => {
+    if (rangeIndex + 1 <= pageIndexLast) {
+      setRangeIndex(rangeIndex + 1);
+    }
+  };
+
+  const handleRangeClickBackFirst = () => {
+    if (rangeIndex - 1 > 0) {
+      setRangeIndex(rangeIndex - 1);
+    }
+  };
+
   const handleNavigationClickForwardFirst = () => {
     if (pageIndexFirst + 1 <= pageIndexLast) {
       setPageIndexFirst(pageIndexFirst + 1);
@@ -55,6 +70,14 @@ function PdfSplitPreviewArea({
   }
 
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
+
+  const handleChangeRange = (e) => {
+    const pageNum = Number(e.target.value);
+    if (pageNum > 0 && pageNum <= pdfLength && pageNum <= pageIndexLast) {
+      setRangeIndex(pageNum);
+    }
+  };
+
   const handleChangeFirst = (e) => {
     const pageNum = Number(e.target.value);
     if (pageNum > 0 && pageNum <= pdfLength && pageNum <= pageIndexLast) {
@@ -72,8 +95,10 @@ function PdfSplitPreviewArea({
   useEffect(() => {
     const pdfPages = range(pageIndexFirst - 1, pageIndexLast - 1);
     setCurrSplitPdfPages(pdfPages);
-    // console.log(currSplitPdfPages);
+    if (toggleOparation) setRangeIndex(0);
+
     setSplitPdfPages(() => pdfPages);
+    setRangeNumber(rangeIndex);
     // eslint-disable-next-line no-restricted-globals
     if (screen.width > 700) {
       // eslint-disable-next-line no-restricted-globals
@@ -84,7 +109,7 @@ function PdfSplitPreviewArea({
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndexFirst, pageIndexLast, setSplitPdfPages]);
+  }, [pageIndexFirst, pageIndexLast, setSplitPdfPages, setRangeIndex, rangeIndex, toggleOparation]);
 
   return (
     (pdfLength > 1 && pageIndexFirst !== pageIndexLast) ? (
@@ -118,19 +143,45 @@ function PdfSplitPreviewArea({
             scale={screenScale}
           />
         </Document>
-        <IntervalBar
-          onClickBackFirst={handleNavigationClickBackFirst}
-          onClickForwardFirst={handleNavigationClickForwardFirst}
-          onClickBackLast={handleNavigationClickBackLast}
-          onClickForwardLast={handleNavigationClickForwardLast}
-          inputFirstRef={inputFirstRef}
-          inputLastRef={inputLastRef}
-          inputFirstValue={pageIndexFirst}
-          inputLastValue={pageIndexLast}
-          onChangeFirst={handleChangeFirst}
-          onChangeLast={handleChangeLast}
-          pdfLength={pdfLength}
-        />
+        {toggleOparation ? (
+          <IntervalBar
+            onClickBackFirst={handleNavigationClickBackFirst}
+            onClickForwardFirst={handleNavigationClickForwardFirst}
+            onClickBackLast={handleNavigationClickBackLast}
+            onClickForwardLast={handleNavigationClickForwardLast}
+            inputFirstRef={inputFirstRef}
+            inputLastRef={inputLastRef}
+            inputFirstValue={pageIndexFirst}
+            inputLastValue={pageIndexLast}
+            onChangeFirst={handleChangeFirst}
+            onChangeLast={handleChangeLast}
+            pdfLength={pdfLength}
+          />
+        ) : (
+          <div className="flex transition ease-in-out p-4
+        text-white text-lg delay-75 opacity-70 hover:opacity-100 absolute max-[770px]:bottom-20 md:bottom-10 rounded-md bg-purple-500"
+          >
+            <div>
+
+              Enter the range:
+              <button
+                className="ml-2"
+                type="button"
+                onClick={handleRangeClickBackFirst}
+              >
+                <BackIcon />
+              </button>
+              <input type="number" ref={inputFirstRef} value={rangeIndex} onChange={handleChangeRange} onWheel={(e) => e.target.blur()} min={1} max={pdfLength} className="text-base text-black text-center h-6 w-10 resize-none rounded-md overflow-hidden" />
+              <button
+                className=""
+                type="button"
+                onClick={handleRangeClickForwardFirst}
+              >
+                <ForwardIcon />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     ) : (
       <div className=" flex flex-row items-center  justify-center h-screen">
@@ -175,6 +226,8 @@ PdfSplitPreviewArea.propTypes = {
   file: PropTypes.string.isRequired,
   setCurrentPdfPages: PropTypes.func.isRequired,
   setSplitPdfPages: PropTypes.func.isRequired,
+  toggleOparation: PropTypes.bool.isRequired,
+  setRangeNumber: PropTypes.func.isRequired,
 };
 
 export default PdfSplitPreviewArea;
