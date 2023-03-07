@@ -21,7 +21,7 @@ function ColorPalette({
         {visible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </div>
       { visible && (
-      <div onBlur={() => setVisible(false)} className="absolute left-0 top-14 border-4 border-violet-400 bg-green-50 p-4">
+      <div onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)} className="absolute left-0 top-14 border-4 border-violet-400 bg-green-50 p-4">
         <div className="mb-2 grid grid-cols-6 gap-2">
           <button onClick={onClicks} style={{ backgroundColor: '#FF0000' }} className="rounded-md w-6 h-6" aria-label="main-red" type="button" />
           <button onClick={onClicks} style={{ backgroundColor: '#FFA500' }} className="rounded-md w-6 h-6" aria-label="main-orange" type="button" />

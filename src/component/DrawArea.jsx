@@ -37,19 +37,33 @@ function DrawArea({
     });
   }, [pageAttributes]);
 
+  // useEffect(() => {
+  //   if (!fabricRef.current[pageIndex]) return;
+  // }, [pageIndex, selectedColor, lineWidth]);
+
   useEffect(() => {
     if (!fabricRef.current[pageIndex]) return;
     fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
-    fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
     const objects = fabricRef.current[pageIndex].getActiveObjects();
     if (objects) {
       objects.forEach((obj) => {
         obj.set('stroke', selectedColor);
+      });
+      fabricRef.current[pageIndex].renderAll();
+    }
+  }, [selectedColor]);
+
+  useEffect(() => {
+    if (!fabricRef.current[pageIndex]) return;
+    fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
+    const objects = fabricRef.current[pageIndex].getActiveObjects();
+    if (objects) {
+      objects.forEach((obj) => {
         obj.set('strokeWidth', lineWidth);
       });
       fabricRef.current[pageIndex].renderAll();
     }
-  }, [pageIndex, selectedColor, lineWidth]);
+  }, [lineWidth]);
 
   const drawFreeHand = () => {
     fabricRef.current[pageIndex].freeDrawingBrush = new
@@ -61,9 +75,10 @@ function DrawArea({
 
   const drawCircle = () => {
     fabricRef.current[pageIndex].isDrawingMode = false;
+    const center = fabricRef.current[pageIndex].getCenter();
     const circ = new fabric.Circle({
-      top: 50,
-      left: 50,
+      top: center.top,
+      left: center.left,
       radius: 50,
       fill: '',
       stroke: selectedColor,
@@ -74,9 +89,10 @@ function DrawArea({
   };
   const drawRectangle = () => {
     fabricRef.current[pageIndex].isDrawingMode = false;
+    const center = fabricRef.current[pageIndex].getCenter();
     const rect = new fabric.Rect({
-      top: 50,
-      left: 50,
+      top: center.top,
+      left: center.left,
       width: 50,
       height: 50,
       stroke: selectedColor,
@@ -99,6 +115,7 @@ function DrawArea({
     objects.forEach((obj) => {
       fabricRef.current[pageIndex].remove(obj);
     });
+    fabricRef.current[pageIndex].renderAll();
   };
 
   const drawShape = (shape) => {
