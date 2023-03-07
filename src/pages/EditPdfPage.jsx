@@ -18,22 +18,23 @@ function EditPdfPage() {
   const screenSize = (screen.height * 0.6);
   const [pageIndex, setPageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState('#000000');
-  const [selectedShape, setSelectedShape] = useState('');
+  const [selectedShape, setSelectedShape] = useState({ name: '' });
   const [lineWidth, setLineWidth] = useState(1);
   const [textAreaList, setTextAreaList] = useState([[]]);
-  const actualCanvasRef = useRef([]);
+  const fabricRef = useRef([]);
   const [pageAttributes, setPageAttributes] = useState(
     { numPages: [], canvasWidth: 0, canvasHeight: 0 },
   );
   const actualCanvasSize = useRef({ width: 0, height: 0 });
 
   const postEditContent = async () => {
-    const base64Canvas = actualCanvasRef.current.map((item) => {
+    const base64Canvas = fabricRef.current.map((item) => {
+      item.discardActiveObject().renderAll();
       const newCanvas = document.createElement('canvas');
       newCanvas.width = actualCanvasSize.current.width;
       newCanvas.height = actualCanvasSize.current.height;
       newCanvas.getContext('2d').drawImage(
-        item,
+        item.lowerCanvasEl,
         0,
         0,
         newCanvas.width,
@@ -67,7 +68,7 @@ function EditPdfPage() {
   };
 
   const handleClickShape = (e) => {
-    setSelectedShape(e.currentTarget.name);
+    setSelectedShape({ name: e.currentTarget.name });
   };
   const handleLoadSucces = (pdf) => {
     setTextAreaList([...Array(pdf.numPages)].map((val, index) => []));
@@ -111,7 +112,7 @@ function EditPdfPage() {
       selectedShape={selectedShape}
       pageIndex={pageIndex}
       lineWidth={lineWidth}
-      actualCanvasRef={actualCanvasRef}
+      fabricRef={fabricRef}
     />
   ), [pageAttributes, lineWidth, pageIndex, selectedColor, selectedShape]);
   return (

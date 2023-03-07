@@ -1,10 +1,11 @@
 /* eslint-disable no-param-reassign */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ReactComponent as FreeHandDraw } from '../assets/draw_free_hand.svg';
+import { ReactComponent as FreeHandDraw } from '../assets/brush.svg';
 import { ReactComponent as CircleDraw } from '../assets/draw_circle.svg';
 import { ReactComponent as RectangleDraw } from '../assets/draw_rectangle.svg';
 import { ReactComponent as EraserIcon } from '../assets/eraser.svg';
+import { ReactComponent as SelectIcon } from '../assets/select.svg';
 
 function ColorPalette({ onClicks }) {
   return (
@@ -12,9 +13,7 @@ function ColorPalette({ onClicks }) {
       <button
         className="transition ease-out hover:-translate-y-0.5"
         name="free"
-        onClick={(e) => {
-          onClicks(e);
-        }}
+        onClick={onClicks}
         type="button"
       >
         <FreeHandDraw className="ml-2" />
@@ -39,6 +38,15 @@ function ColorPalette({ onClicks }) {
         Rectangle
       </button>
       <button
+        name="eraser-object"
+        onClick={onClicks}
+        className="transition ease-out hover:-translate-y-0.5"
+        type="button"
+      >
+        <EraserIcon className="ml-8" />
+        Object Eraser
+      </button>
+      <button
         name="eraser"
         onClick={onClicks}
         className="transition ease-out hover:-translate-y-0.5"
@@ -46,6 +54,15 @@ function ColorPalette({ onClicks }) {
       >
         <EraserIcon className="ml-2" />
         Eraser
+      </button>
+      <button
+        name="select"
+        onClick={onClicks}
+        className="transition ease-out hover:-translate-y-0.5"
+        type="button"
+      >
+        <SelectIcon className="ml-2" />
+        Select
       </button>
     </div>
   );
