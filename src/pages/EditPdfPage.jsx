@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import React, {
   useMemo, useRef, useState,
 } from 'react';
@@ -14,8 +15,8 @@ function EditPdfPage() {
   const location = useLocation();
   const file = location.state.base64;
   const fileName = location.state.name;
-  // eslint-disable-next-line no-restricted-globals
   const screenSize = (screen.height * 0.6);
+
   const [pageIndex, setPageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState({ name: '' });
@@ -23,16 +24,21 @@ function EditPdfPage() {
   const [textAreaList, setTextAreaList] = useState([[]]);
   const fabricRef = useRef([]);
   const [pageAttributes, setPageAttributes] = useState(
-    { numPages: [], canvasWidth: 0, canvasHeight: 0 },
+    {
+      numPages: [],
+      canvasWidth: 0,
+      canvasHeight: 0,
+      actualCanvasWidth: 0,
+      actualCanvasHeight: 0,
+    },
   );
-  const actualCanvasSize = useRef({ width: 0, height: 0 });
 
   const postEditContent = async () => {
     const base64Canvas = fabricRef.current.map((item) => {
       item.discardActiveObject().renderAll();
       const newCanvas = document.createElement('canvas');
-      newCanvas.width = actualCanvasSize.current.width;
-      newCanvas.height = actualCanvasSize.current.height;
+      newCanvas.width = pageAttributes.actualCanvasWidth;
+      newCanvas.height = pageAttributes.actualCanvasHeight;
       newCanvas.getContext('2d').drawImage(
         item.lowerCanvasEl,
         0,
@@ -75,11 +81,10 @@ function EditPdfPage() {
 
     pdf.getPage(1).then((page) => {
       const viewPort = page.getViewport({ scale: 1 });
-      actualCanvasSize.current = { width: viewPort.width, height: viewPort.height };
       setPageAttributes({
         numPages: Array.from(Array(pdf.numPages).keys()),
-        // canvasWidth: viewPort.width,
-        // canvasHeight: viewPort.height,
+        actualCanvasWidth: viewPort.width,
+        actualCanvasHeight: viewPort.height,
         canvasWidth: (screenSize / viewPort.height) * viewPort.width,
         canvasHeight: screenSize,
       });
@@ -145,8 +150,6 @@ function EditPdfPage() {
             pageIndex={pageIndex}
             setPageIndex={setPageIndex}
             currentPdfPages={pageAttributes.numPages}
-            // // eslint-disable-next-line no-restricted-globals
-            // height={3 * (screen.height / 5)}
           />
           {textAreaList[pageIndex].map((val, index) => (
             <TextArea
