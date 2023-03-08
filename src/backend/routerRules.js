@@ -1,8 +1,5 @@
 const express = require("express");
-const { reorderPDFpage } = require('./Editor');
-const { mergePDF } = require('./Editor');
-const { addCanvasToPDF } = require('./Editor');
-const { fillForm } = require('./Editor');
+const { reorderPDFpage, mergePDF, fillForm, pdfSplit } = require('./Editor');
 const app = express();
 const port = 4000;
 const cors = require("cors");
@@ -16,8 +13,8 @@ app.use(cors());
 
 app.post("/pdfMerge", async (req, res) => {
     let { finalPagesList, currentFileName, fileList } = req.body;
-    let a = await mergePDF(finalPagesList, currentFileName, fileList);
-    res.send(a)
+    let pdf = await mergePDF(finalPagesList, currentFileName, fileList);
+    res.send(pdf)
 
 })
 
@@ -28,7 +25,15 @@ app.post("/pdfFileIndex", async (req, res) => {
     res.send(a);
 
 })
+app.post("/pdfSplitFileIndex", async (req, res) => {
+    let { splitPdfPages, currentFile } = req.body;
 
+    let pdf = await pdfSplit(currentFile, splitPdfPages);
+
+    res.send(pdf);
+
+
+})
 app.post("/pdfEdit", async (req, res) => {
     let { textAreaList, file, base64Canvas, screenSize } = req.body;
     let a = await fillForm(textAreaList, file, base64Canvas, screenSize);

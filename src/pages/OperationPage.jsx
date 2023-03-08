@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PDF_MERGE_PAGE_PATH, EDIT_PDF_PAGE_PATH } from '../constants/routePaths';
 import pdfImg from '../assets/file-pdf-solid-240.png';
+import { PDF_MERGE_PAGE_PATH, EDIT_PDF_PAGE_PATH, PDF_SPLIT_PAGE_PATH } from '../constants/routePaths';
 import { ReactComponent as EditIcon } from '../assets/edit.svg';
 import { ReactComponent as MergeIcon } from '../assets/merge.svg';
 import { ReactComponent as SplitIcon } from '../assets/split.svg';
@@ -78,7 +78,13 @@ function OperationPage() {
 
       </div>
 
-      <div className="transition ease-in-out delay-200 hover:scale-110 group">
+      <div
+        onClick={() => navigate(PDF_SPLIT_PAGE_PATH, { state: location.state })}
+        tabIndex={0}
+        onKeyDown={() => { }}
+        role="button"
+        className="transition ease-in-out delay-200 hover:scale-110 group"
+      >
 
         <div>
           <SplitIcon />
