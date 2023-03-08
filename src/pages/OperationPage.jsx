@@ -19,11 +19,11 @@ function OperationPage() {
         tabIndex={0}
         onKeyDown={() => { }}
         role="button"
-        className={`flex transition ease-in-out delay-200 ${!isVisible && 'hover:scale-110'} group`}
+        className={`flex transition ease-in-out delay-200 ${!isVisible ? 'hover:scale-110' : 'scale-110'} group`}
       >
         <div className={`transition-opacity ease-in duration-300 ${isVisible ? 'opacity-0' : 'opacity-100'}`}>
           <div>
-            <EditIcon />
+            <EditIcon className="relative z-10" />
             <h1 className="text-xl ml-8">PDF Edit</h1>
           </div>
 
@@ -50,7 +50,7 @@ function OperationPage() {
               key={`file_${val}`}
             >
               <img src={pdfImg} alt="" className="w-10" />
-              <textarea readOnly value={val} disabled className="w-fit resize-none overflow-hidden hover:cursor-pointer" />
+              <p className="hover:cursor-pointer">{val}</p>
             </button>
           ))}
         </div>
