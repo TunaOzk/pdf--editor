@@ -5,6 +5,7 @@ import axios from 'axios';
 import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
+import LoadingScreen from '../component/LoadingScreen';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -85,23 +86,10 @@ function PdfEditPage() {
     />
   ), [currentPdfPages, currentFile, fileListIndex, pdfPagesList, setPdfPagesList]);
 
-  const loadingPopUp = (
-    <div className="absolute z-10 flex fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm
-  flex justify-center items-center"
-    >
-      <div className="flex flex-col bg-white w-1/2 h-1/3 p-2 rounded flex items-center justify-center">
-        <LoadingIcon className="animate-spin" />
-        <p className="text-purple-500 text-xl">We are getting everything ready for you. Please take a moment...</p>
-
-      </div>
-
-    </div>
-  );
-
   return (
     <div className="flex h-screen bg-stone-200">
       {memoizedPdfScrollArea}
-      {isLoading && loadingPopUp}
+      {isLoading && <LoadingScreen />}
       <form className="relative flex flex-col items-center justify-center w-4/5">
 
         <div className="absolute top-0 left-0 rounded-md border-4 border-violet-400">

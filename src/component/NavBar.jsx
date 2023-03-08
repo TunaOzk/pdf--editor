@@ -10,7 +10,7 @@ function NavBar({
 }) {
   return (
     <div className="flex transition ease-in-out p-4
-    text-white text-lg delay-75 opacity-25 hover:opacity-100 absolute bottom-10 rounded-md bg-purple-500"
+    text-white text-lg delay-75 opacity-25 hover:opacity-100 absolute z-30 bottom-10 rounded-md bg-purple-500"
     >
       <div>
         <button

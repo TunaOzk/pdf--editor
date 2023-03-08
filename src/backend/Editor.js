@@ -1,5 +1,4 @@
-const { PDFDocument } = require('pdf-lib');
-const { string, number } = require('prop-types');
+const { PDFDocument, layoutMultilineText, StandardFonts } = require('pdf-lib');
 fs = require('fs');
 
 async function mergePDF(pdfPagesList, currentFileName, fileList) {
@@ -57,42 +56,68 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 }
 
-async function fillForm(textAreaList, file) {
-    let currPage = 0;
+async function fillForm(textAreaList, file, base64Canvas, screenSize) {
     const mainPdf = await PDFDocument.load(file);
-
     for (let i = 0; i < textAreaList.length; i++) {
-        const [x] = textAreaList[i];
+        textAreaList[i].forEach(async textArea => {
+            const font = await mainPdf.embedFont(`${textArea.font}`);
+            const page = mainPdf.getPage(i);
+            page.setFont(font);
+            const widthValue = Number(textArea.width.substring(0, textArea.width.indexOf("p")))
+            const heightValue = Number(textArea.height.substring(0, textArea.height.indexOf("p")))
 
-        if (typeof x !== 'undefined') {
-            currPage = i;
-            for (let j = 0; j < textAreaList[currPage].length; j++) {
-                const values = textAreaList[currPage][j];
-                const widthValue = Number(values.width.substring(0, values.width.indexOf("p")))
-                const heightValue = Number(values.height.substring(0, values.height.indexOf("p")))
-
-                let [orderPage] = await mainPdf.copyPages(mainPdf, [currPage]);
-                const page = mainPdf.insertPage(currPage, orderPage)
-                mainPdf.removePage(currPage + 1);
+            const rate = page.getHeight() / screenSize
+            if (textArea.type === 'S') {
+                const multiText = layoutMultilineText(textArea.content, {
+                    font: font,
+                    fontSize: textArea.fontSize,
+                    bounds: { x: textArea.x * rate, y: (screenSize - textArea.y - heightValue) * rate, width: widthValue, height: heightValue },
+                })
+                multiText.lines.forEach(line => {
+                    page.drawText(line.text, {
+                        x: line.x,
+                        y: line.y,
+                        size: textArea.fontSize,
+                    },
+                    )
+                });
+            }
+            else if (textArea.type === 'F') {
                 const form = mainPdf.getForm();
-                const fillableField = form.createTextField(values.content + [currPage] + '.Field');
-                fillableField.setText(values.content);
-
+                const fillableField = form.createTextField(`textArea.Field${i}${textArea.ID}`);
+                fillableField.setText(textArea.content);
                 fillableField.addToPage(page, {
-                    x: (values.x), y: (page.getHeight() - values.y - heightValue),
+                    x: textArea.x * rate,
+                    y: (screenSize - textArea.y - heightValue) * rate,
                     width: widthValue,
                     height: heightValue,
                 })
-
             }
-        }
-
-
+        });
     }
-    return await mainPdf.saveAsBase64({ dataUri: true });
+    const temp = await mainPdf.saveAsBase64({ dataUri: true });
+    return await addCanvasToPDF(temp, base64Canvas);
+    // fs.writeFileSync("all-letters2.pdf", await mainPdf.save());
 
 }
-// async function pdfSplit(mainFile, currentPages, splitPages){
+
+async function addCanvasToPDF(file, base64Canvas) {
+    const mainPdf = await PDFDocument.load(file);
+    const numPages = mainPdf.getPageCount();
+    for (let i = 0; i < numPages; i++) {
+        if(!base64Canvas[i]) {continue;}
+        const canvas = await mainPdf.embedPng(base64Canvas[i]);
+        const firstPage = mainPdf.getPage(i);
+        firstPage.drawImage(canvas, {
+            x: 0,
+            y: 0,
+            width: canvas.width,
+            height: canvas.height,
+        })
+    }
+    return await mainPdf.saveAsBase64({ dataUri: true });
+    // fs.writeFileSync("all-letters2.pdf", await mainPdf.save());
+}
 async function pdfSplit(mainFile, splitPages) {
     const mainPdf = await PDFDocument.load(mainFile);
     const pdfDoc = await PDFDocument.create();
@@ -115,8 +140,11 @@ async function pdfSplit(mainFile, splitPages) {
     return array;
 
 }
+
 module.exports.reorderPDFpage = reorderPDFpage;
 module.exports.mergePDF = mergePDF;
+module.exports.fillForm = fillForm;
+module.exports.addCanvasToPDF = addCanvasToPDF;
 module.exports.fillForm = fillForm;
 module.exports.pdfSplit = pdfSplit;
 

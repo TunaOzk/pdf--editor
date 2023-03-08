@@ -21,8 +21,8 @@ app.post("/pdfMerge", async (req, res) => {
 app.post("/pdfFileIndex", async (req, res) => {
     let { currentPdfPages, currentFile, currentFileName } = req.body;
 
-    let [pdf] = await reorderPDFpage(currentFile, currentFileName, currentPdfPages);
-    res.send(pdf);
+    let a = await reorderPDFpage(currentFile, currentFileName, currentPdfPages);
+    res.send(a);
 
 })
 app.post("/pdfSplitFileIndex", async (req, res) => {
@@ -34,13 +34,10 @@ app.post("/pdfSplitFileIndex", async (req, res) => {
 
 
 })
-app.post("/pdfFileFillable", async (req, res) => {
-    let { textAreaList, fileList } = req.body;
-    const file = fileList[0];
-
-    pdf = await fillForm(textAreaList, file);
-
-    res.send(pdf);
+app.post("/pdfEdit", async (req, res) => {
+    let { textAreaList, file, base64Canvas, screenSize } = req.body;
+    let a = await fillForm(textAreaList, file, base64Canvas, screenSize);
+    res.send(a);
 
 })
 
