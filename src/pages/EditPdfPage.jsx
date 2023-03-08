@@ -26,10 +26,10 @@ function EditPdfPage() {
   const [pageAttributes, setPageAttributes] = useState(
     {
       numPages: [],
-      canvasWidth: 0,
+      canvasWidth: [],
       canvasHeight: 0,
-      actualCanvasWidth: 0,
-      actualCanvasHeight: 0,
+      actualCanvasWidth: [],
+      actualCanvasHeight: [],
     },
   );
 
@@ -76,18 +76,28 @@ function EditPdfPage() {
   const handleClickShape = (e) => {
     setSelectedShape({ name: e.currentTarget.name });
   };
-  const handleLoadSucces = (pdf) => {
+  const handleLoadSucces = async (pdf) => {
     setTextAreaList([...Array(pdf.numPages)].map((val, index) => []));
+    const actualCanvasWidthArr = [];
+    const actualCanvasHeightArr = [];
+    const canvasWidthArr = [];
 
-    pdf.getPage(1).then((page) => {
-      const viewPort = page.getViewport({ scale: 1 });
-      setPageAttributes({
-        numPages: Array.from(Array(pdf.numPages).keys()),
-        actualCanvasWidth: viewPort.width,
-        actualCanvasHeight: viewPort.height,
-        canvasWidth: (screenSize / viewPort.height) * viewPort.width,
-        canvasHeight: screenSize,
-      });
+    await Promise
+      .all(Array.from({ length: pdf.numPages }, (_, i) => i + 1).map(async (val, index) => {
+        await pdf.getPage(val).then((page) => {
+          const viewPort = page.getViewport({ scale: 1 });
+          actualCanvasWidthArr.push(viewPort.width);
+          actualCanvasHeightArr.push(viewPort.height);
+          canvasWidthArr.push((screenSize / viewPort.height) * viewPort.width);
+        });
+      }));
+
+    setPageAttributes({
+      numPages: Array.from(Array(pdf.numPages).keys()),
+      actualCanvasWidth: actualCanvasWidthArr,
+      actualCanvasHeight: actualCanvasHeightArr,
+      canvasWidth: canvasWidthArr,
+      canvasHeight: screenSize,
     });
   };
 

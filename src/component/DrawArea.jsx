@@ -146,12 +146,12 @@ function DrawArea({
           key={`canvas${index + 1}`}
           ref={(ref) => {
             if (!fabricRef.current[val]
-              && (pageAttributes.canvasWidth && pageAttributes.canvasWidth)) {
+              && (pageAttributes.canvasWidth[val] && pageAttributes.canvasHeight)) {
               fabricRef.current[val] = new fabric.Canvas(ref);
               fabricRef.current[val].moveCursor = 'grabbing';
               fabricRef.current[val].hoverCursor = 'grab';
               fabricRef.current[val].setDimensions({
-                width: pageAttributes.canvasWidth,
+                width: pageAttributes.canvasWidth[val],
                 height: pageAttributes.canvasHeight,
               });
 
