@@ -1,9 +1,7 @@
 /* eslint-disable no-tabs */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-param-reassign */
-import React, {
-  useRef, useEffect,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { fabric } from 'fabric-with-erasing';
 
@@ -14,68 +12,14 @@ fabric.Object.prototype.controls.mtr.cursorStyle = `url(${rotateIcon}) 4 4, auto
 function DrawArea({
   selectedColor, selectedShape, pageIndex, lineWidth, pageAttributes, fabricRef,
 }) {
-  const prevCanvas = useRef(null);
-
-  useEffect(() => {
-    if (!fabricRef.current[pageIndex]) return;
-
-    if (prevCanvas.current) {
-      prevCanvas.current.lowerCanvasEl.className = 'absolute z-20 hidden lower-canvas';
-      prevCanvas.current.upperCanvasEl.className = 'absolute z-20 hidden upper-canvas';
-    }
+  const [prevIndex, setPrevIndex] = useState(pageIndex);
+  if (prevIndex !== pageIndex) {
+    setPrevIndex(pageIndex);
+    fabricRef.current[prevIndex].lowerCanvasEl.className = 'absolute z-20 hidden lower-canvas';
+    fabricRef.current[prevIndex].upperCanvasEl.className = 'absolute z-20 hidden upper-canvas';
     fabricRef.current[pageIndex].lowerCanvasEl.className = 'absolute z-20 lower-canvas';
     fabricRef.current[pageIndex].upperCanvasEl.className = 'absolute z-20 upper-canvas';
-    prevCanvas.current = fabricRef.current[pageIndex];
-  }, [pageIndex, pageAttributes]);
-
-  useEffect(() => {
-    if (!fabricRef.current[0]) return;
-    fabricRef.current.forEach((item, index, arr) => {
-      const element = arr[index];
-
-      element.setDimensions({
-        width: pageAttributes.canvasWidth,
-        height: pageAttributes.canvasHeight,
-      });
-    });
-    const canvasDivs = document.getElementsByClassName('canvas-container');
-    Array.from(canvasDivs).forEach((canvas) => {
-      canvas.style.position = 'absolute';
-    });
-  }, [pageAttributes]);
-
-  useEffect(() => {
-    if (!fabricRef.current[pageIndex]) return;
-
-    fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
-    const objects = fabricRef.current[pageIndex].getActiveObjects();
-    if (objects) {
-      objects.forEach((obj) => {
-        obj.set('stroke', selectedColor);
-      });
-      fabricRef.current[pageIndex].renderAll();
-    }
-  }, [selectedColor]);
-
-  useEffect(() => {
-    if (!fabricRef.current[pageIndex]) return;
-    fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
-    const objects = fabricRef.current[pageIndex].getActiveObjects();
-    if (objects) {
-      objects.forEach((obj) => {
-        obj.set('strokeWidth', lineWidth);
-      });
-      fabricRef.current[pageIndex].renderAll();
-    }
-  }, [lineWidth]);
-
-  const drawFreeHand = () => {
-    fabricRef.current[pageIndex].freeDrawingBrush = new
-    fabric.PencilBrush(fabricRef.current[pageIndex]);
-    fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
-    fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
-    fabricRef.current[pageIndex].isDrawingMode = true;
-  };
+  }
 
   const getDrawCursor = () => {
     const color = selectedShape.name === 'eraser' ? '#FFFFFF' : selectedColor;
@@ -94,10 +38,27 @@ function DrawArea({
     return `data:image/svg+xml;base64,${window.btoa(circle)}`;
   };
 
-  useEffect(() => {
-    if (!fabricRef.current[pageIndex]) return;
+  if (fabricRef.current[pageIndex]) {
     fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor()}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
-  }, [selectedColor, lineWidth, selectedShape]);
+    fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
+    fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
+    const objects = fabricRef.current[pageIndex].getActiveObjects();
+    if (objects) {
+      objects.forEach((obj) => {
+        obj.set('stroke', selectedColor);
+        obj.set('strokeWidth', lineWidth);
+      });
+      fabricRef.current[pageIndex].renderAll();
+    }
+  }
+
+  const drawFreeHand = () => {
+    fabricRef.current[pageIndex].freeDrawingBrush = new
+    fabric.PencilBrush(fabricRef.current[pageIndex]);
+    fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
+    fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
+    fabricRef.current[pageIndex].isDrawingMode = true;
+  };
 
   const drawCircle = () => {
     fabricRef.current[pageIndex].isDrawingMode = false;
@@ -141,7 +102,7 @@ function DrawArea({
     objects.forEach((obj) => {
       fabricRef.current[pageIndex].remove(obj);
     });
-    fabricRef.current[pageIndex].renderAll();
+    fabricRef.current[pageIndex].discardActiveObject().renderAll();
   };
 
   const drawShape = (shape) => {
@@ -184,6 +145,19 @@ function DrawArea({
               fabricRef.current[index] = new fabric.Canvas(ref);
               fabricRef.current[index].moveCursor = 'grabbing';
               fabricRef.current[index].hoverCursor = 'grab';
+              fabricRef.current[index].setDimensions({
+                width: pageAttributes.canvasWidth,
+                height: pageAttributes.canvasHeight,
+              });
+              if (index === pageAttributes.numPages.length - 1) {
+                const canvasDivs = document.getElementsByClassName('canvas-container');
+                Array.from(canvasDivs).forEach((canvas) => {
+                  canvas.style.position = 'absolute';
+                });
+              } else if (index === 0) {
+                fabricRef.current[pageIndex].lowerCanvasEl.className = 'absolute z-20 lower-canvas';
+                fabricRef.current[pageIndex].upperCanvasEl.className = 'absolute z-20 upper-canvas';
+              }
             }
           }}
           className="z-20 hidden"
