@@ -12,13 +12,17 @@ fabric.Object.prototype.controls.mtr.cursorStyle = `url(${rotateIcon}) 4 4, auto
 function DrawArea({
   selectedColor, selectedShape, pageIndex, lineWidth, pageAttributes, fabricRef,
 }) {
+  const [canvasList, setCanvasList] = useState([0]);
   const [prevIndex, setPrevIndex] = useState(pageIndex);
   if (prevIndex !== pageIndex) {
     setPrevIndex(pageIndex);
+    setCanvasList((prev) => (prev.includes(pageIndex) ? prev : [...prev, pageIndex]));
     fabricRef.current[prevIndex].lowerCanvasEl.className = 'absolute z-20 hidden lower-canvas';
     fabricRef.current[prevIndex].upperCanvasEl.className = 'absolute z-20 hidden upper-canvas';
-    fabricRef.current[pageIndex].lowerCanvasEl.className = 'absolute z-20 lower-canvas';
-    fabricRef.current[pageIndex].upperCanvasEl.className = 'absolute z-20 upper-canvas';
+    if (fabricRef.current[pageIndex]) {
+      fabricRef.current[pageIndex].lowerCanvasEl.className = 'absolute z-20 lower-canvas';
+      fabricRef.current[pageIndex].upperCanvasEl.className = 'absolute z-20 upper-canvas';
+    }
   }
 
   const getDrawCursor = () => {
@@ -137,30 +141,29 @@ function DrawArea({
 
   return (
     <div className="flex justify-center">
-      { pageAttributes.numPages.map((val, index) => (
+      { canvasList.map((val, index) => (
         <canvas
           key={`canvas${index + 1}`}
           ref={(ref) => {
-            if (!fabricRef.current[index]) {
-              fabricRef.current[index] = new fabric.Canvas(ref);
-              fabricRef.current[index].moveCursor = 'grabbing';
-              fabricRef.current[index].hoverCursor = 'grab';
-              fabricRef.current[index].setDimensions({
+            if (!fabricRef.current[val]
+              && (pageAttributes.canvasWidth && pageAttributes.canvasWidth)) {
+              fabricRef.current[val] = new fabric.Canvas(ref);
+              fabricRef.current[val].moveCursor = 'grabbing';
+              fabricRef.current[val].hoverCursor = 'grab';
+              fabricRef.current[val].setDimensions({
                 width: pageAttributes.canvasWidth,
                 height: pageAttributes.canvasHeight,
               });
-              if (index === pageAttributes.numPages.length - 1) {
+
+              if (index === canvasList.length - 1) {
                 const canvasDivs = document.getElementsByClassName('canvas-container');
                 Array.from(canvasDivs).forEach((canvas) => {
                   canvas.style.position = 'absolute';
                 });
-              } else if (index === 0) {
-                fabricRef.current[pageIndex].lowerCanvasEl.className = 'absolute z-20 lower-canvas';
-                fabricRef.current[pageIndex].upperCanvasEl.className = 'absolute z-20 upper-canvas';
               }
             }
           }}
-          className="z-20 hidden"
+          className="z-20"
         />
       ))}
     </div>
