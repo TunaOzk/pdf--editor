@@ -10,6 +10,7 @@ import ColorPalette from '../component/ColorPalette';
 import TextArea from '../component/TextArea';
 import TextAreaPalette from '../component/TextAreaPalette';
 import DrawArea from '../component/DrawArea';
+import LoadingScreen from '../component/LoadingScreen';
 
 function EditPdfPage() {
   const location = useLocation();
@@ -17,6 +18,7 @@ function EditPdfPage() {
   const fileName = location.state.name;
   const screenSize = (screen.height * 0.6);
 
+  const [isLoading, setIsLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState({ name: '' });
@@ -34,11 +36,12 @@ function EditPdfPage() {
   );
 
   const postEditContent = async () => {
-    const base64Canvas = fabricRef.current.map((item) => {
+    setIsLoading(true);
+    const base64Canvas = fabricRef.current.map((item, index) => {
       item.discardActiveObject().renderAll();
       const newCanvas = document.createElement('canvas');
-      newCanvas.width = pageAttributes.actualCanvasWidth;
-      newCanvas.height = pageAttributes.actualCanvasHeight;
+      newCanvas.width = pageAttributes.actualCanvasWidth[index];
+      newCanvas.height = pageAttributes.actualCanvasHeight[index];
       newCanvas.getContext('2d').drawImage(
         item.lowerCanvasEl,
         0,
@@ -63,6 +66,7 @@ function EditPdfPage() {
           a.download = fileName;
           a.click();
           a.remove();
+          setIsLoading(false);
         });
     } catch (error) {
       throw new Error(error);
@@ -132,7 +136,7 @@ function EditPdfPage() {
   ), [pageAttributes, lineWidth, pageIndex, selectedColor, selectedShape]);
   return (
     <div className="h-screen w-screen flex flex-col bg-stone-200">
-
+      {isLoading && <LoadingScreen />}
       <div className="flex grid grid-cols-3 divide-x-4 divide-violet-400 h-min w-full border-4 border-violet-400">
         <div className="">
           <ColorPalette

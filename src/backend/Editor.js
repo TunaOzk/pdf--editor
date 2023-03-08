@@ -105,6 +105,7 @@ async function addCanvasToPDF(file, base64Canvas) {
     const mainPdf = await PDFDocument.load(file);
     const numPages = mainPdf.getPageCount();
     for (let i = 0; i < numPages; i++) {
+        if(!base64Canvas[i]) {continue;}
         const canvas = await mainPdf.embedPng(base64Canvas[i]);
         const firstPage = mainPdf.getPage(i);
         firstPage.drawImage(canvas, {
