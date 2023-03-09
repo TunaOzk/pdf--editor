@@ -9,8 +9,11 @@ import { ReactComponent as TextDecrease } from '../assets/text_decrease.svg';
 function TextArea({
   setTextAreaList, id, axisX, axisY, _width, _height, pageIndex, _content, _type, _font, _fontSize,
 }) {
-  const fonts = ['Courier', 'Helvetica'];
+  const fonts = ['Arial', 'Brush Script MT', 'Courier New', 'Comic Sans MS', 'Garamond', 'Georgia',
+    'Tahoma', 'Trebuchet MS', 'Times New Roman', 'Verdana'];
   const [visible, setVisible] = useState(false);
+  const selectRef = useRef(null);
+  const [fontCssName, setFontCssName] = useState('Arial');
   const [textArea, setTextArea] = useState({
     x: axisX,
     y: axisY,
@@ -60,6 +63,8 @@ function TextArea({
     });
   };
   const handleFontChange = (e) => {
+    selectRef.current.blur();
+    setFontCssName((e.target.value).replace(/\s/g, '_'));
     setTextArea((prev) => ({
       ...prev, font: e.target.value,
     }));
@@ -101,9 +106,9 @@ function TextArea({
         spellCheck={false}
         style={{ fontSize: textArea.fontSize }}
         className={`overflow-hidden resize-none h-full w-full bg-transparent outline-none 
-        focus:border-2 focus:border-dashed focus:border-violet-600 font-${textArea.font}`}
+        focus:border-2 focus:border-dashed focus:border-violet-600 font-['${fontCssName}']`}
       />
-      <div className="flex ">
+      <div className="flex">
         <div className="relative">
           <TextFontIcon
             title="Text Settings"
@@ -112,8 +117,8 @@ function TextArea({
           />
           { visible && (
           <div className="flex justify-between absolute right-0 w-52 h-fit bg-transparent border-2 border-violet-400">
-            <select value={textArea.font} onChange={handleFontChange} name="font-select" id="font">
-              {fonts.map((val) => (<option value={val} key={`font_${val}`}>{val}</option>))}
+            <select ref={selectRef} value={textArea.font} onChange={handleFontChange} name="font-select" id="font">
+              {fonts.map((val) => (<option key={`font_${val}`} value={val}>{val}</option>))}
             </select>
             <div className="w-fit grid grid-cols-2 gap-4">
               <TextIncrease

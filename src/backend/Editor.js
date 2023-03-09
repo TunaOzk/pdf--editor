@@ -1,5 +1,6 @@
 const { PDFDocument, layoutMultilineText, StandardFonts } = require('pdf-lib');
 fs = require('fs');
+fontkit = require('@pdf-lib/fontkit')
 
 async function mergePDF(pdfPagesList, currentFileName, fileList) {
     const mainPdf = await PDFDocument.load(fileList[0]);
@@ -58,18 +59,27 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 async function fillForm(textAreaList, file, base64Canvas, screenSize) {
     const mainPdf = await PDFDocument.load(file);
+    mainPdf.registerFontkit(fontkit);
+    const fonts = ['Arial', 'Brush_Script_MT', 'Courier_New', 'Comic_Sans_MS', 'Garamond', 'Georgia',
+    'Tahoma', 'Trebuchet_MS', 'Times_New_Roman', 'Verdana'];
+    const fontMap = new Map();
+    await Promise.all(fonts.map(async (val) => {
+        const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`,null);
+        const font = await mainPdf.embedFont(fontBytes);
+        const fontName = val.replace(/_/g, ' ');
+        fontMap.set(fontName, font)
+    }))
     for (let i = 0; i < textAreaList.length; i++) {
         textAreaList[i].forEach(async textArea => {
-            const font = await mainPdf.embedFont(`${textArea.font}`);
             const page = mainPdf.getPage(i);
-            page.setFont(font);
+
             const widthValue = Number(textArea.width.substring(0, textArea.width.indexOf("p")))
             const heightValue = Number(textArea.height.substring(0, textArea.height.indexOf("p")))
 
             const rate = page.getHeight() / screenSize
             if (textArea.type === 'S') {
                 const multiText = layoutMultilineText(textArea.content, {
-                    font: font,
+                    font: fontMap.get(textArea.font),
                     fontSize: textArea.fontSize,
                     bounds: { x: textArea.x * rate, y: (screenSize - textArea.y - heightValue) * rate, width: widthValue, height: heightValue },
                 })
@@ -77,6 +87,7 @@ async function fillForm(textAreaList, file, base64Canvas, screenSize) {
                     page.drawText(line.text, {
                         x: line.x,
                         y: line.y,
+                        font: fontMap.get(textArea.font),
                         size: textArea.fontSize,
                     },
                     )
