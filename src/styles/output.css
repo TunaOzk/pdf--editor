@@ -628,12 +628,16 @@ input[type="number"] {
   z-index: 20;
 }
 
-.z-10 {
-  z-index: 10;
+.z-50 {
+  z-index: 50;
 }
 
 .z-30 {
   z-index: 30;
+}
+
+.z-10 {
+  z-index: 10;
 }
 
 .my-2 {
@@ -1041,6 +1045,10 @@ input[type="number"] {
 
 .text-center {
   text-align: center;
+}
+
+.font-\[\'\$\{fontCssName\}\'\] {
+  font-family: '${fontCssName}';
 }
 
 .text-xl {

@@ -117,7 +117,7 @@ function EditPdfPage() {
         content: 'TEXT AREA',
         ID: newArr[pageIndex].length,
         type: _type,
-        font: 'Courier',
+        font: 'Arial',
         fontSize: 16,
       }];
       newArr[pageIndex] = temp;

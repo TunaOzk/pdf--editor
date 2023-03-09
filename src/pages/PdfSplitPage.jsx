@@ -3,7 +3,6 @@ import { pdfjs } from 'react-pdf';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PdfSplitPreviewArea from '../component/PdfSplitPreviewArea';
-import PdfPreviewArea from '../component/PdfPreviewArea';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
