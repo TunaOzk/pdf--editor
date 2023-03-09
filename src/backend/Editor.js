@@ -1,5 +1,6 @@
 const { PDFDocument } = require('pdf-lib');
 const { string, number } = require('prop-types');
+
 fs = require('fs');
 
 async function mergePDF(pdfPagesList, currentFileName, fileList) {
@@ -93,28 +94,78 @@ async function fillForm(textAreaList, file) {
 
 }
 // async function pdfSplit(mainFile, currentPages, splitPages){
-async function pdfSplit(mainFile, splitPages) {
+async function pdfSplit(mainFile, splitPages, rangeNumber) {
     const mainPdf = await PDFDocument.load(mainFile);
-    const pdfDoc = await PDFDocument.create();
 
     let pagesArray = await mainPdf.copyPages(mainPdf, mainPdf.getPageIndices());
+    var len;
+    var index = 0;
+    if(rangeNumber > 0 ){
+        len = pagesArray.length / rangeNumber;
+        index = pagesArray.length
+    }
+    else{
+        len = splitPages.length;
+        console.log("noldu")
+    }
 
-    for (let i = 0; i < splitPages.length; i++) {
-        let [orderPage] = await pdfDoc.copyPages(mainPdf, [splitPages[i]]);
-        const page = pdfDoc.addPage(orderPage);
+    var array = [];
+    var count = 0;
+    var flag = 0;
+    if(rangeNumber > 0)
+        for (let i = 0; i < len; i++) {
+            const pdfDoc = await PDFDocument.create();
+
+            if(index > 0 ){
+                for (let j = 0; j < rangeNumber && j < index - count; j++) {
+                    let [orderPage] = await pdfDoc.copyPages(mainPdf, [count + j]);
+                    const page = pdfDoc.addPage(orderPage);
+                }
+                count = count + rangeNumber;
+                array[i] = await pdfDoc.saveAsBase64();
+            //fs.writeFileSync("fileName" + i + ".pdf", await pdfDoc.save());
+
+            }
+        
+            flag++; 
+            // for (let j = 0; j < rangeNumber; j++) {
+            //     mainPdf.removePage(0);
+            // }
+        
+
+        }
+    if(flag == 0){
+        const pdfDoc = await PDFDocument.create();
+        for (let j = 0; j < len; j++) {
+            let [orderPage] = await pdfDoc.copyPages(mainPdf, [splitPages[j]]);
+            const page = pdfDoc.addPage(orderPage);
+        }
+        console.log('deneme');
+        for (let j = 0; j < len; j++) {
+            mainPdf.removePage(splitPages[0]);
+        }
+        array[0] = await mainPdf.saveAsBase64();
+        array[1] = await pdfDoc.saveAsBase64();
+        fs.writeFileSync("fileNamePDF2" + 0 + ".pdf", await pdfDoc.save());
+        fs.writeFileSync("fileNamePDF2" + 1 + ".pdf", await mainPdf.save());
+
     }
     console.log(pagesArray.length)
-    for (let i = 0; i < splitPages.length; i++) {
-        mainPdf.removePage(splitPages[0]);
-    }
-    var array = [];
-    array[0] = await mainPdf.saveAsBase64();
-    array[1] = await pdfDoc.saveAsBase64()
-    array.push(10);
+    // for (let i = 0; i < splitPages.length; i++) {
+    //     mainPdf.removePage(splitPages[0]);
+    // }
+    // array[0] = await mainPdf.saveAsBase64();
+    // array[1] = await pdfDoc.saveAsBase64()
 
     return array;
 
 }
+var array2 = [];
+array2[0] = 3;
+array2[1] = 4;
+array2[2] = 5;
+
+// pdfSplit("./deneme.pdf", array2, 0);
 module.exports.reorderPDFpage = reorderPDFpage;
 module.exports.mergePDF = mergePDF;
 module.exports.fillForm = fillForm;

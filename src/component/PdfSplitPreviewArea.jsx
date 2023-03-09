@@ -113,87 +113,117 @@ function PdfSplitPreviewArea({
 
   return (
     (pdfLength > 1 && pageIndexFirst !== pageIndexLast) ? (
-      <div className=" flex flex-row items-center  justify-center">
-        <Document
-          className="flex flex-row place-items-center space-x-1"
-          file={file}
-          onLoadSuccess={handleLoadSucces}
-          loading={handleLoading}
-        >
-          <Page
-            className="rounded-md border-4 border-purple-500 shadow-2xl"
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-            loading={() => { }}
-            pageNumber={pageIndexFirst}
-            // eslint-disable-next-line no-restricted-globals
-            height={2 * (screen.height / 5)}
-            scale={screenScale}
-
-          />
-          <h1 className="grid place-items-center text-xl"> ... </h1>
-          <Page
-            className="rounded-md border-4 border-purple-500 shadow-2xl"
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-            loading={() => { }}
-            pageNumber={pageIndexLast}
-            // eslint-disable-next-line no-restricted-globals
-            height={2 * (screen.height / 5)}
-            scale={screenScale}
-          />
-        </Document>
+      <div className="flex flex-col items-center  justify-center">
         {toggleOparation ? (
-          <IntervalBar
-            onClickBackFirst={handleNavigationClickBackFirst}
-            onClickForwardFirst={handleNavigationClickForwardFirst}
-            onClickBackLast={handleNavigationClickBackLast}
-            onClickForwardLast={handleNavigationClickForwardLast}
-            inputFirstRef={inputFirstRef}
-            inputLastRef={inputLastRef}
-            inputFirstValue={pageIndexFirst}
-            inputLastValue={pageIndexLast}
-            onChangeFirst={handleChangeFirst}
-            onChangeLast={handleChangeLast}
-            pdfLength={pdfLength}
-          />
-        ) : (
-          <div className="flex transition ease-in-out p-4
-        text-white text-lg delay-75 opacity-70 hover:opacity-100 absolute max-[770px]:bottom-20 md:bottom-10 rounded-md bg-purple-500"
-          >
-            <div>
+          <div className=" flex flex-row items-center  justify-center">
 
-              Enter the range:
-              <button
-                className="ml-2"
-                type="button"
-                onClick={handleRangeClickBackFirst}
-              >
-                <BackIcon />
-              </button>
-              <input type="number" ref={inputFirstRef} value={rangeIndex} onChange={handleChangeRange} onWheel={(e) => e.target.blur()} min={1} max={pdfLength} className="text-base text-black text-center h-6 w-10 resize-none rounded-md overflow-hidden" />
-              <button
-                className=""
-                type="button"
-                onClick={handleRangeClickForwardFirst}
-              >
-                <ForwardIcon />
-              </button>
-            </div>
+            <Document
+              className="flex flex-row place-items-center space-x-1"
+              file={file}
+              onLoadSuccess={handleLoadSucces}
+              loading={handleLoading}
+            >
+              <Page
+                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                loading={() => { }}
+                pageNumber={pageIndexFirst}
+              // eslint-disable-next-line no-restricted-globals
+                height={2 * (screen.height / 5)}
+                scale={screenScale}
+              />
+              <h1 className="grid place-items-center text-xl"> ... </h1>
+              <Page
+                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                loading={() => { }}
+                pageNumber={pageIndexLast}
+              // eslint-disable-next-line no-restricted-globals
+                height={2 * (screen.height / 5)}
+                scale={screenScale}
+              />
+            </Document>
+            <IntervalBar
+              onClickBackFirst={handleNavigationClickBackFirst}
+              onClickForwardFirst={handleNavigationClickForwardFirst}
+              onClickBackLast={handleNavigationClickBackLast}
+              onClickForwardLast={handleNavigationClickForwardLast}
+              inputFirstRef={inputFirstRef}
+              inputLastRef={inputLastRef}
+              inputFirstValue={pageIndexFirst}
+              inputLastValue={pageIndexLast}
+              onChangeFirst={handleChangeFirst}
+              onChangeLast={handleChangeLast}
+              pdfLength={pdfLength}
+            />
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-6 grid-flow-row gap-4   place-items-center">
+              {currPdfPages.map((value, numberIndex) => (
+              // eslint-disable-next-line react/jsx-key
+                <Document
+                  key={value}
+                  className="row-span-4 place-items-center space-x-1"
+                  file={file}
+                  onLoadSuccess={handleLoadSucces}
+                  loading={handleLoading}
+                >
+                  <div className="row-span-4">
+                    <Page
+                      key={value}
+                      className="rounded-md border-4 border-purple-500 shadow-2xl"
+                      renderTextLayer={false}
+                      renderAnnotationLayer={false}
+                      loading={() => { }}
+                      pageNumber={numberIndex + 1}
+            // eslint-disable-next-line no-restricted-globals
+                      height={2 * (screen.height / 8)}
+                      scale={screenScale}
+                    />
+                  </div>
+                </Document>
+              ))}
+            </div>
+            <div className="flex transition ease-in-out p-4
+        text-white text-lg delay-75 opacity-70 hover:opacity-100 absolute max-[770px]:bottom-20 md:bottom-10 rounded-md bg-purple-500"
+            >
+              <div>
+
+                Enter the range:
+                <button
+                  className="ml-2"
+                  type="button"
+                  onClick={handleRangeClickBackFirst}
+                >
+                  <BackIcon />
+                </button>
+                <input type="number" ref={inputFirstRef} value={rangeIndex} onChange={handleChangeRange} onWheel={(e) => e.target.blur()} min={1} max={pdfLength} className="text-base text-black text-center h-6 w-10 resize-none rounded-md " />
+                <button
+                  className=""
+                  type="button"
+                  onClick={handleRangeClickForwardFirst}
+                >
+                  <ForwardIcon />
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
     ) : (
-      <div className=" flex flex-row items-center  justify-center h-screen">
+      <div className=" flex flex-row items-center gap-4 justify-center h-screen">
 
         <Document
-          className="flex flex-row place-items-center space-x-1"
+          className="flex flex-row gap-4  place-items-center space-x-2"
           file={file}
           onLoadSuccess={handleLoadSucces}
           loading={handleLoading}
         >
           <Page
-            className="rounded-md border-4 border-purple-500 shadow-2xl"
+            className="rounded-md border-4 gap-4  border-purple-500 shadow-2xl"
             renderTextLayer={false}
             renderAnnotationLayer={false}
             loading={() => { }}

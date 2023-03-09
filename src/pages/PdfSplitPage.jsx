@@ -27,25 +27,24 @@ function PdfSplitPage() {
   const postSplitPdf = async (event) => {
     event.preventDefault();
     try {
+      // console.log(splitPdfPages);
       await axios.post('http://localhost:4000/pdfSplitFileIndex', {
         currentFile,
+        rangeNumber,
         splitPdfPages,
       }).then((res) => {
-        const firstDownload = document.createElement('a');
         const allPdfs = res.data;
-        // eslint-disable-next-line prefer-destructuring
-        firstDownload.href = allPdfs[0];
-        docs.file('firstSplit.pdf', allPdfs[0], { base64: true });
-        firstDownload.download = 'firstSplit.pdf';
+        console.log(allPdfs.length);
 
-        const secondDownload = document.createElement('a');
-        // eslint-disable-next-line prefer-destructuring
-        secondDownload.href = allPdfs[1];
-        docs.file('secondSplit.pdf', allPdfs[1], { base64: true });
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0; i < allPdfs.length; i++) {
+          console.log(i);
+
+          docs.file(`splited${i}.pdf`, allPdfs[i], { base64: true });
+        }
         zip.generateAsync({ type: 'blob' }).then((content) => {
           saveAs(content, 'example.zip');
         });
-        secondDownload.download = 'secondSplit.pdf';
       });
     } catch (error) {
       throw new Error(error);
@@ -66,15 +65,28 @@ function PdfSplitPage() {
   ), [currentFile, toggleOparation]);
   useEffect(() => {
     const a = currentPdfPages.filter((val) => !splitPdfPages.includes(val));
-    console.log(a);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPdfPages, splitPdfPages]);
 
   return (
-    <div className="flex flex-col  items-center  justify-center h-screen overflow-hidden">
-      <Switch onChange={handleChange} checked={toggleOparation} onColor="#F50D0D" offColor="#0AA8EE" uncheckedIcon={false} checkedIcon={false} />
+    <div className="flex flex-col  items-center  justify-center h-screen">
+      <div className="flex flex-col items-center mt-10">
+        <div className="flex items-center mb-2">
+          {' '}
+          <div className="flex flex-row ">
+            <p className="border-2 rounded-lg bg-gray-100 bg-slate-100 p-1">range</p>
 
-      {memoizedPdfPrevArea}
+            <Switch className="ml-2 mr-2 mt-1" onChange={handleChange} checked={toggleOparation} onColor="#F50D0D" offColor="#0AA8EE" uncheckedIcon={false} checkedIcon={false} />
+            <p className="border-2 rounded-lg bg-gray-100 bg-slate-100 p-1">
+              Interval
+            </p>
+
+          </div>
+
+        </div>
+
+        {memoizedPdfPrevArea}
+      </div>
       {console.log(rangeNumber)}
       <div className="ablolute -10">
         <button
