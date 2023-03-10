@@ -13,7 +13,6 @@ function TextArea({
     'Tahoma', 'Trebuchet MS', 'Times New Roman', 'Verdana'];
   const [visible, setVisible] = useState(false);
   const selectRef = useRef(null);
-  const [fontCssName, setFontCssName] = useState('Arial');
   const [textArea, setTextArea] = useState({
     x: axisX,
     y: axisY,
@@ -51,7 +50,6 @@ function TextArea({
   };
   const handleFontChange = (e) => {
     selectRef.current.blur();
-    setFontCssName((e.target.value).replace(/\s/g, '_'));
     setTextArea((prev) => ({
       ...prev, font: e.target.value,
     }));
@@ -95,9 +93,9 @@ function TextArea({
         onChange={handleChange}
         value={textArea.content}
         spellCheck={false}
-        style={{ fontSize: textArea.fontSize }}
+        style={{ fontSize: textArea.fontSize, fontFamily: textArea.font }}
         className={`overflow-hidden resize-none h-full w-full bg-transparent outline-none 
-        focus:border-2 focus:border-dashed focus:border-violet-600 font-['${fontCssName}']`}
+        focus:border-2 focus:border-dashed focus:border-violet-600`}
       />
       <div className="flex">
         <div className="relative">
