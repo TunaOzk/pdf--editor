@@ -114,14 +114,20 @@ function TextArea({
                 title="Increase Font Size"
                 className="hover:cursor-pointer"
                 onClick={() => {
-                  setTextArea((prev) => ({ ...prev, fontSize: prev.fontSize + 5 }));
+                  setTextArea((prev) => ({
+                    ...prev,
+                    fontSize: prev.fontSize + 5 >= 150 ? 150 : prev.fontSize + 5,
+                  }));
                 }}
               />
               <TextDecrease
                 title="Decrease Font Size"
                 className="hover:cursor-pointer"
                 onClick={() => {
-                  setTextArea((prev) => ({ ...prev, fontSize: prev.fontSize - 5 }));
+                  setTextArea((prev) => ({
+                    ...prev,
+                    fontSize: prev.fontSize - 5 >= 6 ? prev.fontSize - 5 : 6,
+                  }));
                 }}
               />
             </div>
