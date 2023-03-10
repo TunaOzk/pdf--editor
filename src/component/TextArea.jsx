@@ -25,19 +25,6 @@ function TextArea({
     font: _font,
     fontSize: _fontSize,
   });
-  // useEffect(() => {
-  //   setTextArea({
-  //     x: axisX,
-  //     y: axisY,
-  //     width: _width,
-  //     height: _height,
-  //     content: _content,
-  //     ID: id,
-  //     type: _type,
-  //     font: _font,
-  //     fontSize: _fontSize,
-  //   });
-  // }, [axisX, axisY, _width, _height, id, _content, _font, _fontSize, _type]);
   useEffect(() => {
     setTextAreaList((prevList) => {
       const newArr = [...prevList];
@@ -59,8 +46,6 @@ function TextArea({
       const newArr = [...prev];
       const temp = newArr[pageIndex].filter((val, index) => val.ID !== textArea.ID);
       newArr[pageIndex] = temp;
-      // newArr[pageIndex] = temp.map((val, index) => (val.ID > textArea.ID
-      //   ? { ...val, ID: val.ID - 1 } : val));
       return newArr;
     });
   };
@@ -100,6 +85,10 @@ function TextArea({
           font: _font,
           fontSize: _fontSize,
         }));
+        setTimeout(() => {
+          const rndRef = ref;
+          rndRef.className = 'absolute z-20';
+        }, 1000);
       }}
     >
       <textarea
@@ -118,7 +107,7 @@ function TextArea({
             className="absolute hover:cursor-pointer hover:bg-red-600 border-2 border-black"
           />
           { visible && (
-          <div className="flex justify-between absolute right-0 w-52 h-fit bg-transparent border-2 border-violet-400">
+          <div className="flex justify-between absolute right-0 w-60 h-fit bg-transparent border-2 border-violet-400">
             <select ref={selectRef} value={textArea.font} onChange={handleFontChange} name="font-select" id="font">
               {fonts.map((val) => (<option key={`font_${val}`} value={val}>{val}</option>))}
             </select>
