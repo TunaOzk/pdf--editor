@@ -6,7 +6,6 @@ import JSZip from 'jszip';
 import axios from 'axios';
 import Switch from 'react-switch';
 import PdfSplitPreviewArea from '../component/PdfSplitPreviewArea';
-import PdfPreviewArea from '../component/PdfPreviewArea';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
