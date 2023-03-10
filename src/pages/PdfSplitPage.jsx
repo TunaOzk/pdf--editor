@@ -70,29 +70,25 @@ function PdfSplitPage() {
 
   return (
     <div className="flex flex-col  items-center  justify-center h-screen">
-      <div className="flex flex-col items-center mt-10">
-        <div className="flex items-center mb-2">
-          {' '}
-          <div className="flex flex-row ">
-            <p className="border-2 rounded-lg bg-gray-100 bg-slate-100 p-1">range</p>
+      <div className="flex flex-col items-center mt-10 space-y-10">
+        <div className="flex flex-row mb-1 absolute top-0 ">
+          <p className="border-2 rounded-lg bg-gray-100 bg-slate-100 p-1">range</p>
 
-            <Switch className="ml-2 mr-2 mt-1" onChange={handleChange} checked={toggleOparation} onColor="#F50D0D" offColor="#0AA8EE" uncheckedIcon={false} checkedIcon={false} />
-            <p className="border-2 rounded-lg bg-gray-100 bg-slate-100 p-1">
-              Interval
-            </p>
-
-          </div>
+          <Switch className="ml-2 mr-2 mt-1" onChange={handleChange} checked={toggleOparation} onColor="#F50D0D" offColor="#0AA8EE" uncheckedIcon={false} checkedIcon={false} />
+          <p className="border-2 rounded-lg bg-gray-100 bg-slate-100 p-1">
+            Interval
+          </p>
 
         </div>
 
         {memoizedPdfPrevArea}
       </div>
       {console.log(rangeNumber)}
-      <div className="ablolute -10">
+      <div className="">
         <button
-          className="transition ease-in-out delay-75 hover:-translate-y-1
+          className="fixed  bottom-0 transition ease-in-out delay-75 hover:-translate-y-1
       hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
-  rounded-md absolute md:bottom-10  max-[770px]:bottom-4 max-[770px]:inset-x-2 md:right-14 p-4"
+  rounded-md md:bottom-10  max-[770px]:bottom-4 max-[770px]:inset-x-2 md:right-14 p-4"
           type="button"
           onClick={(event) => postSplitPdf(event)}
         >

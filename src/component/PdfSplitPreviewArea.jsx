@@ -23,6 +23,8 @@ function PdfSplitPreviewArea({
   const [pageIndexLast, setPageIndexLast] = useState(1);
   const [rangeIndex, setRangeIndex] = useState(0);
 
+  const [groups, setGroups] = useState([]);
+
   const handleLoadSucces = (pdf) => {
     setPdfLength(pdf.numPages);
     setPageIndexLast(pdf.numPages);
@@ -31,14 +33,34 @@ function PdfSplitPreviewArea({
     setCurrentPdfPages(() => pdfPages);
   };
   const handleRangeClickForwardFirst = () => {
-    if (rangeIndex + 1 <= pageIndexLast) {
-      setRangeIndex(rangeIndex + 1);
+    const pageNum = rangeIndex + 1;
+    if (pageNum > 0 && pageNum <= pdfLength && pageNum <= pageIndexLast) {
+      setRangeIndex(pageNum);
+      const indices = currPdfPages.filter((val) => (val + 1) % pageNum === 0
+        || val % pageNum === 0);
+      if (indices.length % 2 !== 0) { indices.push(pdfLength - 1); }
+
+      setGroups(() => indices.reduce((accumulator, currentValue, currentIndex, array) => {
+        if (currentIndex % 2 !== 0) return accumulator;
+        accumulator.push([array[currentIndex], array[currentIndex + 1]]);
+        return accumulator;
+      }, []));
     }
   };
 
   const handleRangeClickBackFirst = () => {
-    if (rangeIndex - 1 > 0) {
-      setRangeIndex(rangeIndex - 1);
+    const pageNum = rangeIndex - 1;
+    if (pageNum > 0 && pageNum <= pdfLength && pageNum <= pageIndexLast) {
+      setRangeIndex(pageNum);
+      const indices = currPdfPages.filter((val) => (val + 1) % pageNum === 0
+        || val % pageNum === 0);
+      if (indices.length % 2 !== 0) { indices.push(pdfLength - 1); }
+
+      setGroups(() => indices.reduce((accumulator, currentValue, currentIndex, array) => {
+        if (currentIndex % 2 !== 0) return accumulator;
+        accumulator.push([array[currentIndex], array[currentIndex + 1]]);
+        return accumulator;
+      }, []));
     }
   };
 
@@ -75,6 +97,15 @@ function PdfSplitPreviewArea({
     const pageNum = Number(e.target.value);
     if (pageNum > 0 && pageNum <= pdfLength && pageNum <= pageIndexLast) {
       setRangeIndex(pageNum);
+      const indices = currPdfPages.filter((val) => (val + 1) % pageNum === 0
+        || val % pageNum === 0);
+      if (indices.length % 2 !== 0) { indices.push(pdfLength - 1); }
+
+      setGroups(() => indices.reduce((accumulator, currentValue, currentIndex, array) => {
+        if (currentIndex % 2 !== 0) return accumulator;
+        accumulator.push([array[currentIndex], array[currentIndex + 1]]);
+        return accumulator;
+      }, []));
     }
   };
 
@@ -113,7 +144,7 @@ function PdfSplitPreviewArea({
 
   return (
     (pdfLength > 1 && pageIndexFirst !== pageIndexLast) ? (
-      <div className="flex flex-col items-center  justify-center">
+      <div className="flex flex-col items-center justify-center">
         {toggleOparation ? (
           <div className=" flex flex-row items-center  justify-center">
 
@@ -129,7 +160,7 @@ function PdfSplitPreviewArea({
                 renderAnnotationLayer={false}
                 loading={() => { }}
                 pageNumber={pageIndexFirst}
-              // eslint-disable-next-line no-restricted-globals
+                // eslint-disable-next-line no-restricted-globals
                 height={2 * (screen.height / 5)}
                 scale={screenScale}
               />
@@ -140,7 +171,7 @@ function PdfSplitPreviewArea({
                 renderAnnotationLayer={false}
                 loading={() => { }}
                 pageNumber={pageIndexLast}
-              // eslint-disable-next-line no-restricted-globals
+                // eslint-disable-next-line no-restricted-globals
                 height={2 * (screen.height / 5)}
                 scale={screenScale}
               />
@@ -160,37 +191,109 @@ function PdfSplitPreviewArea({
             />
           </div>
         ) : (
-          <>
-            <div className="grid grid-cols-6 grid-flow-row gap-4   place-items-center">
-              {currPdfPages.map((value, numberIndex) => (
-              // eslint-disable-next-line react/jsx-key
-                <Document
-                  key={value}
-                  className="row-span-4 place-items-center space-x-1"
-                  file={file}
-                  onLoadSuccess={handleLoadSucces}
-                  loading={handleLoading}
-                >
-                  <div className="row-span-4">
-                    <Page
-                      key={value}
-                      className="rounded-md border-4 border-purple-500 shadow-2xl"
-                      renderTextLayer={false}
-                      renderAnnotationLayer={false}
-                      loading={() => { }}
-                      pageNumber={numberIndex + 1}
-            // eslint-disable-next-line no-restricted-globals
-                      height={2 * (screen.height / 8)}
-                      scale={screenScale}
-                    />
-                  </div>
-                </Document>
-              ))}
-            </div>
-            <div className="flex transition ease-in-out p-4
-        text-white text-lg delay-75 opacity-70 hover:opacity-100 absolute max-[770px]:bottom-20 md:bottom-10 rounded-md bg-purple-500"
+          <div className="h-screen w-fit">
+            <Document
+              file={file}
+              onLoadSuccess={handleLoadSucces}
+              loading={handleLoading}
             >
-              <div>
+              <div className="grid min-[880px]:grid-cols-2 gap-4">
+                {groups.map((val, index) => (
+                  <div key={`group${index + 1}`} className="flex grid grid-cols-1 gap-2">
+                    {rangeIndex > 1
+                      ? (
+                        <div className="border-dashed border-2 p-2 border-gray-300">
+                          <div className="flex grid grid-cols-2 gap-2">
+                            <div>
+                              <p>
+                                Page
+                                {val[0] + 1}
+                              </p>
+                              <Page
+                                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                                loading={() => { }}
+                                pageNumber={val[0] + 1}
+                                // eslint-disable-next-line no-restricted-globals
+                                height={2 * (screen.height / 8)}
+                                scale={screenScale}
+                              />
+                            </div>
+
+                            <div>
+                              {pdfLength - 1 !== val[0] ? (
+                                <>
+
+                                  <p>
+                                    Page
+                                    {val[1] + 1}
+                                  </p>
+                                  <Page
+                                    className="rounded-md border-4 border-purple-500 shadow-2xl"
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                    loading={() => { }}
+                                    pageNumber={val[1] + 1}
+                                    // eslint-disable-next-line no-restricted-globals
+                                    height={2 * (screen.height / 8)}
+                                    scale={screenScale}
+                                  />
+                                </>
+                              )
+                                : null}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex grid grid-cols-2 gap-2">
+                          <div className="">
+                            <p>
+                              Page
+                              {val[0] + 1}
+                            </p>
+                            <Page
+                              className="rounded-md border-4 border-purple-500 shadow-2xl"
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                              loading={() => { }}
+                              pageNumber={val[0] + 1}
+                              // eslint-disable-next-line no-restricted-globals
+                              height={2 * (screen.height / 8)}
+                              scale={screenScale}
+                            />
+                          </div>
+                          {pdfLength - 1 !== val[0] ? (
+                            <div>
+                              <p>
+                                Page
+                                {val[1] + 1}
+                              </p>
+                              <Page
+                                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                                loading={() => { }}
+                                pageNumber={val[1] + 1}
+                                // eslint-disable-next-line no-restricted-globals
+                                height={2 * (screen.height / 8)}
+                                scale={screenScale}
+                              />
+                            </div>
+                          ) : null}
+                        </div>
+
+                      )}
+                  </div>
+                ))}
+              </div>
+
+            </Document>
+            <div className="fixed left-1/2 transform -translate-x-1/2 max-[770px]:w-2/3 bottom-0 transition ease-in-out p-4
+        text-white text-lg delay-75 opacity-70 hover:opacity-100 max-[770px]:bottom-20
+        md:bottom-10 rounded-md bg-purple-500"
+            >
+              <div className="flex items-center justify-center">
 
                 Enter the range:
                 <button
@@ -210,7 +313,7 @@ function PdfSplitPreviewArea({
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     ) : (
