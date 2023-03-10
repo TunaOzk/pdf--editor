@@ -25,23 +25,24 @@ function TextArea({
     font: _font,
     fontSize: _fontSize,
   });
-  useEffect(() => {
-    setTextArea({
-      x: axisX,
-      y: axisY,
-      width: _width,
-      height: _height,
-      content: _content,
-      ID: id,
-      type: _type,
-      font: _font,
-      fontSize: _fontSize,
-    });
-  }, [axisX, axisY, _width, _height, id, _content, _font, _fontSize, _type]);
+  // useEffect(() => {
+  //   setTextArea({
+  //     x: axisX,
+  //     y: axisY,
+  //     width: _width,
+  //     height: _height,
+  //     content: _content,
+  //     ID: id,
+  //     type: _type,
+  //     font: _font,
+  //     fontSize: _fontSize,
+  //   });
+  // }, [axisX, axisY, _width, _height, id, _content, _font, _fontSize, _type]);
   useEffect(() => {
     setTextAreaList((prevList) => {
       const newArr = [...prevList];
-      newArr[pageIndex][id] = textArea;
+      newArr[pageIndex] = [...(prevList[pageIndex]
+        .filter((val, index) => val.ID !== textArea.ID)), textArea];
       return newArr;
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,9 +57,10 @@ function TextArea({
   const handleDeleteClick = () => {
     setTextAreaList((prev) => {
       const newArr = [...prev];
-      const temp = newArr[pageIndex].filter((val, index) => val.ID !== id);
-      newArr[pageIndex] = temp.map((val, index) => (val.ID > id
-        ? { ...val, ID: val.ID - 1 } : val));
+      const temp = newArr[pageIndex].filter((val, index) => val.ID !== textArea.ID);
+      newArr[pageIndex] = temp;
+      // newArr[pageIndex] = temp.map((val, index) => (val.ID > textArea.ID
+      //   ? { ...val, ID: val.ID - 1 } : val));
       return newArr;
     });
   };

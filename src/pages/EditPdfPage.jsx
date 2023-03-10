@@ -34,7 +34,6 @@ function EditPdfPage() {
       actualCanvasHeight: [],
     },
   );
-
   const postEditContent = async () => {
     setIsLoading(true);
     const base64Canvas = fabricRef.current.map((item, index) => {
@@ -112,9 +111,9 @@ function EditPdfPage() {
       const temp = [...newArr[pageIndex], {
         x: 0,
         y: 0,
-        width: '50px',
+        width: _type === 'F' ? '100px' : '50px',
         height: '50px',
-        content: 'TEXT AREA',
+        content: _type === 'F' ? 'FILLABLE TEXT AREA' : 'TEXT AREA',
         ID: newArr[pageIndex].length,
         type: _type,
         font: 'Arial',
@@ -167,7 +166,7 @@ function EditPdfPage() {
           />
           {textAreaList[pageIndex].map((val, index) => (
             <TextArea
-              id={index}
+              id={val.ID}
               axisX={val.x}
               axisY={val.y}
               _width={val.width}
@@ -178,7 +177,7 @@ function EditPdfPage() {
               _fontSize={val.fontSize}
               setTextAreaList={setTextAreaList}
               pageIndex={pageIndex}
-              key={`txt_area${index + 1}`}
+              key={`textarea_${pageIndex.toString() + (val.ID).toString()}`}
             />
           ))}
         </div>
