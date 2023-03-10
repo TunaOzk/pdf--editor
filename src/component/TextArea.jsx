@@ -13,7 +13,6 @@ function TextArea({
     'Tahoma', 'Trebuchet MS', 'Times New Roman', 'Verdana'];
   const [visible, setVisible] = useState(false);
   const selectRef = useRef(null);
-  const [fontCssName, setFontCssName] = useState('Arial');
   const [textArea, setTextArea] = useState({
     x: axisX,
     y: axisY,
@@ -26,22 +25,10 @@ function TextArea({
     fontSize: _fontSize,
   });
   useEffect(() => {
-    setTextArea({
-      x: axisX,
-      y: axisY,
-      width: _width,
-      height: _height,
-      content: _content,
-      ID: id,
-      type: _type,
-      font: _font,
-      fontSize: _fontSize,
-    });
-  }, [axisX, axisY, _width, _height, id, _content, _font, _fontSize, _type]);
-  useEffect(() => {
     setTextAreaList((prevList) => {
       const newArr = [...prevList];
-      newArr[pageIndex][id] = textArea;
+      newArr[pageIndex] = [...(prevList[pageIndex]
+        .filter((val, index) => val.ID !== textArea.ID)), textArea];
       return newArr;
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,15 +43,13 @@ function TextArea({
   const handleDeleteClick = () => {
     setTextAreaList((prev) => {
       const newArr = [...prev];
-      const temp = newArr[pageIndex].filter((val, index) => val.ID !== id);
-      newArr[pageIndex] = temp.map((val, index) => (val.ID > id
-        ? { ...val, ID: val.ID - 1 } : val));
+      const temp = newArr[pageIndex].filter((val, index) => val.ID !== textArea.ID);
+      newArr[pageIndex] = temp;
       return newArr;
     });
   };
   const handleFontChange = (e) => {
     selectRef.current.blur();
-    setFontCssName((e.target.value).replace(/\s/g, '_'));
     setTextArea((prev) => ({
       ...prev, font: e.target.value,
     }));
@@ -98,15 +83,19 @@ function TextArea({
           font: _font,
           fontSize: _fontSize,
         }));
+        setTimeout(() => {
+          const rndRef = ref;
+          rndRef.className = 'absolute z-20';
+        }, 1000);
       }}
     >
       <textarea
         onChange={handleChange}
         value={textArea.content}
         spellCheck={false}
-        style={{ fontSize: textArea.fontSize }}
+        style={{ fontSize: textArea.fontSize, fontFamily: textArea.font }}
         className={`overflow-hidden resize-none h-full w-full bg-transparent outline-none 
-        focus:border-2 focus:border-dashed focus:border-violet-600 font-['${fontCssName}']`}
+        focus:border-2 focus:border-dashed focus:border-violet-600`}
       />
       <div className="flex">
         <div className="relative">
@@ -116,7 +105,7 @@ function TextArea({
             className="absolute hover:cursor-pointer hover:bg-red-600 border-2 border-black"
           />
           { visible && (
-          <div className="flex justify-between absolute right-0 w-52 h-fit bg-transparent border-2 border-violet-400">
+          <div className="flex justify-between absolute right-0 w-60 h-fit bg-transparent border-2 border-violet-400">
             <select ref={selectRef} value={textArea.font} onChange={handleFontChange} name="font-select" id="font">
               {fonts.map((val) => (<option key={`font_${val}`} value={val}>{val}</option>))}
             </select>
@@ -125,14 +114,20 @@ function TextArea({
                 title="Increase Font Size"
                 className="hover:cursor-pointer"
                 onClick={() => {
-                  setTextArea((prev) => ({ ...prev, fontSize: prev.fontSize + 5 }));
+                  setTextArea((prev) => ({
+                    ...prev,
+                    fontSize: prev.fontSize + 5 >= 150 ? 150 : prev.fontSize + 5,
+                  }));
                 }}
               />
               <TextDecrease
                 title="Decrease Font Size"
                 className="hover:cursor-pointer"
                 onClick={() => {
-                  setTextArea((prev) => ({ ...prev, fontSize: prev.fontSize - 5 }));
+                  setTextArea((prev) => ({
+                    ...prev,
+                    fontSize: prev.fontSize - 5 >= 6 ? prev.fontSize - 5 : 6,
+                  }));
                 }}
               />
             </div>

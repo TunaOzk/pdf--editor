@@ -816,13 +816,21 @@ input[type="number"] {
   width: 100%;
 }
 
-.w-52 {
-  width: 13rem;
+.w-60 {
+  width: 15rem;
 }
 
 .w-4\/5 {
   width: 80%;
 }
+
+
+.w-2 {
+  width: 0.5rem;
+}
+
+.w-8 {
+  width: 2rem;
 
 .-translate-x-1\/2 {
   --tw-translate-x: -50%;
@@ -1365,6 +1373,62 @@ input[type="number"] {
 }
 
 @media (min-width: 640px) {
+  .sm\:mb-2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .sm\:mb-4 {
+    margin-bottom: 1rem;
+  }
+
+  .sm\:mb-8 {
+    margin-bottom: 2rem;
+  }
+
+  .sm\:mt-2 {
+    margin-top: 0.5rem;
+  }
+
+  .sm\:mt-4 {
+    margin-top: 1rem;
+  }
+
+  .sm\:mt-1 {
+    margin-top: 0.25rem;
+  }
+
+  .sm\:mt-0 {
+    margin-top: 0px;
+  }
+
+  .sm\:mb-1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .sm\:h-2 {
+    height: 0.5rem;
+  }
+
+  .sm\:h-4 {
+    height: 1rem;
+  }
+
+  .sm\:w-8 {
+    width: 2rem;
+  }
+
+  .sm\:w-4 {
+    width: 1rem;
+  }
+
+  .sm\:w-2 {
+    width: 0.5rem;
+  }
+
+  .sm\:w-6 {
+    width: 1.5rem;
+  }
+
   .sm\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
@@ -1382,6 +1446,10 @@ input[type="number"] {
 
   .md\:h-96 {
     height: 24rem;
+  }
+
+  .md\:h-2 {
+    height: 0.5rem;
   }
 
   .md\:w-96 {
@@ -1407,5 +1475,23 @@ input[type="number"] {
 
   .lg\:w-3\/5 {
     width: 60%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .xl\:h-6 {
+    height: 1.5rem;
+  }
+
+  .xl\:w-6 {
+    width: 1.5rem;
+  }
+
+  .xl\:w-32 {
+    width: 8rem;
+  }
+
+  .xl\:w-8 {
+    width: 2rem;
   }
 }
