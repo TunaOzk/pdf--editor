@@ -13,6 +13,7 @@ function TextArea({
     'Tahoma', 'Trebuchet MS', 'Times New Roman', 'Verdana'];
   const [visible, setVisible] = useState(false);
   const selectRef = useRef(null);
+  const idRef = useRef(null);
   const [textArea, setTextArea] = useState({
     x: axisX,
     y: axisY,
@@ -59,6 +60,7 @@ function TextArea({
       className="absolute z-20"
       bounds="parent"
       onResizeStart={(e, direction, ref) => {
+        if (idRef.current) { clearTimeout(idRef.current); }
         const rndRef = ref;
         rndRef.className = 'absolute z-20 border-2 border-dashed border-violet-600';
       }}
@@ -83,7 +85,7 @@ function TextArea({
           font: _font,
           fontSize: _fontSize,
         }));
-        setTimeout(() => {
+        idRef.current = setTimeout(() => {
           const rndRef = ref;
           rndRef.className = 'absolute z-20';
         }, 1000);
