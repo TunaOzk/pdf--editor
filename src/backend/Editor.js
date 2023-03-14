@@ -61,10 +61,10 @@ async function fillForm(textAreaList, file, base64Canvas, screenSize) {
     const mainPdf = await PDFDocument.load(file);
     mainPdf.registerFontkit(fontkit);
     const fonts = ['Arial', 'Brush_Script_MT', 'Courier_New', 'Comic_Sans_MS', 'Garamond', 'Georgia',
-    'Tahoma', 'Trebuchet_MS', 'Times_New_Roman', 'Verdana'];
+        'Tahoma', 'Trebuchet_MS', 'Times_New_Roman', 'Verdana'];
     const fontMap = new Map();
     await Promise.all(fonts.map(async (val) => {
-        const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`,null);
+        const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`, null);
         const font = await mainPdf.embedFont(fontBytes);
         const fontName = val.replace(/_/g, ' ');
         fontMap.set(fontName, font)
@@ -110,7 +110,6 @@ async function fillForm(textAreaList, file, base64Canvas, screenSize) {
     }
     const temp = await mainPdf.saveAsBase64({ dataUri: true });
     return await addCanvasToPDF(temp, base64Canvas);
-    // fs.writeFileSync("all-letters2.pdf", await mainPdf.save());
 
 }
 
@@ -118,7 +117,7 @@ async function addCanvasToPDF(file, base64Canvas) {
     const mainPdf = await PDFDocument.load(file);
     const numPages = mainPdf.getPageCount();
     for (let i = 0; i < numPages; i++) {
-        if(!base64Canvas[i]) {continue;}
+        if (!base64Canvas[i]) { continue; }
         const canvas = await mainPdf.embedPng(base64Canvas[i]);
         const firstPage = mainPdf.getPage(i);
         firstPage.drawImage(canvas, {
@@ -129,31 +128,54 @@ async function addCanvasToPDF(file, base64Canvas) {
         })
     }
     return await mainPdf.saveAsBase64({ dataUri: true });
-    // fs.writeFileSync("all-letters2.pdf", await mainPdf.save());
 }
-async function pdfSplit(mainFile, splitPages) {
+async function pdfSplit(mainFile, splitPages, rangeNumber) {
     const mainPdf = await PDFDocument.load(mainFile);
-    const pdfDoc = await PDFDocument.create();
 
     let pagesArray = await mainPdf.copyPages(mainPdf, mainPdf.getPageIndices());
+    var len;
+    var index = 0;
+    if (rangeNumber > 0) {
+        len = pagesArray.length / rangeNumber;
+        index = pagesArray.length
+    }
+    else {
+        len = splitPages.length;
+    }
 
-    for (let i = 0; i < splitPages.length; i++) {
-        let [orderPage] = await pdfDoc.copyPages(mainPdf, [splitPages[i]]);
-        const page = pdfDoc.addPage(orderPage);
-    }
-    console.log(pagesArray.length)
-    for (let i = 0; i < splitPages.length; i++) {
-        mainPdf.removePage(splitPages[0]);
-    }
     var array = [];
-    array[0] = await mainPdf.saveAsBase64({ dataUri: true });
-    array[1] = await pdfDoc.saveAsBase64({ dataUri: true })
-    array.push(10);
+    var count = 0;
+    var flag = 0;
+    if (rangeNumber > 0)
+        for (let i = 0; i < len; i++) {
+            const pdfDoc = await PDFDocument.create();
 
+            if (index > 0) {
+                for (let j = 0; j < rangeNumber && j < index - count; j++) {
+                    let [orderPage] = await pdfDoc.copyPages(mainPdf, [count + j]);
+                    const page = pdfDoc.addPage(orderPage);
+                }
+                count = count + rangeNumber;
+                array[i] = await pdfDoc.saveAsBase64();
+            }
+            flag++;
+        }
+    if (flag == 0) {
+        const pdfDoc = await PDFDocument.create();
+        for (let j = 0; j < len; j++) {
+            let [orderPage] = await pdfDoc.copyPages(mainPdf, [splitPages[j]]);
+            const page = pdfDoc.addPage(orderPage);
+        }
+        for (let j = 0; j < len; j++) {
+            mainPdf.removePage(splitPages[0]);
+        }
+        array[0] = await mainPdf.saveAsBase64();
+        array[1] = await pdfDoc.saveAsBase64();
+
+    }
     return array;
 
 }
-
 module.exports.reorderPDFpage = reorderPDFpage;
 module.exports.mergePDF = mergePDF;
 module.exports.fillForm = fillForm;
