@@ -14,91 +14,96 @@ function OperationPage() {
   const [isVisible, setIsVisible] = useState(false);
   return (
     <div className="h-screen w-screen flex items-center justify-around bg-stone-200">
-      <div
-        onClick={() => setIsVisible((prev) => !prev)}
-        tabIndex={0}
-        onKeyDown={() => { }}
-        role="button"
-        className={`flex transition ease-in-out delay-200 ${!isVisible ? 'hover:scale-110' : 'scale-110'} group`}
-      >
-        <div className={`transition-opacity ease-in duration-300 ${isVisible ? 'opacity-0' : 'opacity-100'}`}>
-          <div>
-            <EditIcon className="relative z-10" />
-            <h1 className="text-xl ml-8">PDF Edit</h1>
-          </div>
+      <ul className="flex h-fit">
+        <li className="mr-8">
+          <button
+            onClick={() => setIsVisible((prev) => !prev)}
+            type="button"
+            className={`flex transition ease-in-out delay-200 ${!isVisible ? 'hover:scale-110' : 'scale-110'} group`}
+          >
+            <div className={`transition-opacity ease-in duration-300 ${isVisible ? 'opacity-0' : 'opacity-100'}`}>
+              <div>
+                <EditIcon className="relative z-10" />
+                <h1 className="text-xl mr-12">PDF Edit</h1>
+              </div>
 
-          <br />
-          <p className="opacity-0 group-hover:opacity-100 duration-300">
-            Edit your PDF file. Add text,
-            <br />
-            shapes, images or freehand
-            <br />
-            annotations to your file.
-          </p>
-        </div>
+              <br />
+              <p className="opacity-0 group-hover:opacity-100 duration-300 text-left">
+                Edit your PDF file. Add text,
+                <br />
+                shapes, images or freehand
+                <br />
+                annotations to your file.
+              </p>
+            </div>
 
-        <div className={`absolute transition-opacity ease-in duration-300
+            <div className={`absolute transition-opacity ease-in duration-300
         ${!isVisible ? 'opacity-0' : 'opacity-100'} grid grid-rows-${fileNames.length} gap-4`}
-        >
-          <p className="text-center text-xl">Please select a PDF</p>
-          {fileNames.map((val, index) => (
-            <button
-              disabled={!isVisible}
-              type="button"
-              onClick={() => navigate(EDIT_PDF_PAGE_PATH, { state: location.state[index] })}
-              className="flex px-2 items-center bg-slate-200 rounded-xl"
-              key={`file_${val}`}
             >
-              <img src={pdfImg} alt="" className="w-10" />
-              <p className="hover:cursor-pointer">{val}</p>
-            </button>
-          ))}
-        </div>
-      </div>
+              <p className="text-center text-xl">Please select a PDF</p>
+              {fileNames.map((val, index) => (
+                <button
+                  disabled={!isVisible}
+                  type="button"
+                  onClick={() => navigate(EDIT_PDF_PAGE_PATH, { state: location.state[index] })}
+                  className="flex px-2 items-center bg-slate-200 rounded-xl"
+                  key={`file_${val}`}
+                >
+                  <img src={pdfImg} alt="" className="w-10" />
+                  <p className="hover:cursor-pointer">{val}</p>
+                </button>
+              ))}
+            </div>
+          </button>
+        </li>
+        <li className="ml-8 mr-8">
 
-      <div
-        onClick={() => navigate(PDF_MERGE_PAGE_PATH, { state: location.state })}
-        tabIndex={0}
-        onKeyDown={() => { }}
-        role="button"
-        className="transition ease-in-out delay-200 hover:scale-110 group"
-      >
+          <button
+            onClick={() => navigate(PDF_MERGE_PAGE_PATH, { state: location.state })}
+            type="button"
+            className="transition ease-in-out delay-200 hover:scale-110 group"
+          >
 
-        <div>
-          <MergeIcon />
-          <h1 className="text-xl ml-6">PDF Merge</h1>
-        </div>
+            <div>
+              <MergeIcon />
+              <h1 className="text-xl mr-6">PDF Merge</h1>
+            </div>
 
-        <br />
-        <p className="opacity-0 group-hover:opacity-100 duration-300">
-          Merge your PDF files and
-          <br />
-          reorder the pages of PDFs.
-        </p>
+            <br />
+            <p className="opacity-0 group-hover:opacity-100 duration-300 text-left">
+              Merge your PDF files and
+              <br />
+              reorder the pages of PDFs.
+            </p>
 
-      </div>
+          </button>
 
-      <div
-        onClick={() => navigate(PDF_SPLIT_PAGE_PATH, { state: location.state })}
-        tabIndex={0}
-        onKeyDown={() => { }}
-        role="button"
-        className="transition ease-in-out delay-200 hover:scale-110 group"
-      >
+        </li>
+        <li className="ml-8">
 
-        <div>
-          <SplitIcon />
-          <h1 className="text-xl ml-8">PDF Split</h1>
-        </div>
+          <button
+            onClick={() => navigate(PDF_SPLIT_PAGE_PATH, { state: location.state })}
+            type="button"
+            className="transition ease-in-out delay-200 hover:scale-110 group"
+          >
 
-        <p className="opacity-0 group-hover:opacity-100 duration-300">
-          <br />
-          Split your PDF files and
-          <br />
-          reorder the pages of PDFs.
-        </p>
+            <div>
+              <SplitIcon />
+              <h1 className="text-xl mr-6">PDF Split</h1>
+            </div>
 
-      </div>
+            <p className="opacity-0 group-hover:opacity-100 duration-300 text-left">
+              <br />
+              Split your PDF files and
+              <br />
+              reorder the pages of PDFs.
+            </p>
+
+          </button>
+
+        </li>
+
+      </ul>
 
     </div>
   );
