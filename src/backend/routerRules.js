@@ -26,9 +26,9 @@ app.post("/pdfFileIndex", async (req, res) => {
 
 })
 app.post("/pdfSplitFileIndex", async (req, res) => {
-    let { splitPdfPages, file, rangeIndex } = req.body;
+    let { splitPdfPages, currentFile, rangeNumber } = req.body;
 
-    let pdf = await pdfSplit(file, splitPdfPages, rangeIndex);
+    let pdf = await pdfSplit(currentFile, splitPdfPages, rangeNumber);
 
     res.send(pdf);
 

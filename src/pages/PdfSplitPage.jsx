@@ -27,7 +27,7 @@ function PdfSplitPage() {
   const postSplitPdf = async (event) => {
     event.preventDefault();
     try {
-      // console.log(splitPdfPages);
+      console.log(splitPdfPages);
       await axios.post('http://localhost:4000/pdfSplitFileIndex', {
         currentFile,
         rangeNumber,

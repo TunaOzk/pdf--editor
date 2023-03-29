@@ -8,7 +8,7 @@ import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
 import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
 
 function PdfSplitPreviewArea({
-  file, setCurrentPdfPages, setSplitPdfPages, toggleOparation, setRangeNumber, setOpen,
+  file, setCurrentPdfPages, setSplitPdfPages, toggleOparation, setRangeNumber,
 }) {
   const [pdfLength, setPdfLength] = useState(0);
   const [screenScale, setScreenScale] = useState(0);
@@ -18,7 +18,6 @@ function PdfSplitPreviewArea({
 
   const inputFirstRef = useRef(null);
   const inputLastRef = useRef(null);
-  const [open, setOpenMenu] = useState(false);
 
   const [pageIndexFirst, setPageIndexFirst] = useState(1);
   const [pageIndexLast, setPageIndexLast] = useState(1);
@@ -192,7 +191,7 @@ function PdfSplitPreviewArea({
             />
           </div>
         ) : (
-          <div className="h-screen w-fit mt-[80px] overflow-hidden">
+          <div className="h-screen w-fit">
             <Document
               file={file}
               onLoadSuccess={handleLoadSucces}
@@ -362,7 +361,6 @@ PdfSplitPreviewArea.propTypes = {
   setSplitPdfPages: PropTypes.func.isRequired,
   toggleOparation: PropTypes.bool.isRequired,
   setRangeNumber: PropTypes.func.isRequired,
-  setOpen: PropTypes.func.isRequired,
 };
 
 export default PdfSplitPreviewArea;

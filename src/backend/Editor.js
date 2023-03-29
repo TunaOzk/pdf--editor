@@ -100,9 +100,11 @@ async function fillForm(textAreaList, file, base64Canvas, screenSize) {
                 fillableField.addToPage(page, {
                     x: textArea.x * rate,
                     y: (screenSize - textArea.y - heightValue) * rate,
+                    font: fontMap.get(textArea.font),
                     width: widthValue,
                     height: heightValue,
                 })
+                fillableField.updateAppearances(fontMap.get(textArea.font));
             }
         });
     }
@@ -180,4 +182,3 @@ module.exports.fillForm = fillForm;
 module.exports.addCanvasToPDF = addCanvasToPDF;
 module.exports.fillForm = fillForm;
 module.exports.pdfSplit = pdfSplit;
-
