@@ -69,13 +69,13 @@ function PdfSplitPage() {
   }, [currentPdfPages, splitPdfPages]);
 
   return (
-    <div className="flex flex-col bg-stone-200 items-center  justify-center min-h-screen overflow-auto">
+    <div className="flex flex-col bg-stone-200 items-center  justify-center h-screen overflow-y-auto relative ">
       <div className=" w-full  absolute top-0">
         <header className="bg-purple-400 w-full max-sm:h-13 sm:h-10 flex justify-between items-center py-4">
           <div className="left-header ">
-            <h1 className="text-lg text-neutral-100">Pdf Editor Logo</h1>
+            <h1 className="text-lg text-neutral-100 p-1">Pdf Editor Logo</h1>
           </div>
-          <div className="max-md:mr-[30px] md:ml-[75px] md:w-[200px]">
+          <div className="max-md:mr-[60px] md:ml-[65px] md:w-[200px]">
             <button
               className=" bg-violet-600 opacity-80 text-white hover:opacity-100
   max-md:rounded-md p-2 w-full"

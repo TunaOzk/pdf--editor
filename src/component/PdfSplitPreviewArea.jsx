@@ -191,7 +191,7 @@ function PdfSplitPreviewArea({
             />
           </div>
         ) : (
-          <div className="h-screen w-fit">
+          <div className="h-screen w-fit max-sm:mt-[250px] sm:mt-[150px]">
             <Document
               file={file}
               onLoadSuccess={handleLoadSucces}
@@ -202,15 +202,15 @@ function PdfSplitPreviewArea({
                   <div key={`group${index + 1}`} className="flex grid grid-cols-1 gap-2">
                     {rangeIndex > 1
                       ? (
-                        <div className="border-dashed border-2 p-2 border-gray-300">
-                          <div className="flex grid grid-cols-2 gap-2">
-                            <div>
-                              <p>
+                        <div className="border-dashed  border-2 p-2 border-gray-300">
+                          <div className="flex grid grid-cols-2 gap-2 ">
+                            <div className="bg-white">
+                              <p className="bg-stone-200">
                                 Page
                                 {val[0] + 1}
                               </p>
                               <Page
-                                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                                className="rounded-md  border-4 border-purple-500 shadow-2xl w-full"
                                 renderTextLayer={false}
                                 renderAnnotationLayer={false}
                                 loading={() => { }}
@@ -221,11 +221,11 @@ function PdfSplitPreviewArea({
                               />
                             </div>
 
-                            <div>
+                            <div className="bg-white">
                               {pdfLength - 1 !== val[0] ? (
                                 <>
 
-                                  <p>
+                                  <p className="bg-stone-200">
                                     Page
                                     {val[1] + 1}
                                   </p>
