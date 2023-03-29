@@ -76,7 +76,7 @@ function PdfScrollArea({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="relative flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
+      <div className="relative flex flex-col items-center w-1/5 overflow-y-auto">
         <Document
           file={file}
           onLoadSuccess={handleOnDocumentLoadSuccess}
@@ -90,20 +90,25 @@ function PdfScrollArea({
                 {...provided.droppableProps}
                 className="flex flex-col items-center"
               >
+                <div className="h-[4px] bg-white" />
                 {currentPdfPages.map((value, index) => (
-                  <ScrollAreaPage
-                    key={value}
-                    pageNum={value + 1}
-                    width={100}
-                    scale={2}
-                    index={index}
-                    onDelete={handleDelete}
-                    onClick={handleClick}
-                    isLastDelete={disableDeleteOnLastRemainingPage}
-                  />
+                  <>
+                    <ScrollAreaPage
+                      key={value}
+                      pageNum={value + 1}
+                      width={100}
+                      scale={2}
+                      index={index}
+                      onDelete={handleDelete}
+                      onClick={handleClick}
+                      isLastDelete={disableDeleteOnLastRemainingPage}
+                    />
+                    <div className="h-[4px] bg-white" />
+                  </>
                 ))}
                 {provided.placeholder}
               </div>
+
             )}
           </Droppable>
         </Document>

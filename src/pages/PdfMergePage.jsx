@@ -87,51 +87,58 @@ function PdfEditPage() {
   ), [currentPdfPages, currentFile, fileListIndex, pdfPagesList, setPdfPagesList]);
 
   return (
-    <div className="flex h-screen bg-stone-200">
-      {memoizedPdfScrollArea}
-      {isLoading && <LoadingScreen />}
-      <form className="relative flex flex-col items-center justify-center w-4/5">
-
-        <div className="absolute top-0 left-0 rounded-md border-4 border-violet-400">
-          <select value={fileListIndex} onChange={handleOptionClick} name="pdfSelect">
-            {[...Array(numOfFiles)].map((value, index) => (
-              <option key={`pdf_${index + 1}`} value={index}>
-                PDF
-                {index + 1}
-              </option>
-            ))}
-          </select>
+    <div className="flex flex-col h-screen bg-stone-200 ">
+      <header className="bg-purple-400 w-full max-sm:h-[70px] sm:h-10 flex justify-between items-center py-4">
+        <div className="left-header ">
+          <h1 className="sm:text-lg text-neutral-100 p-2">Pdf Editor Logo</h1>
+        </div>
+        <div className="w-[500px] flex flex-row ">
+          <button
+            className=" bg-violet-600 opacity-80 text-white hover:opacity-100 p-2 w-full"
+            type="submit"
+            onClick={(event) => postMerge(event)}
+          >
+            Merge Your All PDF Files
+          </button>
+          <div className="w-[1px] bg-black" />
+          <button
+            className="transition ease-in-out delay-75
+              bg-violet-600 opacity-80 text-white hover:opacity-100
+              right-4 p-2 w-full"
+            type="submit"
+            onClick={(event) => postIndex(event)}
+          >
+            Export The Current File
+          </button>
         </div>
 
-        <button
-          className="transition ease-in-out delay-75 hover:-translate-y-1
-      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
-  rounded-md absolute bottom-10 right-10 p-4"
-          type="button"
-          onClick={(event) => postMerge(event)}
-        >
-          Merge Your All PDF Files
+      </header>
+      <div className="flex flex-row h-screen overflow-hidden">
+        {memoizedPdfScrollArea}
+        {isLoading && <LoadingScreen />}
+        <form className="relative flex flex-col items-center justify-center w-4/5">
 
-        </button>
-        <button
-          className="transition ease-in-out delay-75 hover:-translate-y-1
-      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100 rounded-md
-      absolute bottom-28 right-10 p-4 px-5"
-          type="button"
-          onClick={(event) => postIndex(event)}
-        >
-          Export The Current File
+          <div className="absolute top-0 left-0 rounded-sm border-2 border-violet-400">
+            <select value={fileListIndex} onChange={handleOptionClick} name="pdfSelect">
+              {[...Array(numOfFiles)].map((value, index) => (
+                <option key={`pdf_${index + 1}`} value={index}>
+                  PDF
+                  {index + 1}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        </button>
-        <PdfPreviewArea
-          file={currentFile}
-          setPageIndex={setPageIndex}
-          pageIndex={pageIndex}
-          currentPdfPages={currentPdfPages}
-          width={500}
-        />
+          <PdfPreviewArea
+            file={currentFile}
+            setPageIndex={setPageIndex}
+            pageIndex={pageIndex}
+            currentPdfPages={currentPdfPages}
+            width={500}
+          />
 
-      </form>
+        </form>
+      </div>
     </div>
 
   );
