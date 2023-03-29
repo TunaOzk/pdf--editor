@@ -47,14 +47,14 @@ function PdfPreviewArea({
         onLoadSuccess={!onLoadSuccessForEditPage ? handleLoadSucces : onLoadSuccessForEditPage}
       >
         <Page
-          className="rounded-md border-4 border-purple-500 shadow-2xl"
+          className="rounded-md border-2 border-purple-500 shadow-2xl"
           renderTextLayer={false}
           renderAnnotationLayer={false}
           loading={() => { handleLoading(); }}
           pageNumber={currentPdfPages[pageIndex] + 1}
           // eslint-disable-next-line no-restricted-globals
-          height={screen.height}
-          scale={0.6}
+          // height={screen.height}
+          // scale={0.6}
         />
       </Document>
       <NavBar

@@ -1,4 +1,4 @@
-const { PDFDocument, layoutMultilineText, StandardFonts } = require('pdf-lib');
+const { PDFDocument, layoutMultilineText, StandardFonts, rgb, drawTextField } = require('pdf-lib');
 fs = require('fs');
 fontkit = require('@pdf-lib/fontkit')
 
@@ -70,61 +70,101 @@ async function fillForm(textAreaList, file, base64Canvas, screenSize) {
         fontMap.set(fontName, font)
     }))
     for (let i = 0; i < textAreaList.length; i++) {
-        textAreaList[i].forEach(async textArea => {
+        textAreaList[i]?.forEach(async textArea => {
             const page = mainPdf.getPage(i);
-
-            const widthValue = Number(textArea.width.substring(0, textArea.width.indexOf("p")))
-            const heightValue = Number(textArea.height.substring(0, textArea.height.indexOf("p")))
-
             const rate = page.getHeight() / screenSize
+            const regex = /\d+/g;
+            const rgbValues = textArea.color.match(regex)
+            // page.drawCircle(
+            //     {
+            //     x: 155,
+            //     y: page.getHeight() - 155,
+            //     size:50,
+            //     borderColor:rgb(0,0,0),
+            //     opacity:0,
+            //     borderOpacity:1,
+            //     borderWidth:10,
+            //     }
+            // );
+            page.drawRectangle({
+                x:100+5,
+                y:page.getHeight() - 100-200-5,
+                width: 300,
+                height: 200,
+                borderWidth: 10,
+                borderColor: rgb(0, 0, 0),
+                opacity: 0,
+                borderOpacity:1,
+            })
             if (textArea.type === 'S') {
-                const multiText = layoutMultilineText(textArea.content, {
+                page.drawText(textArea.content, {
+                    x: textArea.x,
+                    y: page.getHeight() - textArea.y - textArea.fontSize + textArea.height,
                     font: fontMap.get(textArea.font),
-                    fontSize: textArea.fontSize,
-                    bounds: { x: textArea.x * rate, y: (screenSize - textArea.y - heightValue) * rate, width: widthValue, height: heightValue },
-                })
-                multiText.lines.forEach(line => {
-                    page.drawText(line.text, {
-                        x: line.x,
-                        y: line.y,
-                        font: fontMap.get(textArea.font),
-                        size: textArea.fontSize,
-                    },
-                    )
-                });
+                    size: textArea.fontSize,
+                    lineHeight: 1.16 + textArea.fontSize,
+                    color: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+                },
+                );
             }
             else if (textArea.type === 'F') {
                 const form = mainPdf.getForm();
                 const fillableField = form.createTextField(`textArea.Field${i}${textArea.ID}`);
                 fillableField.setText(textArea.content);
+                fillableField.enableMultiline();
                 fillableField.addToPage(page, {
-                    x: textArea.x * rate,
-                    y: (screenSize - textArea.y - heightValue) * rate,
+                    x: textArea.x,
+                    y: page.getHeight() - textArea.y - textArea.height,
                     font:fontMap.get(textArea.font),
-                    width: widthValue,
-                    height: heightValue,
+                    size: textArea.fontSize,
+                    lineHeight: 1.16 + textArea.fontSize,
+                    width: textArea.width,
+                    height: textArea.height,
+                    textColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+                    
                 })
                 fillableField.updateAppearances(fontMap.get(textArea.font));
             }
         });
     }
     const temp = await mainPdf.saveAsBase64({ dataUri: true });
+    // return temp
     return await addCanvasToPDF(temp, base64Canvas);
 
 }
 
-async function addCanvasToPDF(file, base64Canvas) {
+async function addCanvasToPDF(file, shapes) {
     const mainPdf = await PDFDocument.load(file);
     const numPages = mainPdf.getPageCount();
+    const [rects, circs] = shapes
     for (let i = 0; i < numPages; i++) {
-        if (!base64Canvas[i]) { continue; }
-        const canvas = await mainPdf.embedPng(base64Canvas[i]);
-        const firstPage = mainPdf.getPage(i);
-        firstPage.drawImage(canvas, {
-            x: 0,
-            y: 0,
-            width: canvas.width,
-            height: canvas.height,
+        const page = mainPdf.getPage(i);
+        rects[i]?.forEach((rect) => {
+            const regex = /\d+/g;
+            const rgbValues = rect.color.match(regex)
+            page.drawRectangle({
+              x:rect.x + rect.borderWidth/2,
+              y:page.getHeight() - rect.y - rect.height - rect.borderWidth/2,
+              width:rect.width,
+              height:rect.height,
+              borderWidth:rect.borderWidth,
+              borderColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+              opacity: 0,
+              borderOpacity:1,
+            })
+        })
+        circs[i]?.forEach((circ) => {
+            const regex = /\d+/g;
+            const rgbValues = circ.color.match(regex)
+            page.drawCircle({
+              x:circ.x,
+              y:page.getHeight() - circ.y,
+              size:circ.radius,
+              borderWidth:circ.borderWidth,
+              borderColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+              opacity: 0,
+              borderOpacity:1,
+            })
         })
     }
     return await mainPdf.saveAsBase64({ dataUri: true });

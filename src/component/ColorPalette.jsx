@@ -5,23 +5,25 @@ import { ReactComponent as ExpandMoreIcon } from '../assets/expand_more.svg';
 import { ReactComponent as ExpandLessIcon } from '../assets/expand_less.svg';
 
 function ColorPalette({
-  onClicks, selectedColor, lineWidth, setLineWidth,
+  onClicks, selectedColor,
 }) {
   const [visible, setVisible] = useState(false);
   return (
-    <div className="flex h-full justify-center items-center">
-      <div
+    <div className="relative pl-2 ml-6 mr-4">
+      <button
         onClick={() => (setVisible((prev) => !prev))}
-        onKeyDown={() => {}}
-        tabIndex={0}
-        role="button"
-        className="flex"
+        type="button"
+        className="flex h-full items-center"
       >
         <div style={{ backgroundColor: selectedColor }} className="rounded-md w-6 h-6" aria-label="selected-color" type="button" />
         {visible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </div>
+      </button>
+
       { visible && (
-      <div onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)} className="absolute left-0 top-14 border-4 border-violet-400 bg-green-50 p-4">
+      <div
+        onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)}
+        className="absolute bg-stone-300 p-2 border-2 my-3"
+      >
         <div className="mb-2 grid grid-cols-6 gap-2">
           <button onClick={onClicks} style={{ backgroundColor: '#FF0000' }} className="rounded-md w-6 h-6" aria-label="main-red" type="button" />
           <button onClick={onClicks} style={{ backgroundColor: '#FFA500' }} className="rounded-md w-6 h-6" aria-label="main-orange" type="button" />
@@ -78,10 +80,6 @@ function ColorPalette({
         </div>
       </div>
       )}
-      <div className="flex">
-        <p>Brush size:</p>
-        <input onChange={(e) => setLineWidth(Number(e.target.value))} value={lineWidth} step={1} min={1} max={50} type="range" name="line-width" className="w-32 resize-none" />
-      </div>
     </div>
 
   );
@@ -90,8 +88,6 @@ function ColorPalette({
 ColorPalette.propTypes = {
   onClicks: PropTypes.func.isRequired,
   selectedColor: PropTypes.string.isRequired,
-  lineWidth: PropTypes.number.isRequired,
-  setLineWidth: PropTypes.func.isRequired,
 };
 
 export default ColorPalette;
