@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { fabric } from 'fabric';
+import { fabric } from 'fabric-with-erasing';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 import ColorPalette from '../component/ColorPalette';
 import TextArea from '../component/TextArea';
@@ -26,7 +26,6 @@ function EditPdfPage() {
   const location = useLocation();
   const file = location.state.base64;
   const fileName = location.state.name;
-  const screenSize = (screen.height * 0.6);
 
   const [isLoading, setIsLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
@@ -39,8 +38,6 @@ function EditPdfPage() {
   const [pageAttributes, setPageAttributes] = useState(
     {
       numPages: [],
-      canvasWidth: [],
-      canvasHeight: 0,
       actualCanvasWidth: [],
       actualCanvasHeight: [],
     },
@@ -48,56 +45,72 @@ function EditPdfPage() {
   const [toolbarVisiblity, setToolbarVisiblity] = useState('');
   const postEditContent = async () => {
     setIsLoading(true);
-    const base64Canvas = fabricRef.current.map((item, index) => {
-      item.discardActiveObject().renderAll();
-      const newCanvas = document.createElement('canvas');
-      newCanvas.width = pageAttributes.actualCanvasWidth[index];
-      newCanvas.height = pageAttributes.actualCanvasHeight[index];
-      newCanvas.getContext('2d').drawImage(
-        item.lowerCanvasEl,
-        0,
-        0,
-        newCanvas.width,
-        newCanvas.height,
-      );
-      const dataUri = newCanvas.toDataURL('image/png');
-      newCanvas.remove();
-      return dataUri;
-    });
     const objects = fabricRef.current.map((canvas, index) => {
-      const result = { texts: [], rects: [], circs: [] };
-      const deneme = canvas.getObjects().reduce((acc, currVal, currIndex) => {
+      const canvasForTexts = new fabric.Canvas().setDimensions(
+        {
+          width: pageAttributes.actualCanvasWidth[index],
+          height: pageAttributes.actualCanvasHeight[index],
+        },
+      );
+      const result = {
+        texts: [], rects: [], circs: [], canvasesForPaths: [],
+      };
+      const temp = canvas.getObjects().reduce((acc, currVal, currIndex) => {
         if (currVal.get('type') === 'i-text') {
           acc.texts.push(currVal);
         } else if (currVal.get('type') === 'rect') {
           acc.rects.push(currVal);
         } else if (currVal.get('type') === 'circle') {
           acc.circs.push(currVal);
+        } else if (currVal.get('type') === 'path') {
+          canvasForTexts.add(currVal);
+          result.canvasesForPaths.push(canvasForTexts.toDataURL({
+            format: 'png', left: 0, top: 0, width: canvasForTexts.width, height: canvasForTexts.height,
+          }));
         }
         return acc;
-      }, { texts: [], rects: [], circs: [] });
-      result.circs = deneme.circs.map((val) => ({
-        x: (val.get('aCoords').tl.x + val.get('aCoords').tr.x) / 2,
-        y: (val.get('aCoords').bl.y + val.get('aCoords').tl.y) / 2,
-        width: val.get('width'),
-        height: val.get('height'),
-        color: val.get('stroke'),
-        borderWidth: val.get('strokeWidth'),
-      }));
+      }, {
+        texts: [], rects: [], circs: [], canvasesForPaths: [],
+      });
 
-      result.rects = deneme.rects.map((val) => ({
-        x: val.get('left'),
-        y: val.get('top'),
-        width: val.get('width'),
-        height: val.get('height'),
-        color: val.get('stroke'),
-        borderWidth: val.get('strokeWidth'),
-        radius: val.get('radius'),
-      }));
+      result.circs = temp.circs.map((val) => {
+        const { x, y } = val.getCenterPoint();
+        return {
+          x,
+          y,
+          scaleX: val.get('scaleX'),
+          scaleY: val.get('scaleY'),
+          radius: val.get('radius'),
+          color: val.get('stroke'),
+          borderWidth: val.get('strokeWidth'),
+          rotate: val.get('angle'),
+          rotationPoint: val.getCenterPoint(),
+        };
+      });
 
-      const texts = canvas.getObjects().filter((val) => val.get('type') === 'i-text');
-      const temp = [];
-      deneme.texts.map((val, idx) => {
+      result.rects = temp.rects.map((val) => {
+        const angle = val.get('angle');
+        val.rotate(0);
+        const xValue = val.get('left');
+        const yValue = val.get('top');
+        val.rotate(angle);
+        return {
+          x: xValue,
+          y: yValue,
+          width: val.get('width') * val.get('scaleX'),
+          height: val.get('height') * val.get('scaleY'),
+          color: val.get('stroke'),
+          borderWidth: val.get('strokeWidth'),
+          rotate: angle,
+          rotationPoint: val.getCenterPoint(),
+        };
+      });
+
+      temp.texts.map((val) => {
+        let textFont = val.get('fontFamily');
+        if (val.get('fontStyle') === 'italic') { textFont = `${textFont} Italic`; }
+        if (val.get('fontWeight') === 'bold') { textFont = `${textFont} Bold`; }
+
         if (val.get('_type') === 'F') {
           result.texts.push({
             x: val.get('left'),
@@ -106,7 +119,7 @@ function EditPdfPage() {
             height: val.get('height'),
             content: val.get('text'),
             type: 'F',
-            font: val.get('fontFamily'),
+            font: textFont,
             fontSize: val.get('fontSize'),
             color: val.get('fill'),
           });
@@ -120,7 +133,7 @@ function EditPdfPage() {
             ? (val.textLines.length * val.getHeightOfLine(indx) - val.get('height')) / 2 : (val.getHeightOfLine(indx) - val.get('height')) / 2,
           content: line,
           type: 'S',
-          font: val.get('fontFamily'),
+          font: textFont,
           fontSize: val.get('fontSize'),
           color: val.get('fill'),
         })));
@@ -130,13 +143,13 @@ function EditPdfPage() {
     });
 
     const texts = objects.map((val) => val.texts);
-    const shapes = [objects.map((val) => val.rects), objects.map((val) => val.circs)];
+    const shapes = [objects.map((val) => val.rects),
+      objects.map((val) => val.circs), objects.map((val) => val.canvasesForPaths)];
     try {
       await axios.post('http://localhost:4000/pdfEdit', {
         texts,
         file,
         shapes,
-        screenSize,
       })
         .then((res) => {
           const a = document.createElement('a');
@@ -159,18 +172,16 @@ function EditPdfPage() {
     setSelectedShape({ name: shape });
   };
   const handleLoadSucces = async (pdf) => {
-    setTextAreaList([...Array(pdf.numPages)].map((val, index) => []));
+    setTextAreaList([...Array(pdf.numPages)].map(() => []));
     const actualCanvasWidthArr = [];
     const actualCanvasHeightArr = [];
-    const canvasWidthArr = [];
 
     await Promise
-      .all(Array.from({ length: pdf.numPages }, (_, i) => i + 1).map(async (val, index) => {
+      .all(Array.from({ length: pdf.numPages }, (_, i) => i + 1).map(async (val) => {
         await pdf.getPage(val).then((page) => {
           const viewPort = page.getViewport({ scale: 1 });
           actualCanvasWidthArr.push(viewPort.width);
           actualCanvasHeightArr.push(viewPort.height);
-          canvasWidthArr.push((screenSize / viewPort.height) * viewPort.width);
         });
       }));
 
@@ -178,12 +189,11 @@ function EditPdfPage() {
       numPages: Array.from(Array(pdf.numPages).keys()),
       actualCanvasWidth: actualCanvasWidthArr,
       actualCanvasHeight: actualCanvasHeightArr,
-      canvasWidth: canvasWidthArr,
-      canvasHeight: screenSize,
     });
   };
 
   const handleTextAreaAdd = (type) => {
+    fabricRef.current[pageIndex].isDrawingMode = false;
     const text = new fabric.IText(type === 'S' ? 'Text Area' : 'Fillable Text Area', {
       left: 0,
       top: 0,
@@ -194,24 +204,15 @@ function EditPdfPage() {
       _type: type,
       _height: 0,
     });
-    fabricRef.current[pageIndex].add(text);
+    text.on('selected', () => {
+      setToolbarVisiblity('Text');
+      if (fabricRef.current[pageIndex].getActiveObjects().length > 1) { return; }
+      setSelectedFont(text.get('fontFamily'));
+      setSelectedColor(text.get('fill'));
+    });
 
-    // setTextAreaList((prevArr) => {
-    //   const newArr = [...prevArr];
-    //   const temp = [...newArr[pageIndex], {
-    //     x: 0,
-    //     y: 0,
-    //     width: _type === 'F' ? '100px' : '50px',
-    //     height: '50px',
-    //     content: _type === 'F' ? 'FILLABLE TEXT AREA' : 'TEXT AREA',
-    //     ID: newArr[pageIndex].length,
-    //     type: _type,
-    //     font: 'Arial',
-    //     fontSize: 16,
-    //   }];
-    //   newArr[pageIndex] = temp;
-    //   return newArr;
-    // });
+    fabricRef.current[pageIndex].add(text);
+    fabricRef.current[pageIndex].setActiveObject(text);
   };
   const memoizedDrawArea = useMemo(() => (
     <DrawArea
@@ -233,7 +234,7 @@ function EditPdfPage() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-stone-200">
-      {isLoading && <LoadingScreen />}
+      {/* {isLoading && <LoadingScreen />} */}
       <div className="flex justify-between items-center h-min w-full drop-shadow-xl bg-stone-200 z-10">
 
         <div className="flex">
@@ -391,8 +392,7 @@ function EditPdfPage() {
           <input step={1} min={1} max={50} onChange={(e) => setLineWidth(Number(e.target.value))} value={lineWidth} type="range" />
 
           <button name="eraser-object" onClick={(e) => handleClickShape(e.currentTarget.name)} className="ml-2 flex items-center w-fit h-full hover:bg-stone-400" type="button">
-            <ObjectEraserIcon />
-            <p className="ml-1 mr-2">Remove</p>
+            <DeleteIcon />
           </button>
         </div>
 
@@ -425,17 +425,6 @@ function EditPdfPage() {
             />
           ))}
         </div>
-        <button
-          className="transition ease-in-out delay-75 hover:-translate-y-1
-      hover:scale-110 bg-purple-500 opacity-50 text-white hover:opacity-100
-  rounded-md absolute bottom-10 right-10 p-4"
-          type="button"
-          onClick={(event) => postEditContent(event)}
-        >
-          Export the PDF File
-
-        </button>
-
       </div>
     </div>
   );

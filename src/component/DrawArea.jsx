@@ -3,7 +3,7 @@
 /* eslint-disable no-param-reassign */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { fabric } from 'fabric';
+import { fabric } from 'fabric-with-erasing';
 
 const svgRotateIcon = encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>');
 const rotateIcon = `data:image/svg+xml;utf8,${svgRotateIcon}`;
@@ -71,31 +71,6 @@ function DrawArea({
     }
   }
 
-  const handleSelection = (e) => {
-    const objects = fabricRef.current[pageIndex].getActiveObjects();
-    const numOfSelectedObjects = objects.length;
-    if (objects.filter((val) => val.get('type') === 'i-text').length === numOfSelectedObjects) {
-      onToolbarVisiblity('Text');
-    } else { onToolbarVisiblity('Shapes'); }
-
-    if (numOfSelectedObjects > 1) return;
-    const obj = e.selected[0];
-    console.log(obj.get('type'), obj.get('aCoords'), obj);
-    setSelectedColor(obj.get('type') !== 'i-text' ? obj.get('stroke') : obj.get('fill'));
-    setLineWidth(obj.get('strokeWidth'));
-    fabricRef.current[pageIndex].renderAll();
-  };
-
-  const handleDeselection = () => {
-    onToolbarVisiblity('');
-  };
-
-  const handleScaling = (e) => {
-    const obj = e.transform.target;
-    if (obj.scaleX) { obj.set('width', obj.getScaledWidth()); }
-    if (obj.scaleY) { obj.set('height', obj.getScaledHeight()); }
-  };
-
   const drawFreeHand = () => {
     fabricRef.current[pageIndex].freeDrawingBrush = new
     fabric.PencilBrush(fabricRef.current[pageIndex]);
@@ -115,7 +90,14 @@ function DrawArea({
       fill: '',
       stroke: 'rgb(0, 0, 0)',
       strokeWidth: 10,
-      erasable: true,
+      erasable: false,
+      strokeUniform: true,
+    });
+    circ.on('selected', () => {
+      onToolbarVisiblity('Shapes');
+      if (fabricRef.current[pageIndex].getActiveObjects().length > 1) { return; }
+      setLineWidth(circ.get('strokeWidth'));
+      setSelectedColor(circ.get('stroke'));
     });
     fabricRef.current[pageIndex].add(circ);
     fabricRef.current[pageIndex].setActiveObject(circ);
@@ -131,14 +113,15 @@ function DrawArea({
       stroke: 'rgb(0, 0, 0)',
       strokeWidth: 10,
       fill: '',
-      erasable: true,
       strokeUniform: true,
+      erasable: false,
     });
-    // rect.setControlVisible('ml', false);
-    // rect.setControlVisible('mr', false);
-    // rect.setControlVisible('mt', false);
-    // rect.setControlVisible('mb', false);
-    rect.on('modified', handleScaling);
+    rect.on('selected', () => {
+      onToolbarVisiblity('Shapes');
+      if (fabricRef.current[pageIndex].getActiveObjects().length > 1) { return; }
+      setLineWidth(rect.get('strokeWidth'));
+      setSelectedColor(rect.get('stroke'));
+    });
     fabricRef.current[pageIndex].add(rect);
     fabricRef.current[pageIndex].setActiveObject(rect);
   };
@@ -163,6 +146,7 @@ function DrawArea({
   const drawShape = (shape) => {
     switch (shape.name) {
       case 'free':
+        fabricRef.current[pageIndex].discardActiveObject().renderAll();
         drawFreeHand();
         break;
       case 'eraser':
@@ -183,9 +167,12 @@ function DrawArea({
         fabricRef.current[pageIndex].discardActiveObject().renderAll();
         break;
       default:
-        return null;
+        if (fabricRef.current[pageIndex]) {
+          fabricRef.current[pageIndex].isDrawingMode = false;
+          fabricRef.current[pageIndex].discardActiveObject().renderAll();
+        }
+        break;
     }
-    return null;
   };
 
   useEffect(() => {
@@ -199,13 +186,37 @@ function DrawArea({
           key={`canvas${index + 1}`}
           ref={(ref) => {
             if (!fabricRef.current[val]
-              && (pageAttributes.canvasWidth[val] && pageAttributes.canvasHeight)) {
+              && (pageAttributes.actualCanvasWidth[val]
+                && pageAttributes.actualCanvasHeight[val])) {
               fabricRef.current[val] = new fabric.Canvas(ref);
               fabricRef.current[val].moveCursor = 'grabbing';
               fabricRef.current[val].hoverCursor = 'grab';
-              fabricRef.current[val].on('selection:cleared', handleDeselection);
-              fabricRef.current[val].on('selection:created', handleSelection);
-              fabricRef.current[val].on('selection:updated', handleSelection);
+              fabricRef.current[val].selectionKey = null;
+              fabricRef.current[val].on('selection:cleared', () => { onToolbarVisiblity(''); });
+              fabricRef.current[val].on('selection:created', (e) => {
+                const { type } = fabricRef.current[val].getActiveObject();
+                if (type === 'activeSelection') {
+                  const objects = fabricRef.current[val].getActiveObjects();
+                  if (objects.every((obj) => obj.get('type') === 'i-text')) {
+                    fabricRef.current[val].discardActiveObject();
+                    const newSelection = new fabric.ActiveSelection(
+                      fabricRef.current[val].getObjects(),
+                      { canvas: fabricRef.current[val], hasControls: false },
+                    );
+                    // eslint-disable-next-line no-underscore-dangle
+                    fabricRef.current[val]._setActiveObject(newSelection);
+                    fabricRef.current[val].requestRenderAll();
+                  }
+                }
+              });
+              fabricRef.current[val].on('path:created', (e) => {
+                e.path.on('selected', () => {
+                  onToolbarVisiblity('Shapes');
+                  if (fabricRef.current[pageIndex].getActiveObjects().length > 1) { return; }
+                  setLineWidth(e.path.get('strokeWidth'));
+                  setSelectedColor(e.path.get('stroke'));
+                });
+              });
               fabricRef.current[val].setDimensions({
                 width: pageAttributes.actualCanvasWidth[val],
                 height: pageAttributes.actualCanvasHeight[val],
@@ -214,7 +225,6 @@ function DrawArea({
                 const canvasDivs = document.getElementsByClassName('canvas-container');
                 Array.from(canvasDivs).forEach((canvas) => {
                   canvas.style.position = 'absolute';
-                  // canvas.style.overflow = 'scroll';
                 });
               }
             }
@@ -235,8 +245,6 @@ DrawArea.propTypes = {
   setLineWidth: PropTypes.func.isRequired,
   pageAttributes: PropTypes.shape({
     numPages: PropTypes.arrayOf(PropTypes.number),
-    canvasWidth: PropTypes.number,
-    canvasHeight: PropTypes.number,
     actualCanvasHeight: PropTypes.number,
     actualCanvasWidth: PropTypes.number,
   }).isRequired,

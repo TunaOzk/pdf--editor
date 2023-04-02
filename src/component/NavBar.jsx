@@ -33,15 +33,6 @@ function NavBar({
         </button>
       </div>
 
-      <div className="flex">
-        <button title="Zoom In" className="ml-4 transition ease-in-out delay-75 hover:-translate-y-1" type="button">
-          <ZoomInIcon />
-        </button>
-        <button title="Zoom Out" className="ml-4 transition ease-in-out delay-75 hover:-translate-y-1" type="button">
-          <ZoomOutIcon />
-        </button>
-      </div>
-
     </div>
   );
 }

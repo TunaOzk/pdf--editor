@@ -25,14 +25,6 @@ function PdfPreviewArea({
     setPdfLength(pdf.numPages);
   };
 
-  const handleZoomIn = () => {
-    setScale((prev) => prev * 2);
-  };
-
-  const handleZoomOut = () => {
-    setScale((prev) => prev / 2);
-  };
-
   const handleChange = (e) => {
     const pageNum = Number(e.target.value);
     if (pageNum > 0 && pageNum <= currentPdfPages.length) { setPageIndex(pageNum - 1); }

@@ -1,4 +1,4 @@
-const { PDFDocument, layoutMultilineText, StandardFonts, rgb, drawTextField } = require('pdf-lib');
+const {PDFDocument, rgb, degrees, pushGraphicsState, popGraphicsState, concatTransformationMatrix, degreesToRadians } = require('pdf-lib');
 fs = require('fs');
 fontkit = require('@pdf-lib/fontkit')
 
@@ -57,11 +57,19 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 }
 
-async function fillForm(textAreaList, file, base64Canvas, screenSize) {
+async function fillForm(textAreaList, file, shapes) {
     const mainPdf = await PDFDocument.load(file);
     mainPdf.registerFontkit(fontkit);
-    const fonts = ['Arial', 'Brush_Script_MT', 'Courier_New', 'Comic_Sans_MS', 'Garamond', 'Georgia',
-        'Tahoma', 'Trebuchet_MS', 'Times_New_Roman', 'Verdana'];
+    const fonts = ['Arial', 'Arial_Bold', 'Arial_Italic', 'Arial_Italic_Bold', 
+    'Brush_Script_MT', 'Brush_Script_MT_Bold', 'Brush_Script_MT_Italic', 'Brush_Script_MT_Italic_Bold',
+     'Courier_New', 'Courier_New_Bold', 'Courier_New_Italic', 'Courier_New_Italic_Bold',
+      'Comic_Sans_MS', 'Comic_Sans_MS_Bold', 'Comic_Sans_MS_Italic', 'Comic_Sans_MS_Italic_Bold', 
+      'Garamond', 'Garamond_Bold', 'Garamond_Italic', 'Garamond_Italic_Bold', 
+      'Georgia', 'Georgia_Bold', 'Georgia_Italic', 'Georgia_Italic_Bold',
+        'Tahoma', 'Tahoma_Bold', 'Tahoma_Italic', 'Tahoma_Italic_Bold',
+        'Trebuchet_MS', 'Trebuchet_MS_Bold', 'Trebuchet_MS_Italic', 'Trebuchet_MS_Italic_Bold',
+         'Times_New_Roman', 'Times_New_Roman_Bold', 'Times_New_Roman_Italic', 'Times_New_Roman_Italic_Bold',
+          'Verdana', 'Verdana_Bold', 'Verdana_Italic', 'Verdana_Italic_Bold'];
     const fontMap = new Map();
     await Promise.all(fonts.map(async (val) => {
         const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`, null);
@@ -72,30 +80,8 @@ async function fillForm(textAreaList, file, base64Canvas, screenSize) {
     for (let i = 0; i < textAreaList.length; i++) {
         textAreaList[i]?.forEach(async textArea => {
             const page = mainPdf.getPage(i);
-            const rate = page.getHeight() / screenSize
             const regex = /\d+/g;
             const rgbValues = textArea.color.match(regex)
-            // page.drawCircle(
-            //     {
-            //     x: 155,
-            //     y: page.getHeight() - 155,
-            //     size:50,
-            //     borderColor:rgb(0,0,0),
-            //     opacity:0,
-            //     borderOpacity:1,
-            //     borderWidth:10,
-            //     }
-            // );
-            page.drawRectangle({
-                x:100+5,
-                y:page.getHeight() - 100-200-5,
-                width: 300,
-                height: 200,
-                borderWidth: 10,
-                borderColor: rgb(0, 0, 0),
-                opacity: 0,
-                borderOpacity:1,
-            })
             if (textArea.type === 'S') {
                 page.drawText(textArea.content, {
                     x: textArea.x,
@@ -128,18 +114,54 @@ async function fillForm(textAreaList, file, base64Canvas, screenSize) {
         });
     }
     const temp = await mainPdf.saveAsBase64({ dataUri: true });
-    // return temp
-    return await addCanvasToPDF(temp, base64Canvas);
+    return await addCanvasToPDF(temp, shapes);
 
 }
 
 async function addCanvasToPDF(file, shapes) {
+    const {cos,sin} = Math
     const mainPdf = await PDFDocument.load(file);
     const numPages = mainPdf.getPageCount();
-    const [rects, circs] = shapes
+    const [rects, circs, canvasesForPaths] = shapes
     for (let i = 0; i < numPages; i++) {
         const page = mainPdf.getPage(i);
+        canvasesForPaths[i]?.forEach(async (canvas)  => {
+            const canvasForPath = await mainPdf.embedPng(canvas);
+            page.drawImage(canvasForPath, {
+                x: 0,
+                y: 0,
+                width: canvasForPath.width,
+                height: canvasForPath.height,
+            })
+        })
         rects[i]?.forEach((rect) => {
+            page.pushOperators(
+                pushGraphicsState(),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    rect.rotationPoint.x,
+                    page.getHeight() - rect.rotationPoint.y,
+                ),
+                concatTransformationMatrix(
+                    cos(degreesToRadians(360 - rect.rotate)),
+                    sin(degreesToRadians(360 - rect.rotate)),
+                    -sin(degreesToRadians(360 - rect.rotate)),
+                    cos(degreesToRadians(360 - rect.rotate)),
+                    0,
+                    0,
+                ),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    -1 * rect.rotationPoint.x,
+                    -1 * (page.getHeight() - rect.rotationPoint.y),
+                ),
+            )
             const regex = /\d+/g;
             const rgbValues = rect.color.match(regex)
             page.drawRectangle({
@@ -152,20 +174,55 @@ async function addCanvasToPDF(file, shapes) {
               opacity: 0,
               borderOpacity:1,
             })
+            page.pushOperators(
+                popGraphicsState(),
+              );
         })
         circs[i]?.forEach((circ) => {
+            page.pushOperators(
+                pushGraphicsState(),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    circ.rotationPoint.x,
+                    page.getHeight() - circ.rotationPoint.y,
+                ),
+                concatTransformationMatrix(
+                    cos(degreesToRadians(360 - circ.rotate)),
+                    sin(degreesToRadians(360 - circ.rotate)),
+                    -sin(degreesToRadians(360 - circ.rotate)),
+                    cos(degreesToRadians(360 - circ.rotate)),
+                    0,
+                    0,
+                ),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    -1 * circ.rotationPoint.x,
+                    -1 * (page.getHeight() - circ.rotationPoint.y),
+                ),
+            )
             const regex = /\d+/g;
             const rgbValues = circ.color.match(regex)
-            page.drawCircle({
-              x:circ.x,
-              y:page.getHeight() - circ.y,
-              size:circ.radius,
-              borderWidth:circ.borderWidth,
+            page.drawEllipse({
+              x: circ.x,
+              y: page.getHeight() - circ.y,
+              xScale: circ.scaleX * circ.radius,
+              yScale: circ.scaleY * circ.radius,
+              borderWidth: circ.borderWidth,
               borderColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
               opacity: 0,
-              borderOpacity:1,
+              borderOpacity: 1,
             })
+            page.pushOperators(
+                popGraphicsState(),
+              );
         })
+
     }
     return await mainPdf.saveAsBase64({ dataUri: true });
 }

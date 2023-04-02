@@ -35,8 +35,8 @@ app.post("/pdfSplitFileIndex", async (req, res) => {
 
 })
 app.post("/pdfEdit", async (req, res) => {
-    let { texts, file, shapes, screenSize } = req.body;
-    let a = await fillForm(texts, file, shapes, screenSize);
+    let { texts, file, shapes } = req.body;
+    let a = await fillForm(texts, file, shapes);
     res.send(a);
 
 })
