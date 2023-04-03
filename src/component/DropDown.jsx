@@ -10,7 +10,7 @@ function MenuItem({
     <div onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)} className="relative">
       <button
         onClick={() => setVisible((prev) => !prev)}
-        className="flex items-center w-fit hover:bg-stone-300"
+        className="flex items-center w-fit hover:bg-stone-400"
         type="button"
       >
         <img src={img} alt="" />

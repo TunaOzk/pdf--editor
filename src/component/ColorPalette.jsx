@@ -24,6 +24,7 @@ function ColorPalette({
         onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)}
         className="absolute bg-stone-300 p-2 border-2 my-3"
       >
+        <p className="mb-2">Main Colors</p>
         <div className="mb-2 grid grid-cols-6 gap-2">
           <button onClick={onClicks} style={{ backgroundColor: '#FF0000' }} className="rounded-md w-6 h-6" aria-label="main-red" type="button" />
           <button onClick={onClicks} style={{ backgroundColor: '#FFA500' }} className="rounded-md w-6 h-6" aria-label="main-orange" type="button" />
@@ -32,6 +33,7 @@ function ColorPalette({
           <button onClick={onClicks} style={{ backgroundColor: '#0000FF' }} className="rounded-md w-6 h-6" aria-label="main-blue" type="button" />
           <button onClick={onClicks} style={{ backgroundColor: '#A020F0' }} className="rounded-md w-6 h-6" aria-label="main-purple" type="button" />
         </div>
+        <p className="mb-2">More Colors</p>
         <div className="mb-2 grid grid-cols-6 gap-2">
           <button onClick={onClicks} style={{ backgroundColor: '#f8fafc' }} className="rounded-md w-6 h-6" aria-label="black" type="button" />
           <button onClick={onClicks} style={{ backgroundColor: '#e2e8f0' }} className="rounded-md w-6 h-6" aria-label="black" type="button" />

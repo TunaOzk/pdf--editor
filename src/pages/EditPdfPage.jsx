@@ -12,7 +12,6 @@ import DrawArea from '../component/DrawArea';
 import LoadingScreen from '../component/LoadingScreen';
 import { ReactComponent as SelectIcon } from '../assets/arrow_select.svg';
 import { ReactComponent as ExportIcon } from '../assets/export.svg';
-import { ReactComponent as ObjectEraserIcon } from '../assets/object_erase.svg';
 import { ReactComponent as EraserIcon } from '../assets/eraser.svg';
 import { ReactComponent as TextIncrease } from '../assets/text_increase.svg';
 import { ReactComponent as TextDecrease } from '../assets/text_decrease.svg';
@@ -20,6 +19,7 @@ import { ReactComponent as BoldIcon } from '../assets/format_bold.svg';
 import { ReactComponent as ItalicIcon } from '../assets/format_italic.svg';
 import { ReactComponent as DeleteIcon } from '../assets/delete.svg';
 import { MENU_ITEM_FONT_TYPE, MENU_ITEM_SHAPES, MENU_ITEM_TEXT } from '../constants/dropDownItems';
+import logo from '../assets/logo.png';
 import DropDown from '../component/DropDown';
 
 function EditPdfPage() {
@@ -201,6 +201,7 @@ function EditPdfPage() {
       fill: 'rgb(0, 0, 0)',
       fontFamily: 'Arial',
       hasControls: false,
+      erasable: false,
       _type: type,
       _height: 0,
     });
@@ -235,13 +236,13 @@ function EditPdfPage() {
   return (
     <div className="h-screen w-screen flex flex-col bg-stone-200">
       {/* {isLoading && <LoadingScreen />} */}
-      <div className="flex justify-between items-center h-min w-full drop-shadow-xl bg-stone-200 z-10">
+      <div className="flex justify-between items-center h-min w-full drop-shadow-xl bg-stone-300 z-10">
 
         <div className="flex">
           <button
             name="select"
             onClick={(e) => { setToolbarVisiblity(''); handleClickShape(e.currentTarget.name); }}
-            className="flex items-center w-fit hover:bg-stone-300"
+            className="flex items-center w-fit hover:bg-stone-400"
             type="button"
           >
             <SelectIcon className="" />
@@ -260,7 +261,12 @@ function EditPdfPage() {
             onAction={handleTextAreaAdd}
           />
 
-          <button name="eraser" onClick={(e) => handleClickShape(e.currentTarget.name)} className="w-fit flex items-center h-full hover:bg-stone-400" type="button">
+          <button
+            name="eraser"
+            onClick={(e) => handleClickShape(e.currentTarget.name)}
+            className="w-fit flex items-center h-full hover:bg-stone-400"
+            type="button"
+          >
             <EraserIcon />
             <p className="ml-1 mr-2">Eraser</p>
           </button>
@@ -268,7 +274,7 @@ function EditPdfPage() {
         </div>
         <p style={{ fontFamily: 'Comic Sans MS' }} className="text-xl">PDF Editor Logo</p>
         <button
-          className="flex items-center w-fit hover:bg-stone-300"
+          className="group flex items-center w-fit hover:bg-stone-400"
           type="button"
           onClick={(event) => postEditContent(event)}
         >
@@ -277,7 +283,7 @@ function EditPdfPage() {
         </button>
       </div>
 
-      <div className="h-12 w-full drop-shadow-xl bg-stone-300">
+      <div className="h-12 w-full bg-stone-300">
         { toolbarVisiblity === 'Text' && (
 
         <div className="flex items-center h-full">

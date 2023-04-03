@@ -39,7 +39,7 @@ function PdfPreviewArea({
         onLoadSuccess={!onLoadSuccessForEditPage ? handleLoadSucces : onLoadSuccessForEditPage}
       >
         <Page
-          className="rounded-md border-2 border-purple-500 shadow-2xl"
+          className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
           renderTextLayer={false}
           renderAnnotationLayer={false}
           loading={() => { handleLoading(); }}

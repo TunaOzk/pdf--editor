@@ -4,10 +4,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { fabric } from 'fabric-with-erasing';
+import { ROTATE_CURSOR, getDrawCursor } from '../constants/cursors';
 
-const svgRotateIcon = encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>');
-const rotateIcon = `data:image/svg+xml;utf8,${svgRotateIcon}`;
-fabric.Object.prototype.controls.mtr.cursorStyle = `url(${rotateIcon}) 4 4, auto`;
+fabric.Object.prototype.controls.mtr.cursorStyle = `url(${ROTATE_CURSOR}) 4 4, auto`;
 
 function DrawArea({
   selectedColor, setSelectedColor, selectedShape,
@@ -28,28 +27,11 @@ function DrawArea({
     }
   }
 
-  const getDrawCursor = () => {
-    const color = selectedShape.name === 'eraser' ? '#FFFFFF' : selectedColor;
-    const circle = `
-		<svg height="${lineWidth}" fill="${color}" viewBox="0 0 ${lineWidth * 2} ${lineWidth * 2}" 
-    width="${lineWidth}" 
-    xmlns="http://www.w3.org/2000/svg"
-		>
-			<circle
-				cx="50%"
-				cy="50%"
-				r="${lineWidth}" 
-			/>
-		</svg>
-	`;
-    return `data:image/svg+xml;base64,${window.btoa(circle)}`;
-  };
-
   const [prevSelectedColor, setPrevSelectedColor] = useState(selectedColor);
   if (fabricRef.current[pageIndex] && prevSelectedColor !== selectedColor) {
     setPrevSelectedColor(selectedColor);
     fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
-    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor()}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
+    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor(selectedShape, selectedColor, lineWidth)}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
     const objects = fabricRef.current[pageIndex].getActiveObjects();
     if (objects) {
       objects.forEach((obj) => {
@@ -63,7 +45,7 @@ function DrawArea({
   if (fabricRef.current[pageIndex] && prevLineWidth !== lineWidth) {
     setPrevLineWidth(lineWidth);
     fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
-    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor()}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
+    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor(selectedShape, selectedColor, lineWidth)}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
     const objects = fabricRef.current[pageIndex].getActiveObjects().filter((val) => val.get('type') !== 'i-text');
     if (objects) {
       objects.forEach((obj) => { obj.set('strokeWidth', lineWidth); });
@@ -76,7 +58,7 @@ function DrawArea({
     fabric.PencilBrush(fabricRef.current[pageIndex]);
     fabricRef.current[pageIndex].freeDrawingBrush.color = selectedColor;
     fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
-    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor()}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
+    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor(selectedShape, selectedColor, lineWidth)}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
     fabricRef.current[pageIndex].isDrawingMode = true;
   };
 
@@ -131,7 +113,7 @@ function DrawArea({
     fabricRef.current[pageIndex].freeDrawingBrush = new
     fabric.EraserBrush(fabricRef.current[pageIndex]);
     fabricRef.current[pageIndex].freeDrawingBrush.width = lineWidth;
-    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor()}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
+    fabricRef.current[pageIndex].freeDrawingCursor = `url(${getDrawCursor(selectedShape, selectedColor, lineWidth)}) ${lineWidth / 2} ${lineWidth / 2}, crosshair`;
     fabricRef.current[pageIndex].isDrawingMode = true;
   };
 
@@ -200,12 +182,17 @@ function DrawArea({
                   if (objects.every((obj) => obj.get('type') === 'i-text')) {
                     fabricRef.current[val].discardActiveObject();
                     const newSelection = new fabric.ActiveSelection(
-                      fabricRef.current[val].getObjects(),
+                      objects,
                       { canvas: fabricRef.current[val], hasControls: false },
                     );
                     // eslint-disable-next-line no-underscore-dangle
                     fabricRef.current[val]._setActiveObject(newSelection);
+                    onToolbarVisiblity('Text');
                     fabricRef.current[val].requestRenderAll();
+                  } else if (objects.every((obj) => obj.get('type') !== 'i-text')) {
+                    fabricRef.current[val].requestRenderAll();
+                  } else {
+                    fabricRef.current[val].discardActiveObject();
                   }
                 }
               });
