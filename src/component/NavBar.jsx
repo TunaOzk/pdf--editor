@@ -2,15 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
 import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
-import { ReactComponent as ZoomInIcon } from '../assets/zoom_in.svg';
-import { ReactComponent as ZoomOutIcon } from '../assets/zoom_out.svg';
 
 function NavBar({
   innerRef, onClickForward, onClickBack, pdfLength, inputValue, onChange,
 }) {
   return (
     <div className="flex transition ease-in-out p-4
-    text-white text-lg delay-75 opacity-25 hover:opacity-100 absolute z-30 bottom-10 rounded-md bg-[#684dae]"
+    text-white text-lg delay-75 opacity-25 hover:opacity-100 absolute z-30 bottom-10 rounded-md bg-[#4f33ff]"
     >
       <div>
         <button

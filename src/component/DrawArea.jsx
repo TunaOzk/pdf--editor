@@ -71,7 +71,7 @@ function DrawArea({
       radius: 50,
       fill: '',
       stroke: 'rgb(0, 0, 0)',
-      strokeWidth: 10,
+      strokeWidth: lineWidth,
       erasable: false,
       strokeUniform: true,
     });
@@ -93,7 +93,7 @@ function DrawArea({
       width: 100,
       height: 50,
       stroke: 'rgb(0, 0, 0)',
-      strokeWidth: 10,
+      strokeWidth: lineWidth,
       fill: '',
       strokeUniform: true,
       erasable: false,

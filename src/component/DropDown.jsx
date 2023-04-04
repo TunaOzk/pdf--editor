@@ -7,14 +7,22 @@ function MenuItem({
   const { label, img } = menuItemHeader;
   const [visible, setVisible] = useState(false);
   return (
-    <div onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)} className="relative">
+    <div onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)} className="relative ml-2">
       <button
         onClick={() => setVisible((prev) => !prev)}
-        className="flex items-center w-fit hover:bg-stone-400"
+        className="group transition ease-in-out delay-100 px-4 my-1 py-2
+        flex rounded-full items-center w-fit focus:bg-[#e4dff9]"
         type="button"
       >
-        <img src={img} alt="" />
-        <p className="ml-2 mr-4">{label}</p>
+        <img
+          className="
+          invert-[.25] sepia-[.5] saturate-[6.4] hue-rotate-[201deg] brightness-[.91] contrast-[.83]
+        group-focus:invert-[.13] group-focus:sepia-[.52] group-focus:saturate-[32.99]
+        group-focus:hue-rotate-[252deg] group-focus:brightness-[.83] group-focus:contrast-[1.28]"
+          src={img}
+          alt=""
+        />
+        <p className="ml-2 text-[#46464f] group-focus:text-[#1b1a2c]">{label}</p>
       </button>
       { visible && (
       <ul className="absolute w-full">
@@ -26,11 +34,11 @@ function MenuItem({
                 setVisible(false);
                 onAction(val.action);
               }}
-              className="bg-stone-200 w-full flex items-center hover:bg-stone-300"
+              className="bg-[#e3e1ec] py-3 pl-2 rounded-md min-w-full flex items-center hover:bg-stone-300"
               type="button"
             >
               <img src={val.img} alt="" />
-              <p className="text-xs">{val.label}</p>
+              <span className="ml-1 whitespace-nowrap text-m text-[#46464f]">{val.label}</span>
             </button>
           </li>
         ))}

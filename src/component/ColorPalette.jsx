@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ReactComponent as ExpandMoreIcon } from '../assets/expand_more.svg';
 import { ReactComponent as ExpandLessIcon } from '../assets/expand_less.svg';
+import { ReactComponent as ColorPaletteIcon } from '../assets/color_palette.svg';
 
 function ColorPalette({
   onClicks, selectedColor,
@@ -13,16 +14,16 @@ function ColorPalette({
       <button
         onClick={() => (setVisible((prev) => !prev))}
         type="button"
-        className="flex h-full items-center"
+        className="transition-all ease-in-out delay-100 hover:pb-2.5 flex w-fit py-1.5 px-2 bg-[#5e5c71] hover:drop-shadow-lg rounded-full items-center"
       >
-        <div style={{ backgroundColor: selectedColor }} className="rounded-md w-6 h-6" aria-label="selected-color" type="button" />
-        {visible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        <ColorPaletteIcon className="fill-[#ffffff]" />
+        <p className="ml-2 text-[#ffffff]">Palette</p>
       </button>
 
       { visible && (
       <div
         onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)}
-        className="absolute bg-stone-300 p-2 border-2 my-3"
+        className="absolute rounded-xl bg-[#fffbff] p-2 border-2 border-[#1c1b1f] my-3"
       >
         <p className="mb-2">Main Colors</p>
         <div className="mb-2 grid grid-cols-6 gap-2">

@@ -18,6 +18,8 @@ import { ReactComponent as TextDecrease } from '../assets/text_decrease.svg';
 import { ReactComponent as BoldIcon } from '../assets/format_bold.svg';
 import { ReactComponent as ItalicIcon } from '../assets/format_italic.svg';
 import { ReactComponent as DeleteIcon } from '../assets/delete.svg';
+import { ReactComponent as SelectedIcon } from '../assets/selected.svg';
+import { ReactComponent as BrushSizeIcon } from '../assets/brush_size.svg';
 import { MENU_ITEM_FONT_TYPE, MENU_ITEM_SHAPES, MENU_ITEM_TEXT } from '../constants/dropDownItems';
 import logo from '../assets/logo.png';
 import DropDown from '../component/DropDown';
@@ -32,7 +34,7 @@ function EditPdfPage() {
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState({ name: '' });
   const [selectedFont, setSelectedFont] = useState('Arial');
-  const [lineWidth, setLineWidth] = useState(10);
+  const [lineWidth, setLineWidth] = useState(25);
   const [textAreaList, setTextAreaList] = useState([[]]);
   const fabricRef = useRef([]);
   const [pageAttributes, setPageAttributes] = useState(
@@ -43,6 +45,9 @@ function EditPdfPage() {
     },
   );
   const [toolbarVisiblity, setToolbarVisiblity] = useState('');
+  const [boldSelected, setBoldSelected] = useState(false);
+  const [italicSelected, setItalicSelected] = useState(false);
+
   const postEditContent = async () => {
     setIsLoading(true);
     const objects = fabricRef.current.map((canvas, index) => {
@@ -210,6 +215,8 @@ function EditPdfPage() {
       if (fabricRef.current[pageIndex].getActiveObjects().length > 1) { return; }
       setSelectedFont(text.get('fontFamily'));
       setSelectedColor(text.get('fill'));
+      setBoldSelected(text.get('fontWeight') === 'bold');
+      setItalicSelected(text.get('fontStyle') === 'italic');
     });
 
     fabricRef.current[pageIndex].add(text);
@@ -234,19 +241,20 @@ function EditPdfPage() {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-stone-200">
+    <div className="h-screen w-screen flex flex-col bg-[#fbf8fd]">
       {/* {isLoading && <LoadingScreen />} */}
-      <div className="flex justify-between items-center h-min w-full drop-shadow-xl bg-stone-300 z-10">
+      <div className="flex justify-between items-center h-min w-full drop-shadow-xl bg-[#fffbff] z-10">
 
-        <div className="flex">
+        <div className="flex ml-2">
           <button
             name="select"
             onClick={(e) => { setToolbarVisiblity(''); handleClickShape(e.currentTarget.name); }}
-            className="flex items-center w-fit hover:bg-stone-400"
+            className="transition ease-in-out delay-100 relative my-1 focus:bg-[#e4dff9]
+            px-4 group flex rounded-full items-center w-fit"
             type="button"
           >
-            <SelectIcon className="" />
-            <p className="ml-2 mr-4">Select</p>
+            <SelectIcon className="fill-[#46464f] group-focus:fill-[#1b1a2c]" />
+            <p className="ml-2 text-[#46464f] group-focus:text-[#1b1a2c]">Select</p>
           </button>
           <DropDown
             menuItemContent={MENU_ITEM_SHAPES.content}
@@ -264,26 +272,27 @@ function EditPdfPage() {
           <button
             name="eraser"
             onClick={(e) => handleClickShape(e.currentTarget.name)}
-            className="w-fit flex items-center h-full hover:bg-stone-400"
+            className="group relative w-fit flex items-center h-full focus:bg-[#e4dff9] ml-2 rounded-full px-4 py-2 my-1"
             type="button"
           >
-            <EraserIcon />
-            <p className="ml-1 mr-2">Eraser</p>
+            <EraserIcon className="fill-[#46464f] group-focus:fill-[#1b1a2c]" />
+            <p className="ml-2 text-[#46464f] group-focus:text-[#1b1a2c]">Eraser</p>
           </button>
 
         </div>
         <p style={{ fontFamily: 'Comic Sans MS' }} className="text-xl">PDF Editor Logo</p>
         <button
-          className="group flex items-center w-fit hover:bg-stone-400"
+          className="relative group flex rounded-xl drop-shadow-xl items-center mr-2 my-1 p-3 w-fit bg-[#4f33ff]"
           type="button"
           onClick={(event) => postEditContent(event)}
         >
-          <ExportIcon />
-          <p className="ml-2 mr-4">Export the PDF File</p>
+          <div className="transition-all ease-in-out delay-100 absolute h-full w-full opacity-0 group-hover:opacity-[0.08] bg-white left-0 rounded-xl" />
+          <ExportIcon className="fill-white" />
+          <p className="ml-2 text-white">Export PDF</p>
         </button>
       </div>
 
-      <div className="h-12 w-full bg-stone-300">
+      <div className="h-12 w-full bg-[#f3f0f4]">
         { toolbarVisiblity === 'Text' && (
 
         <div className="flex items-center h-full">
@@ -310,9 +319,10 @@ function EditPdfPage() {
 
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mr-8 h-full">
+          <div className="rounded-full border-2 border-[#787680] divide-x-2 divide-[#787680] flex mr-8 h-fit">
             <button
               onClick={() => {
+                setBoldSelected((prev) => !prev);
                 const texts = fabricRef.current[pageIndex].getActiveObjects().filter((val) => val.get('type') === 'i-text');
                 if (texts) {
                   texts.forEach((txt) => (txt.get('fontWeight') === 'bold'
@@ -321,13 +331,15 @@ function EditPdfPage() {
                 fabricRef.current[pageIndex].renderAll();
               }}
               type="button"
-              className="w-fit h-full hover:bg-stone-400"
+              className={`rounded-l-full w-fit h-full px-2 ${boldSelected && 'bg-[#e4dff9]'}`}
             >
-              <BoldIcon />
+              <SelectedIcon className={`fill-[#1b1a2c] transition absolute ease-in-out delay-150 ${!boldSelected ? 'opacity-0' : 'opacity-100'}`} />
+              <BoldIcon className={` transition-all ease-in-out delay-150 ${boldSelected ? 'ml-5 fill-[#1b1a2c]' : 'fill-[#1c1b1f]'}`} />
             </button>
 
             <button
               onClick={() => {
+                setItalicSelected((prev) => !prev);
                 const texts = fabricRef.current[pageIndex].getActiveObjects().filter((val) => val.get('type') === 'i-text');
                 if (texts) {
                   texts.forEach((txt) => (txt.get('fontStyle') === 'italic'
@@ -336,14 +348,15 @@ function EditPdfPage() {
                 fabricRef.current[pageIndex].renderAll();
               }}
               type="button"
-              className="w-fit h-full hover:bg-stone-400"
+              className={`rounded-r-full w-fit h-full px-2 ${italicSelected && 'bg-[#e4dff9]'}`}
             >
-              <ItalicIcon />
+              <SelectedIcon className={`fill-[#1b1a2c]transition absolute ease-in-out delay-150 ${!italicSelected ? 'opacity-0' : 'opacity-100'}`} />
+              <ItalicIcon className={`transition-all ease-in-out delay-150 ${italicSelected ? 'ml-5 fill-[#1b1a2c]' : 'fill-[#1c1b1f]'}`} />
             </button>
 
           </div>
 
-          <div className="grid grid-cols-2 gap-4 h-full">
+          <div className="grid grid-cols-2 gap-4 h-fit">
             <button
               onClick={() => {
                 const texts = fabricRef.current[pageIndex].getActiveObjects().filter((val) => val.get('type') === 'i-text');
@@ -353,9 +366,10 @@ function EditPdfPage() {
                 fabricRef.current[pageIndex].renderAll();
               }}
               type="button"
-              className="w-fit h-full hover:bg-stone-400 px-2"
+              className="rounded-full p-2 group relative"
             >
-              <TextIncrease />
+              <div className="absolute bg-[#47464f] opacity-0 group-hover:opacity-[0.08] w-full h-full right-0 bottom-0 rounded-full" />
+              <TextIncrease className="fill-[#47464f]" />
             </button>
 
             <button
@@ -367,9 +381,10 @@ function EditPdfPage() {
                 fabricRef.current[pageIndex].renderAll();
               }}
               type="button"
-              className="w-fit h-full hover:bg-stone-400 px-2"
+              className="rounded-full p-2 group relative"
             >
-              <TextDecrease />
+              <div className="absolute bg-[#47464f] opacity-0 group-hover:opacity-[0.08] w-full h-full right-0 bottom-0 rounded-full" />
+              <TextDecrease className="fill-[#47464f]" />
             </button>
 
           </div>
@@ -383,22 +398,48 @@ function EditPdfPage() {
               fabricRef.current[pageIndex].discardActiveObject().renderAll();
             }}
             type="button"
-            className="w-fit h-full hover:bg-stone-400 ml-4 px-2"
+            className="relative rounded-full bg-[#ffd8e9] group ml-4 p-1"
           >
-            <DeleteIcon />
+            <div className="absolute h-full right-0 top-0 w-full rounded-full bg-[#2f1122] opacity-0 group-hover:opacity-[0.08]" />
+            <DeleteIcon className="fill-[#2f1122]" />
           </button>
 
         </div>
         )}
 
         { toolbarVisiblity === 'Shapes' && (
-        <div className="flex grid grid-cols-4 w-fit items-center h-full place-items-center">
+        <div className="flex w-fit items-center h-full place-items-center">
           <ColorPalette onClicks={handleClickColor} selectedColor={selectedColor} />
+          <div className="relative flex items-center ml-8 mr-8">
+            <BrushSizeIcon className="fill-[#1c1b1f] mr-1" />
+            <div className="ml-2">
+              <p className="text-sm font-medium text-[#1c1b1f]">Brush Size</p>
+              <input className="peer" step={1} min={1} max={50} onChange={(e) => setLineWidth(Number(e.target.value))} value={lineWidth} type="range" />
+              <div
+                style={{ left: 32 + ((150 / 49) * (lineWidth - 1)) - (10 * (lineWidth / 25)) }}
+                className="transition ease-in-out delay-150 opacity-0 peer-hover:opacity-100 absolute"
+              >
+                <svg width="24px" viewBox="0 0 30 42">
+                  <path
+                    fill="#e4dff9"
+                    stroke="#e4dff9"
+                    strokeWidth="1.5"
+                    d="M15 3
+           Q16.5 6.8 25 18
+           A12.8 12.8 0 1 1 5 18
+           Q13.5 6.8 15 3z"
+                  />
+                  <text x={lineWidth > 10 ? '7' : '11'} y="30" fill="#1b1a2c">{lineWidth}</text>
+                </svg>
+              </div>
 
-          <input step={1} min={1} max={50} onChange={(e) => setLineWidth(Number(e.target.value))} value={lineWidth} type="range" />
+            </div>
 
-          <button name="eraser-object" onClick={(e) => handleClickShape(e.currentTarget.name)} className="ml-2 flex items-center w-fit h-full hover:bg-stone-400" type="button">
-            <DeleteIcon />
+          </div>
+
+          <button name="eraser-object" onClick={(e) => handleClickShape(e.currentTarget.name)} className="relative rounded-full bg-[#ffd8e9] group ml-4 p-1" type="button">
+            <div className="absolute h-full right-0 top-0 w-full rounded-full bg-[#2f1122] opacity-0 group-hover:opacity-[0.08]" />
+            <DeleteIcon className="fill-[#2f1122]" />
           </button>
         </div>
 

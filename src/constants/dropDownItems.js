@@ -42,13 +42,13 @@ export const MENU_ITEM_TEXT = {
     {
       id: 1,
       img: simpleTextAreaImg,
-      label: 'Simple Text Area',
+      label: 'Simple',
       action: 'S',
     },
     {
       id: 2,
       img: fillableTextAreaImg,
-      label: 'Fillable Text Area',
+      label: 'Fillable',
       action: 'F',
     },
   ],
