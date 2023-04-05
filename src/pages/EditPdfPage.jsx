@@ -7,21 +7,13 @@ import axios from 'axios';
 import { fabric } from 'fabric-with-erasing';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 import ColorPalette from '../component/ColorPalette';
-import TextArea from '../component/TextArea';
 import DrawArea from '../component/DrawArea';
 import LoadingScreen from '../component/LoadingScreen';
-import { ReactComponent as SelectIcon } from '../assets/arrow_select.svg';
-import { ReactComponent as ExportIcon } from '../assets/export.svg';
-import { ReactComponent as EraserIcon } from '../assets/eraser.svg';
-import { ReactComponent as TextIncrease } from '../assets/text_increase.svg';
-import { ReactComponent as TextDecrease } from '../assets/text_decrease.svg';
-import { ReactComponent as BoldIcon } from '../assets/format_bold.svg';
-import { ReactComponent as ItalicIcon } from '../assets/format_italic.svg';
-import { ReactComponent as DeleteIcon } from '../assets/delete.svg';
-import { ReactComponent as SelectedIcon } from '../assets/selected.svg';
-import { ReactComponent as BrushSizeIcon } from '../assets/brush_size.svg';
+import {
+  SelectIcon, ExportIcon, EraserIcon, TextIncrease, TextDecrease, BoldIcon, ItalicIcon,
+  DeleteIcon, SelectedIcon, BrushSizeIcon,
+} from '../assets';
 import { MENU_ITEM_FONT_TYPE, MENU_ITEM_SHAPES, MENU_ITEM_TEXT } from '../constants/dropDownItems';
-import logo from '../assets/logo.png';
 import DropDown from '../component/DropDown';
 
 function EditPdfPage() {
@@ -35,7 +27,6 @@ function EditPdfPage() {
   const [selectedShape, setSelectedShape] = useState({ name: '' });
   const [selectedFont, setSelectedFont] = useState('Arial');
   const [lineWidth, setLineWidth] = useState(10);
-  const [textAreaList, setTextAreaList] = useState([[]]);
   const fabricRef = useRef([]);
   const [pageAttributes, setPageAttributes] = useState(
     {
@@ -60,7 +51,7 @@ function EditPdfPage() {
       const result = {
         texts: [], rects: [], circs: [], canvasesForPaths: [],
       };
-      const temp = canvas.getObjects().reduce((acc, currVal, currIndex) => {
+      const temp = canvas.getObjects().reduce((acc, currVal) => {
         if (currVal.get('type') === 'i-text') {
           acc.texts.push(currVal);
         } else if (currVal.get('type') === 'rect') {
@@ -165,6 +156,7 @@ function EditPdfPage() {
           setIsLoading(false);
         });
     } catch (error) {
+      setIsLoading(false);
       throw new Error(error);
     }
   };
@@ -177,7 +169,6 @@ function EditPdfPage() {
     setSelectedShape({ name: shape });
   };
   const handleLoadSucces = async (pdf) => {
-    setTextAreaList([...Array(pdf.numPages)].map(() => []));
     const actualCanvasWidthArr = [];
     const actualCanvasHeightArr = [];
 
@@ -464,22 +455,6 @@ function EditPdfPage() {
             setPageIndex={setPageIndex}
             currentPdfPages={pageAttributes.numPages}
           />
-          {textAreaList[pageIndex].map((val, index) => (
-            <TextArea
-              id={val.ID}
-              axisX={val.x}
-              axisY={val.y}
-              _width={val.width}
-              _height={val.height}
-              _content={val.content}
-              _type={val.type}
-              _font={val.font}
-              _fontSize={val.fontSize}
-              setTextAreaList={setTextAreaList}
-              pageIndex={pageIndex}
-              key={`textarea_${pageIndex.toString() + (val.ID).toString()}`}
-            />
-          ))}
         </div>
       </div>
     </div>
