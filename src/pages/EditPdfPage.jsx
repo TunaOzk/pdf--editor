@@ -34,7 +34,7 @@ function EditPdfPage() {
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState({ name: '' });
   const [selectedFont, setSelectedFont] = useState('Arial');
-  const [lineWidth, setLineWidth] = useState(25);
+  const [lineWidth, setLineWidth] = useState(10);
   const [textAreaList, setTextAreaList] = useState([[]]);
   const fabricRef = useRef([]);
   const [pageAttributes, setPageAttributes] = useState(
@@ -208,7 +208,6 @@ function EditPdfPage() {
       hasControls: false,
       erasable: false,
       _type: type,
-      _height: 0,
     });
     text.on('selected', () => {
       setToolbarVisiblity('Text');
@@ -242,7 +241,7 @@ function EditPdfPage() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#fbf8fd]">
-      {/* {isLoading && <LoadingScreen />} */}
+      {isLoading && <LoadingScreen />}
       <div className="flex justify-between items-center h-min w-full drop-shadow-xl bg-[#fffbff] z-10">
 
         <div className="flex ml-2">
@@ -280,7 +279,6 @@ function EditPdfPage() {
           </button>
 
         </div>
-        <p style={{ fontFamily: 'Comic Sans MS' }} className="text-xl">PDF Editor Logo</p>
         <button
           className="relative group flex rounded-xl drop-shadow-xl items-center mr-2 my-1 p-3 w-fit bg-[#4f33ff]"
           type="button"
@@ -409,7 +407,11 @@ function EditPdfPage() {
 
         { toolbarVisiblity === 'Shapes' && (
         <div className="flex w-fit items-center h-full place-items-center">
-          <ColorPalette onClicks={handleClickColor} selectedColor={selectedColor} />
+          <div className={`${selectedShape.name === 'eraser' && 'hidden'}`}>
+            <ColorPalette onClicks={handleClickColor} selectedColor={selectedColor} />
+
+          </div>
+
           <div className="relative flex items-center ml-8 mr-8">
             <BrushSizeIcon className="fill-[#1c1b1f] mr-1" />
             <div className="ml-2">
@@ -429,7 +431,7 @@ function EditPdfPage() {
            A12.8 12.8 0 1 1 5 18
            Q13.5 6.8 15 3z"
                   />
-                  <text x={lineWidth > 10 ? '7' : '11'} y="30" fill="#1b1a2c">{lineWidth}</text>
+                  <text x={lineWidth > 9 ? '7' : '11'} y="30" fill="#1b1a2c">{lineWidth}</text>
                 </svg>
               </div>
 
@@ -437,7 +439,14 @@ function EditPdfPage() {
 
           </div>
 
-          <button name="eraser-object" onClick={(e) => handleClickShape(e.currentTarget.name)} className="relative rounded-full bg-[#ffd8e9] group ml-4 p-1" type="button">
+          <button
+            name="eraser-object"
+            onClick={(e) => handleClickShape(e.currentTarget.name)}
+            className={`
+          relative rounded-full bg-[#ffd8e9] group ml-4 p-1 ${selectedShape.name === 'eraser' && 'hidden'}
+          `}
+            type="button"
+          >
             <div className="absolute h-full right-0 top-0 w-full rounded-full bg-[#2f1122] opacity-0 group-hover:opacity-[0.08]" />
             <DeleteIcon className="fill-[#2f1122]" />
           </button>

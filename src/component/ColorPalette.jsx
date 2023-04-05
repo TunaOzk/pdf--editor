@@ -1,8 +1,6 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ReactComponent as ExpandMoreIcon } from '../assets/expand_more.svg';
-import { ReactComponent as ExpandLessIcon } from '../assets/expand_less.svg';
 import { ReactComponent as ColorPaletteIcon } from '../assets/color_palette.svg';
 
 function ColorPalette({

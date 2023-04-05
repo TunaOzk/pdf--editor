@@ -60,25 +60,30 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 async function fillForm(textAreaList, file, shapes) {
     const mainPdf = await PDFDocument.load(file);
     mainPdf.registerFontkit(fontkit);
-    const fonts = ['Arial', 'Arial_Bold', 'Arial_Italic', 'Arial_Italic_Bold', 
-    'Brush_Script_MT', 'Brush_Script_MT_Bold', 'Brush_Script_MT_Italic', 'Brush_Script_MT_Italic_Bold',
-     'Courier_New', 'Courier_New_Bold', 'Courier_New_Italic', 'Courier_New_Italic_Bold',
-      'Comic_Sans_MS', 'Comic_Sans_MS_Bold', 'Comic_Sans_MS_Italic', 'Comic_Sans_MS_Italic_Bold', 
-      'Garamond', 'Garamond_Bold', 'Garamond_Italic', 'Garamond_Italic_Bold', 
-      'Georgia', 'Georgia_Bold', 'Georgia_Italic', 'Georgia_Italic_Bold',
-        'Tahoma', 'Tahoma_Bold', 'Tahoma_Italic', 'Tahoma_Italic_Bold',
-        'Trebuchet_MS', 'Trebuchet_MS_Bold', 'Trebuchet_MS_Italic', 'Trebuchet_MS_Italic_Bold',
-         'Times_New_Roman', 'Times_New_Roman_Bold', 'Times_New_Roman_Italic', 'Times_New_Roman_Italic_Bold',
-          'Verdana', 'Verdana_Bold', 'Verdana_Italic', 'Verdana_Italic_Bold'];
-    const fontMap = new Map();
-    await Promise.all(fonts.map(async (val) => {
-        const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`, null);
-        const font = await mainPdf.embedFont(fontBytes);
-        const fontName = val.replace(/_/g, ' ');
-        fontMap.set(fontName, font)
-    }))
+    // const fonts = ['Arial', 'Arial_Bold', 'Arial_Italic', 'Arial_Italic_Bold', 
+    // 'Brush_Script_MT', 'Brush_Script_MT_Bold', 'Brush_Script_MT_Italic', 'Brush_Script_MT_Italic_Bold',
+    //  'Courier_New', 'Courier_New_Bold', 'Courier_New_Italic', 'Courier_New_Italic_Bold',
+    //   'Comic_Sans_MS', 'Comic_Sans_MS_Bold', 'Comic_Sans_MS_Italic', 'Comic_Sans_MS_Italic_Bold', 
+    //   'Garamond', 'Garamond_Bold', 'Garamond_Italic', 'Garamond_Italic_Bold', 
+    //   'Georgia', 'Georgia_Bold', 'Georgia_Italic', 'Georgia_Italic_Bold',
+    //     'Tahoma', 'Tahoma_Bold', 'Tahoma_Italic', 'Tahoma_Italic_Bold',
+    //     'Trebuchet_MS', 'Trebuchet_MS_Bold', 'Trebuchet_MS_Italic', 'Trebuchet_MS_Italic_Bold',
+    //      'Times_New_Roman', 'Times_New_Roman_Bold', 'Times_New_Roman_Italic', 'Times_New_Roman_Italic_Bold',
+    //       'Verdana', 'Verdana_Bold', 'Verdana_Italic', 'Verdana_Italic_Bold'];
+    // const fontMap = new Map();
+    // await Promise.all(fonts.map(async (val) => {
+    //     const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`, null);
+    //     const font = await mainPdf.embedFont(fontBytes);
+    //     const fontName = val.replace(/_/g, ' ');
+    //     fontMap.set(fontName, font)
+    // }))
+
+
     for (let i = 0; i < textAreaList.length; i++) {
-        textAreaList[i]?.forEach(async textArea => {
+        let secondaryIndex = 0
+        for(const textArea of textAreaList[i]) {
+            const fontBytes = fs.readFileSync(`./fonts/${textArea.font}.ttf`);
+            const font = await mainPdf.embedFont(fontBytes);
             const page = mainPdf.getPage(i);
             const regex = /\d+/g;
             const rgbValues = textArea.color.match(regex)
@@ -86,7 +91,7 @@ async function fillForm(textAreaList, file, shapes) {
                 page.drawText(textArea.content, {
                     x: textArea.x,
                     y: page.getHeight() - textArea.y - textArea.fontSize + textArea.height,
-                    font: fontMap.get(textArea.font),
+                    font: font,
                     size: textArea.fontSize,
                     lineHeight: 1.16 + textArea.fontSize,
                     color: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
@@ -95,13 +100,13 @@ async function fillForm(textAreaList, file, shapes) {
             }
             else if (textArea.type === 'F') {
                 const form = mainPdf.getForm();
-                const fillableField = form.createTextField(`textArea.Field${i}${textArea.ID}`);
+                const fillableField = form.createTextField(`textArea.Field${i}${secondaryIndex++}`);
                 fillableField.setText(textArea.content);
                 fillableField.enableMultiline();
                 fillableField.addToPage(page, {
                     x: textArea.x,
                     y: page.getHeight() - textArea.y - textArea.height,
-                    font:fontMap.get(textArea.font),
+                    font: font,
                     size: textArea.fontSize,
                     lineHeight: 1.16 + textArea.fontSize,
                     width: textArea.width,
@@ -109,9 +114,9 @@ async function fillForm(textAreaList, file, shapes) {
                     textColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
                     
                 })
-                fillableField.updateAppearances(fontMap.get(textArea.font));
+                fillableField.updateAppearances(font);
             }
-        });
+        };
     }
     const temp = await mainPdf.saveAsBase64({ dataUri: true });
     return await addCanvasToPDF(temp, shapes);
