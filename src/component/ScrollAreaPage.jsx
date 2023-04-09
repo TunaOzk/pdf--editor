@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-// import { useInView } from 'react-intersection-observer';
+import { useInView } from 'react-intersection-observer';
 import { Page } from 'react-pdf';
 import PropTypes from 'prop-types';
 import { Draggable } from '@hello-pangea/dnd';
@@ -8,33 +8,23 @@ import { ReactComponent as RemoveIcon } from '../assets/remove.svg';
 function ScrollAreaPage({
   pageNum, width, scale, index, onDelete, onClick, isLastDelete,
 }) {
-  // const { ref, inView } = useInView();
-  const memoizedPdfPage = useMemo(() => (
-    <Draggable draggableId={pageNum.toString()} index={index}>
-      {(provided) => (
-        <div
-          className="flex flex-col relative"
-          ref={provided.innerRef}
+  const { ref, inView } = useInView();
+  const memoizedPdfPage = useMemo(() => {
+    console.log('');
+    return (
+      <Draggable draggableId={`${pageNum}`} index={index}>
+        {(provided) => (
+          <div
+            className="flex flex-col relative mb-2"
+            ref={provided.innerRef}
         // eslint-disable-next-line react/jsx-props-no-spreading
-          {...provided.draggableProps}
+            {...provided.draggableProps}
         // eslint-disable-next-line react/jsx-props-no-spreading
-          {...provided.dragHandleProps}
-        >
-          <Page
-            onClick={(e) => onClick(e, pageNum, index)}
-            className="rounded-md border-4 border-purple-500"
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-            loading={() => {}}
-            pageNumber={pageNum}
-            width={width}
-            scale={scale}
-          />
-          {/* <div ref={ref}>
-          { inView ? (
+            {...provided.dragHandleProps}
+          >
             <Page
               onClick={(e) => onClick(e, pageNum, index)}
-              className="rounded-md border-4 border-purple-500"
+              className="rounded-md border-2 border-[#1c1b1e]"
               renderTextLayer={false}
               renderAnnotationLayer={false}
               loading={() => {}}
@@ -42,25 +32,95 @@ function ScrollAreaPage({
               width={width}
               scale={scale}
             />
-          ) : <div style={{ height: 225, width: 200 }} />}
-        </div> */}
-          <button
-            title="Delete"
-            disabled={isLastDelete}
-            type="submit"
-            onClick={() => onDelete(pageNum, index)}
-            className={`absolute ${!isLastDelete ? 'hover:bg-[#dc2626]' : 'hover:bg-gray-500'}  
-            transition ease-in-out duration-300 border-2 rounded-md border-purple-500`}
-          >
-            <RemoveIcon />
-          </button>
-        </div>
+            {/* <div ref={ref}>
+            { inView ? (
+              <Page
+                onClick={(e) => onClick(e, pageNum, index)}
+                className="rounded-md border-4 border-purple-500"
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                loading={() => {}}
+                pageNumber={pageNum}
+                width={width}
+                scale={scale}
+              />
+            ) : <div className="bg-black" style={{ height: 150, width: 200 }} />}
+          </div> */}
+            <button
+              title="Delete"
+              disabled={isLastDelete}
+              type="submit"
+              onClick={() => onDelete(pageNum, index)}
+              className={`absolute ${!isLastDelete ? 'hover:bg-[#dc2626]' : 'hover:bg-gray-500'}  
+            transition ease-in-out duration-300 border-2 rounded-md border-[#1c1b1e]`}
+            >
+              <RemoveIcon />
+            </button>
+            <div className="absolute bottom-0 px-2 text-[#1b1a2c] bg-[#e4dff9] rounded-r-md flex justify-center h-fit w-fit border-2 border-[#1c1b1e]">{pageNum}</div>
+          </div>
 
-      )}
-    </Draggable>
-  ), [index, isLastDelete, onClick, onDelete, pageNum, scale, width]);
+        )}
+      </Draggable>
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
 
-  return (<div>{memoizedPdfPage}</div>);
+  return (
+    memoizedPdfPage
+    // <div>
+    //   {' '}
+    //   <Draggable draggableId={`${pageNum}`} index={index}>
+    //     {(provided) => (
+    //       <div
+    //         className="flex flex-col relative mb-2"
+    //         ref={provided.innerRef}
+    // // eslint-disable-next-line react/jsx-props-no-spreading
+    //         {...provided.draggableProps}
+    // // eslint-disable-next-line react/jsx-props-no-spreading
+    //         {...provided.dragHandleProps}
+    //       >
+    //         {/* <Page
+    //           onClick={(e) => onClick(e, pageNum, index)}
+    //           className="rounded-md border-2 border-[#1c1b1e]"
+    //           renderTextLayer={false}
+    //           renderAnnotationLayer={false}
+    //           loading={() => {}}
+    //           pageNumber={pageNum}
+    //           width={width}
+    //           scale={scale}
+    //         /> */}
+    //         <div ref={ref}>
+    //           { inView ? (
+    //             <Page
+    //               onClick={(e) => onClick(e, pageNum, index)}
+    //               className="rounded-md border-4 border-purple-500"
+    //               renderTextLayer={false}
+    //               renderAnnotationLayer={false}
+    //               loading={() => {}}
+    //               pageNumber={pageNum}
+    //               width={width}
+    //               scale={scale}
+    //             />
+    //           ) : <div className="bg-black" style={{ height: 225, width: 200 }} />}
+    //         </div>
+    //         <button
+    //           title="Delete"
+    //           disabled={isLastDelete}
+    //           type="submit"
+    //           onClick={() => onDelete(pageNum, index)}
+    //           className={`absolute ${!isLastDelete ? 'hover:bg-[#dc2626]' : 'hover:bg-gray-500'}
+    //     transition ease-in-out duration-300 border-2 rounded-md border-[#1c1b1e]`}
+    //         >
+    //           <RemoveIcon />
+    //         </button>
+    //         <div className="absolute bottom-0 px-2 text-[#1b1a2c] bg-[#e4dff9]
+    //  rounded-r-md flex justify-center h-fit w-fit border-2 border-[#1c1b1e]">{pageNum}</div>
+    //       </div>
+
+  //     )}
+  //   </Draggable>
+  // </div>
+  );
 }
 
 ScrollAreaPage.propTypes = {

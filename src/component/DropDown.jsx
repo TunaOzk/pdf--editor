@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-function MenuItem({
+function DropDown({
   menuItemContent, menuItemHeader, onToolbarVisiblity, onAction,
 }) {
   const { label, img } = menuItemHeader;
   const [visible, setVisible] = useState(false);
   return (
-    <div onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)} className="relative ml-2">
+    <div
+      onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)}
+      className="relative ml-2 w-fit rounded-full"
+    >
       <button
         onClick={() => setVisible((prev) => !prev)}
         className="group transition ease-in-out delay-100 px-4 my-1 py-2
@@ -30,11 +33,11 @@ function MenuItem({
           <li key={val.id}>
             <button
               onClick={() => {
-                onToolbarVisiblity(label);
+                if (onToolbarVisiblity) { onToolbarVisiblity(label); }
                 setVisible(false);
                 onAction(val.action);
               }}
-              className="bg-[#e3e1ec] py-3 pl-2 rounded-md min-w-full flex items-center hover:bg-stone-300"
+              className="bg-[#e3e1ec] py-3 pl-2 min-w-full flex items-center hover:bg-stone-300"
               type="button"
             >
               <img src={val.img} alt="" />
@@ -48,17 +51,24 @@ function MenuItem({
   );
 }
 
-MenuItem.propTypes = {
+DropDown.propTypes = {
   menuItemContent: PropTypes.arrayOf(PropTypes.shape(
-    { id: PropTypes.number, img: PropTypes.string, label: PropTypes.string },
+    {
+      id: PropTypes.number,
+      img: PropTypes.string,
+      label: PropTypes.string,
+      action: PropTypes.string,
+    },
   )).isRequired,
   menuItemHeader: PropTypes.shape({
     img: PropTypes.string,
-    label:
-    PropTypes.string,
-    action: PropTypes.string,
+    label: PropTypes.string,
   }).isRequired,
-  onToolbarVisiblity: PropTypes.func.isRequired,
+  onToolbarVisiblity: PropTypes.func,
   onAction: PropTypes.func.isRequired,
 };
-export default MenuItem;
+
+DropDown.defaultProps = {
+  onToolbarVisiblity: null,
+};
+export default DropDown;

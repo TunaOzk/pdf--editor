@@ -1,20 +1,32 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
-import { Document } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 import uuid from 'react-uuid';
 import PropTypes, { arrayOf, number } from 'prop-types';
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import ScrollAreaPage from './ScrollAreaPage';
 import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 
 function PdfScrollArea({
-  file, currFileIndex, setPageIndex,
-  currentPdfPages, setCurrentPdfPages, pdfPagesList, setPdfPagesList,
+  file, currFileIndex, setPageIndex, pdfPagesList,
+  setPdfPagesList, currentPdfPages, setCurrentPdfPages,
 }) {
   const currentPageIndex = useRef(0);
+  const [maxCanvasHeight, setMaxCanvasHeight] = useState(0);
   const [disableDeleteOnLastRemainingPage, setDisableDeleteOnLastRemainingPage] = useState(false);
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
 
-  const handleOnDocumentLoadSuccess = (pdf) => {
+  const handleOnDocumentLoadSuccess = async (pdf) => {
+    const heightArr = [];
+    await Promise
+      .all(Array.from({ length: pdf.numPages }, (_, i) => i + 1).map(async (val) => {
+        await pdf.getPage(val).then((page) => {
+          const viewPort = page.getViewport({ scale: 1 });
+          heightArr.push(viewPort.height * (200 / viewPort.width));
+        });
+      }));
+    setMaxCanvasHeight(Math.max(...heightArr));
     setDisableDeleteOnLastRemainingPage(pdfPagesList[currFileIndex].length === 1);
     const pdfPages = [...Array(pdf.numPages).keys()];
     setCurrentPdfPages(() => {
@@ -44,10 +56,15 @@ function PdfScrollArea({
       default:
         break;
     }
-    const newPageList = currentPdfPages;
+    const newPageList = [...currentPdfPages];
     const [reorderedPage] = newPageList.splice(result.source.index, 1);
     newPageList.splice(result.destination.index, 0, reorderedPage);
     setCurrentPdfPages(newPageList);
+    setPdfPagesList((prevPagesList) => {
+      const newPagesList = [...prevPagesList];
+      newPagesList[currFileIndex] = newPageList;
+      return newPagesList;
+    });
   };
 
   const handleClick = (e, num, index) => {
@@ -73,42 +90,100 @@ function PdfScrollArea({
       setPageIndex(currentPageIndex.current);
     }
   };
-
+  const row = ({ data, index, style }) => (
+    <div style={style}>
+      <ScrollAreaPage
+        pageNum={data[index] + 1}
+        width={200}
+        scale={1}
+        index={index}
+        onDelete={handleDelete}
+        onClick={handleClick}
+        isLastDelete={disableDeleteOnLastRemainingPage}
+      />
+    </div>
+  );
+  const memoizedScrollArea = useMemo(
+    () => (currentPdfPages.map((value, index) => (
+      <ScrollAreaPage
+        key={value}
+        pageNum={value + 1}
+        width={100}
+        scale={2}
+        index={index}
+        onDelete={handleDelete}
+        onClick={handleClick}
+        isLastDelete={disableDeleteOnLastRemainingPage}
+      />
+    ))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentPdfPages],
+  );
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="relative flex flex-col items-center w-1/5 border-4 border-violet-400 overflow-y-auto">
-        <Document
-          file={file}
-          onLoadSuccess={handleOnDocumentLoadSuccess}
-          loading={handleLoading}
-        >
-          <Droppable droppableId={uuid().toString()}>
-            {(provided) => (
-              <div
-                ref={provided.innerRef}
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...provided.droppableProps}
-                className="flex flex-col items-center"
-              >
-                {currentPdfPages.map((value, index) => (
-                  <ScrollAreaPage
-                    key={value}
-                    pageNum={value + 1}
+    <div className="mt-2 relative flex flex-col items-center">
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div>
+          <Document
+            file={file}
+            onLoadSuccess={handleOnDocumentLoadSuccess}
+            loading={handleLoading}
+          >
+            <Droppable
+              mode="virtual"
+              renderClone={(provided, snapshot, rubric) => (
+                <div
+                  className="flex flex-col relative mb-2"
+                  ref={provided.innerRef}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...provided.draggableProps}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...provided.dragHandleProps}
+                >
+                  <Page
+                    onClick={(e) => handleClick(
+                      e,
+                      currentPdfPages[rubric.source.index],
+                      rubric.source.index,
+                    )}
+                    className="rounded-md border-2 border-[#1c1b1e]"
+                    renderTextLayer={false}
+                    renderAnnotationLayer={false}
+                    loading={() => {}}
+                    pageNumber={currentPdfPages[rubric.source.index] + 1}
                     width={100}
                     scale={2}
-                    index={index}
-                    onDelete={handleDelete}
-                    onClick={handleClick}
-                    isLastDelete={disableDeleteOnLastRemainingPage}
                   />
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </Document>
-      </div>
-    </DragDropContext>
+                </div>
+              )}
+              droppableId="droppable"
+            >
+              {(provided) => (
+                <div style={{ height: '100vh' }} ref={provided.innerRef}>
+                  <AutoSizer disableWidth>
+                    {({ height }) => (
+                      <List
+                        height={height}
+                        itemCount={currentPdfPages.length}
+                        itemSize={maxCanvasHeight + 20}
+                        width={220}
+                        outerRef={provided.innerRef}
+                        itemData={currentPdfPages}
+                      >
+                        {row}
+
+                      </List>
+                    )}
+
+                  </AutoSizer>
+                </div>
+
+              )}
+            </Droppable>
+          </Document>
+        </div>
+      </DragDropContext>
+    </div>
+
   );
 }
 
