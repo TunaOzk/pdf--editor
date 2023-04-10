@@ -126,7 +126,7 @@ function PdfSplitPreviewArea({
   useEffect(() => {
     const pdfPages = range(pageIndexFirst - 1, pageIndexLast - 1);
     setCurrSplitPdfPages(pdfPages);
-    if (toggleOparation) setRangeIndex(0);
+    // if (toggleOparation) setRangeIndex(0);
 
     setSplitPdfPages(() => pdfPages);
     setRangeNumber(rangeIndex);
@@ -155,7 +155,7 @@ function PdfSplitPreviewArea({
               loading={handleLoading}
             >
               <Page
-                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
                 renderTextLayer={false}
                 renderAnnotationLayer={false}
                 loading={() => { }}
@@ -166,7 +166,7 @@ function PdfSplitPreviewArea({
               />
               <h1 className="grid place-items-center text-xl"> ... </h1>
               <Page
-                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
                 renderTextLayer={false}
                 renderAnnotationLayer={false}
                 loading={() => { }}
@@ -191,7 +191,12 @@ function PdfSplitPreviewArea({
             />
           </div>
         ) : (
-          <div className="h-screen w-fit">
+          <div className="h-screen w-fit max-sm:mt-[250px] sm:mt-[300px]">
+            {!rangeIndex && (
+            <div className="h-1/2 w-fit flex items-center">
+              <p className="text-xl">Please enter a custom range to split your PDF.</p>
+            </div>
+            ) }
             <Document
               file={file}
               onLoadSuccess={handleLoadSucces}
@@ -202,15 +207,15 @@ function PdfSplitPreviewArea({
                   <div key={`group${index + 1}`} className="flex grid grid-cols-1 gap-2">
                     {rangeIndex > 1
                       ? (
-                        <div className="border-dashed border-2 p-2 border-gray-300">
-                          <div className="flex grid grid-cols-2 gap-2">
-                            <div>
-                              <p>
+                        <div className="border-dashed  border-2 p-2 border-gray-300">
+                          <div className="flex grid grid-cols-2 gap-2 ">
+                            <div className="bg-white">
+                              <p className="bg-stone-200">
                                 Page
                                 {val[0] + 1}
                               </p>
                               <Page
-                                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                                className="rounded-md  border-2 border-[#1c1b1e] shadow-2xl w-full"
                                 renderTextLayer={false}
                                 renderAnnotationLayer={false}
                                 loading={() => { }}
@@ -221,16 +226,16 @@ function PdfSplitPreviewArea({
                               />
                             </div>
 
-                            <div>
+                            <div className="bg-white">
                               {pdfLength - 1 !== val[0] ? (
                                 <>
 
-                                  <p>
+                                  <p className="bg-stone-200">
                                     Page
                                     {val[1] + 1}
                                   </p>
                                   <Page
-                                    className="rounded-md border-4 border-purple-500 shadow-2xl"
+                                    className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
                                     renderTextLayer={false}
                                     renderAnnotationLayer={false}
                                     loading={() => { }}
@@ -253,7 +258,7 @@ function PdfSplitPreviewArea({
                               {val[0] + 1}
                             </p>
                             <Page
-                              className="rounded-md border-4 border-purple-500 shadow-2xl"
+                              className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
                               renderTextLayer={false}
                               renderAnnotationLayer={false}
                               loading={() => { }}
@@ -270,7 +275,7 @@ function PdfSplitPreviewArea({
                                 {val[1] + 1}
                               </p>
                               <Page
-                                className="rounded-md border-4 border-purple-500 shadow-2xl"
+                                className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
                                 renderTextLayer={false}
                                 renderAnnotationLayer={false}
                                 loading={() => { }}
@@ -291,7 +296,7 @@ function PdfSplitPreviewArea({
             </Document>
             <div className="fixed left-1/2 transform -translate-x-1/2 max-[770px]:w-2/3 bottom-0 transition ease-in-out p-4
         text-white text-lg delay-75 opacity-70 hover:opacity-100 max-[770px]:bottom-20
-        md:bottom-10 rounded-md bg-purple-500"
+        md:bottom-10 rounded-md bg-[#4f33ff]"
             >
               <div className="flex items-center justify-center">
 
@@ -326,7 +331,7 @@ function PdfSplitPreviewArea({
           loading={handleLoading}
         >
           <Page
-            className="rounded-md border-4 gap-4  border-purple-500 shadow-2xl"
+            className="rounded-md border-2 gap-4  border-[#1c1b1e] shadow-2xl"
             renderTextLayer={false}
             renderAnnotationLayer={false}
             loading={() => { }}

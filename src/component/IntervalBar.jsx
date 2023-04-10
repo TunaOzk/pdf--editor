@@ -12,7 +12,7 @@ function IntervalBar({
 }) {
   return (
     <div className="flex transition ease-in-out p-4
-    text-white text-lg delay-75 opacity-70 hover:opacity-100 absolute max-[770px]:bottom-20 md:bottom-10 rounded-md bg-purple-500"
+    text-white text-lg delay-75 opacity-70 hover:opacity-100 absolute max-[770px]:bottom-20 md:bottom-10 rounded-md bg-[#4f33ff]"
     >
       <div>
         <button
