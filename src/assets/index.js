@@ -9,6 +9,10 @@ import { ReactComponent as ItalicIcon } from './format_italic.svg';
 import { ReactComponent as DeleteIcon } from './delete.svg';
 import { ReactComponent as SelectedIcon } from './selected.svg';
 import { ReactComponent as BrushSizeIcon } from './brush_size.svg';
+import { ReactComponent as SplitIcon } from './split_icon.svg';
+import SplitModeIcon from './split_mode.svg';
+import IntervalIcon from './interval.svg';
+import RangeIcon from './range.svg';
 
 export {
   SelectIcon,
@@ -21,4 +25,8 @@ export {
   DeleteIcon,
   SelectedIcon,
   BrushSizeIcon,
+  SplitIcon,
+  SplitModeIcon,
+  IntervalIcon,
+  RangeIcon,
 };
