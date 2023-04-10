@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
-import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 import { ExportIcon } from '../assets';
 import LoadingScreen from '../component/LoadingScreen';
 import DropDown from '../component/DropDown';

@@ -1,7 +1,6 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Document, Page } from 'react-pdf';
-import uuid from 'react-uuid';
 import PropTypes, { arrayOf, number } from 'prop-types';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -102,22 +101,6 @@ function PdfScrollArea({
         isLastDelete={disableDeleteOnLastRemainingPage}
       />
     </div>
-  );
-  const memoizedScrollArea = useMemo(
-    () => (currentPdfPages.map((value, index) => (
-      <ScrollAreaPage
-        key={value}
-        pageNum={value + 1}
-        width={100}
-        scale={2}
-        index={index}
-        onDelete={handleDelete}
-        onClick={handleClick}
-        isLastDelete={disableDeleteOnLastRemainingPage}
-      />
-    ))),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentPdfPages],
   );
   return (
     <div className="mt-2 relative flex flex-col items-center">

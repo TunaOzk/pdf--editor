@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { ReactComponent as ColorPaletteIcon } from '../assets/color_palette.svg';
 
 function ColorPalette({
-  onClicks, selectedColor,
+  onClicks,
 }) {
   const [visible, setVisible] = useState(false);
   return (
@@ -88,7 +88,6 @@ function ColorPalette({
 
 ColorPalette.propTypes = {
   onClicks: PropTypes.func.isRequired,
-  selectedColor: PropTypes.string.isRequired,
 };
 
 export default ColorPalette;
