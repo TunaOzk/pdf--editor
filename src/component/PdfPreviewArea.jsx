@@ -25,14 +25,6 @@ function PdfPreviewArea({
     setPdfLength(pdf.numPages);
   };
 
-  const handleZoomIn = () => {
-    setScale((prev) => prev * 2);
-  };
-
-  const handleZoomOut = () => {
-    setScale((prev) => prev / 2);
-  };
-
   const handleChange = (e) => {
     const pageNum = Number(e.target.value);
     if (pageNum > 0 && pageNum <= currentPdfPages.length) { setPageIndex(pageNum - 1); }
@@ -47,14 +39,14 @@ function PdfPreviewArea({
         onLoadSuccess={!onLoadSuccessForEditPage ? handleLoadSucces : onLoadSuccessForEditPage}
       >
         <Page
-          className="rounded-md border-4 border-purple-500 shadow-2xl"
+          className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
           renderTextLayer={false}
           renderAnnotationLayer={false}
           loading={() => { handleLoading(); }}
           pageNumber={currentPdfPages[pageIndex] + 1}
           // eslint-disable-next-line no-restricted-globals
-          height={screen.height}
-          scale={0.6}
+          // height={screen.height}
+          // scale={0.6}
         />
       </Document>
       <NavBar

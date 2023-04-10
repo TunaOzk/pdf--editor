@@ -1,4 +1,4 @@
-const { PDFDocument, layoutMultilineText, StandardFonts } = require('pdf-lib');
+const {PDFDocument, rgb, degrees, pushGraphicsState, popGraphicsState, concatTransformationMatrix, degreesToRadians } = require('pdf-lib');
 fs = require('fs');
 fontkit = require('@pdf-lib/fontkit')
 
@@ -57,75 +57,177 @@ async function reorderPDFpage(mainFile, fileName, arr) {
 
 }
 
-async function fillForm(textAreaList, file, base64Canvas, screenSize) {
+async function fillForm(textAreaList, file, shapes) {
     const mainPdf = await PDFDocument.load(file);
     mainPdf.registerFontkit(fontkit);
-    const fonts = ['Arial', 'Brush_Script_MT', 'Courier_New', 'Comic_Sans_MS', 'Garamond', 'Georgia',
-        'Tahoma', 'Trebuchet_MS', 'Times_New_Roman', 'Verdana'];
-    const fontMap = new Map();
-    await Promise.all(fonts.map(async (val) => {
-        const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`, null);
-        const font = await mainPdf.embedFont(fontBytes);
-        const fontName = val.replace(/_/g, ' ');
-        fontMap.set(fontName, font)
-    }))
+    // const fonts = ['Arial', 'Arial_Bold', 'Arial_Italic', 'Arial_Italic_Bold', 
+    // 'Brush_Script_MT', 'Brush_Script_MT_Bold', 'Brush_Script_MT_Italic', 'Brush_Script_MT_Italic_Bold',
+    //  'Courier_New', 'Courier_New_Bold', 'Courier_New_Italic', 'Courier_New_Italic_Bold',
+    //   'Comic_Sans_MS', 'Comic_Sans_MS_Bold', 'Comic_Sans_MS_Italic', 'Comic_Sans_MS_Italic_Bold', 
+    //   'Garamond', 'Garamond_Bold', 'Garamond_Italic', 'Garamond_Italic_Bold', 
+    //   'Georgia', 'Georgia_Bold', 'Georgia_Italic', 'Georgia_Italic_Bold',
+    //     'Tahoma', 'Tahoma_Bold', 'Tahoma_Italic', 'Tahoma_Italic_Bold',
+    //     'Trebuchet_MS', 'Trebuchet_MS_Bold', 'Trebuchet_MS_Italic', 'Trebuchet_MS_Italic_Bold',
+    //      'Times_New_Roman', 'Times_New_Roman_Bold', 'Times_New_Roman_Italic', 'Times_New_Roman_Italic_Bold',
+    //       'Verdana', 'Verdana_Bold', 'Verdana_Italic', 'Verdana_Italic_Bold'];
+    // const fontMap = new Map();
+    // await Promise.all(fonts.map(async (val) => {
+    //     const fontBytes = fs.readFileSync(`./fonts/${val}.ttf`, null);
+    //     const font = await mainPdf.embedFont(fontBytes);
+    //     const fontName = val.replace(/_/g, ' ');
+    //     fontMap.set(fontName, font)
+    // }))
+
+
     for (let i = 0; i < textAreaList.length; i++) {
-        textAreaList[i].forEach(async textArea => {
+        let secondaryIndex = 0
+        for(const textArea of textAreaList[i]) {
+            const fontBytes = fs.readFileSync(`./fonts/${textArea.font}.ttf`);
+            const font = await mainPdf.embedFont(fontBytes);
             const page = mainPdf.getPage(i);
-
-            const widthValue = Number(textArea.width.substring(0, textArea.width.indexOf("p")))
-            const heightValue = Number(textArea.height.substring(0, textArea.height.indexOf("p")))
-
-            const rate = page.getHeight() / screenSize
+            const regex = /\d+/g;
+            const rgbValues = textArea.color.match(regex)
             if (textArea.type === 'S') {
-                const multiText = layoutMultilineText(textArea.content, {
-                    font: fontMap.get(textArea.font),
-                    fontSize: textArea.fontSize,
-                    bounds: { x: textArea.x * rate, y: (screenSize - textArea.y - heightValue) * rate, width: widthValue, height: heightValue },
-                })
-                multiText.lines.forEach(line => {
-                    page.drawText(line.text, {
-                        x: line.x,
-                        y: line.y,
-                        font: fontMap.get(textArea.font),
-                        size: textArea.fontSize,
-                    },
-                    )
-                });
+                page.drawText(textArea.content, {
+                    x: textArea.x,
+                    y: page.getHeight() - textArea.y - textArea.fontSize + textArea.height,
+                    font: font,
+                    size: textArea.fontSize,
+                    lineHeight: 1.16 + textArea.fontSize,
+                    color: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+                },
+                );
             }
             else if (textArea.type === 'F') {
                 const form = mainPdf.getForm();
-                const fillableField = form.createTextField(`textArea.Field${i}${textArea.ID}`);
+                const fillableField = form.createTextField(`textArea.Field${i}${secondaryIndex++}`);
                 fillableField.setText(textArea.content);
+                fillableField.enableMultiline();
                 fillableField.addToPage(page, {
-                    x: textArea.x * rate,
-                    y: (screenSize - textArea.y - heightValue) * rate,
-                    font: fontMap.get(textArea.font),
-                    width: widthValue,
-                    height: heightValue,
+                    x: textArea.x,
+                    y: page.getHeight() - textArea.y - textArea.height,
+                    font: font,
+                    size: textArea.fontSize,
+                    lineHeight: 1.16 + textArea.fontSize,
+                    width: textArea.width,
+                    height: textArea.height,
+                    textColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+                    
                 })
-                fillableField.updateAppearances(fontMap.get(textArea.font));
+                fillableField.updateAppearances(font);
             }
-        });
+        };
     }
     const temp = await mainPdf.saveAsBase64({ dataUri: true });
-    return await addCanvasToPDF(temp, base64Canvas);
+    return await addCanvasToPDF(temp, shapes);
 
 }
 
-async function addCanvasToPDF(file, base64Canvas) {
+async function addCanvasToPDF(file, shapes) {
+    const {cos,sin} = Math
     const mainPdf = await PDFDocument.load(file);
     const numPages = mainPdf.getPageCount();
+    const [rects, circs, canvasesForPaths] = shapes
     for (let i = 0; i < numPages; i++) {
-        if (!base64Canvas[i]) { continue; }
-        const canvas = await mainPdf.embedPng(base64Canvas[i]);
-        const firstPage = mainPdf.getPage(i);
-        firstPage.drawImage(canvas, {
-            x: 0,
-            y: 0,
-            width: canvas.width,
-            height: canvas.height,
+        const page = mainPdf.getPage(i);
+        canvasesForPaths[i]?.forEach(async (canvas)  => {
+            const canvasForPath = await mainPdf.embedPng(canvas);
+            page.drawImage(canvasForPath, {
+                x: 0,
+                y: 0,
+                width: canvasForPath.width,
+                height: canvasForPath.height,
+            })
         })
+        rects[i]?.forEach((rect) => {
+            page.pushOperators(
+                pushGraphicsState(),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    rect.rotationPoint.x,
+                    page.getHeight() - rect.rotationPoint.y,
+                ),
+                concatTransformationMatrix(
+                    cos(degreesToRadians(360 - rect.rotate)),
+                    sin(degreesToRadians(360 - rect.rotate)),
+                    -sin(degreesToRadians(360 - rect.rotate)),
+                    cos(degreesToRadians(360 - rect.rotate)),
+                    0,
+                    0,
+                ),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    -1 * rect.rotationPoint.x,
+                    -1 * (page.getHeight() - rect.rotationPoint.y),
+                ),
+            )
+            const regex = /\d+/g;
+            const rgbValues = rect.color.match(regex)
+            page.drawRectangle({
+              x:rect.x + rect.borderWidth/2,
+              y:page.getHeight() - rect.y - rect.height - rect.borderWidth/2,
+              width:rect.width,
+              height:rect.height,
+              borderWidth:rect.borderWidth,
+              borderColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+              opacity: 0,
+              borderOpacity:1,
+            })
+            page.pushOperators(
+                popGraphicsState(),
+              );
+        })
+        circs[i]?.forEach((circ) => {
+            page.pushOperators(
+                pushGraphicsState(),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    circ.rotationPoint.x,
+                    page.getHeight() - circ.rotationPoint.y,
+                ),
+                concatTransformationMatrix(
+                    cos(degreesToRadians(360 - circ.rotate)),
+                    sin(degreesToRadians(360 - circ.rotate)),
+                    -sin(degreesToRadians(360 - circ.rotate)),
+                    cos(degreesToRadians(360 - circ.rotate)),
+                    0,
+                    0,
+                ),
+                concatTransformationMatrix(
+                    1,
+                    0,
+                    0,
+                    1,
+                    -1 * circ.rotationPoint.x,
+                    -1 * (page.getHeight() - circ.rotationPoint.y),
+                ),
+            )
+            const regex = /\d+/g;
+            const rgbValues = circ.color.match(regex)
+            page.drawEllipse({
+              x: circ.x,
+              y: page.getHeight() - circ.y,
+              xScale: circ.scaleX * circ.radius,
+              yScale: circ.scaleY * circ.radius,
+              borderWidth: circ.borderWidth,
+              borderColor: rgb(rgbValues[0]/255, rgbValues[1]/255, rgbValues[2]/255),
+              opacity: 0,
+              borderOpacity: 1,
+            })
+            page.pushOperators(
+                popGraphicsState(),
+              );
+        })
+
     }
     return await mainPdf.saveAsBase64({ dataUri: true });
 }

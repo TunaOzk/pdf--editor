@@ -4,8 +4,10 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
-import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
+import { ExportIcon } from '../assets';
 import LoadingScreen from '../component/LoadingScreen';
+import DropDown from '../component/DropDown';
+import pdfIcon from '../assets/pdf_img.svg';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -21,9 +23,11 @@ function PdfEditPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [fileListIndex, setFileListIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectPdfName, setSelectPdfName] = useState({ img: pdfIcon, label: 'PDF 1' });
 
-  const handleOptionClick = (e) => {
-    const index = Number(e.target.value);
+  const handleOptionClick = (val) => {
+    setSelectPdfName({ label: val, img: pdfIcon });
+    const index = Number(val.split(' ')[1]) - 1;
     setFileListIndex(index);
     setCurrentFile(fileList[index]);
   };
@@ -86,59 +90,59 @@ function PdfEditPage() {
     />
   ), [currentPdfPages, currentFile, fileListIndex, pdfPagesList, setPdfPagesList]);
 
+  const selectDropDownContent = [...Array(numOfFiles)].map((value, index) => (
+    {
+      id: index, img: pdfIcon, label: `PDF ${index + 1}`, action: `PDF ${index + 1}`,
+    }));
+
   return (
-    <div className="flex flex-col h-screen bg-stone-200 ">
-      <header className="bg-purple-400 w-full max-sm:h-[70px] sm:h-10 flex justify-between items-center py-4">
-        <div className="left-header ">
-          <h1 className="sm:text-lg text-neutral-100 p-2">Pdf Editor Logo</h1>
-        </div>
-        <div className="w-[500px] flex flex-row ">
+    <div className="flex flex-row h-screen bg-[#fbf8fd]">
+      <div className="h-full w-1/5 overflow-hidden">{memoizedPdfScrollArea}</div>
+
+      <div className="flex flex-col w-4/5 h-full">
+        <div className="flex justify-end items-center drop-shadow-xl bg-[#fffbff] z-10">
+          <div className="rounded-xl h-fit bg-[#e4dff9] mr-8">
+            <DropDown
+              menuItemContent={selectDropDownContent}
+              onAction={handleOptionClick}
+              menuItemHeader={selectPdfName}
+            />
+          </div>
           <button
-            className=" bg-violet-600 opacity-80 text-white hover:opacity-100 p-2 w-full"
-            type="submit"
-            onClick={(event) => postMerge(event)}
-          >
-            Merge Your All PDF Files
-          </button>
-          <div className="w-[1px] bg-black" />
-          <button
-            className="transition ease-in-out delay-75
-              bg-violet-600 opacity-80 text-white hover:opacity-100
-              right-4 p-2 w-full"
-            type="submit"
+            className="relative group flex rounded-xl drop-shadow-xl items-center mr-2 my-1 p-3 w-fit bg-[#4f33ff]"
+            type="button"
             onClick={(event) => postIndex(event)}
           >
-            Export The Current File
+            <div className="transition-all ease-in-out delay-100 absolute h-full w-full opacity-0 group-hover:opacity-[0.08] bg-white left-0 rounded-xl" />
+            <ExportIcon className="fill-white" />
+            <p className="ml-2 text-white">Export PDF</p>
+          </button>
+
+          <button
+            className="relative group flex rounded-xl drop-shadow-xl items-center mr-2 my-1 p-3 w-fit bg-[#4f33ff]"
+            type="button"
+            onClick={(event) => postMerge(event)}
+          >
+            <div className="transition-all ease-in-out delay-100 absolute h-full w-full opacity-0 group-hover:opacity-[0.08] bg-white left-0 rounded-xl" />
+            <ExportIcon className="fill-white" />
+            <p className="ml-2 text-white">Merge PDFs</p>
           </button>
         </div>
 
-      </header>
-      <div className="flex flex-row h-screen overflow-hidden">
-        {memoizedPdfScrollArea}
-        {isLoading && <LoadingScreen />}
-        <form className="relative flex flex-col items-center justify-center w-4/5">
-
-          <div className="absolute top-0 left-0 rounded-sm border-2 border-violet-400">
-            <select value={fileListIndex} onChange={handleOptionClick} name="pdfSelect">
-              {[...Array(numOfFiles)].map((value, index) => (
-                <option key={`pdf_${index + 1}`} value={index}>
-                  PDF
-                  {index + 1}
-                </option>
-              ))}
-            </select>
+        <div className="flex justify-center items-center flex-grow">
+          {isLoading && <LoadingScreen />}
+          <div className=" overflow-y-auto">
+            <PdfPreviewArea
+              file={currentFile}
+              setPageIndex={setPageIndex}
+              pageIndex={pageIndex}
+              currentPdfPages={currentPdfPages}
+              width={500}
+            />
           </div>
-
-          <PdfPreviewArea
-            file={currentFile}
-            setPageIndex={setPageIndex}
-            pageIndex={pageIndex}
-            currentPdfPages={currentPdfPages}
-            width={500}
-          />
-
-        </form>
+        </div>
       </div>
+
     </div>
 
   );
