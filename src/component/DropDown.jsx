@@ -6,12 +6,14 @@ function DropDown({
 }) {
   const { label, img } = menuItemHeader;
   const [visible, setVisible] = useState(false);
+  const [selected, setSelected] = useState(label);
   return (
     <div
       onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setVisible(false)}
       className="relative ml-2 w-fit rounded-full"
     >
       <button
+        title={label}
         onClick={() => setVisible((prev) => !prev)}
         className="group transition ease-in-out delay-100 px-4 my-1 py-2
         flex rounded-full items-center w-fit focus:bg-[#e4dff9]"
@@ -32,16 +34,22 @@ function DropDown({
         {menuItemContent.map((val) => (
           <li key={val.id}>
             <button
+              title={val.label}
               onClick={() => {
                 if (onToolbarVisiblity) { onToolbarVisiblity(label); }
                 setVisible(false);
                 onAction(val.action);
+                setSelected(val.label);
               }}
-              className="bg-[#e3e1ec] py-3 pl-2 min-w-full flex items-center hover:bg-stone-300"
+              className={`${selected === val.label ? 'bg-stone-300' : 'bg-[#e3e1ec]'} py-3 pl-2 min-w-full flex items-center hover:bg-stone-300`}
               type="button"
             >
               <img src={val.img} alt="" />
-              <span className="ml-1 whitespace-nowrap text-m text-[#46464f]">{val.label}</span>
+              <span className="ml-1 whitespace-nowrap text-m text-[#46464f]">
+
+                {val.label.length > 22 ? `${val.label.slice(0, 22)}...` : val.label}
+
+              </span>
             </button>
           </li>
         ))}
@@ -57,7 +65,7 @@ DropDown.propTypes = {
       id: PropTypes.number,
       img: PropTypes.string,
       label: PropTypes.string,
-      action: PropTypes.string,
+      action: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     },
   )).isRequired,
   menuItemHeader: PropTypes.shape({
