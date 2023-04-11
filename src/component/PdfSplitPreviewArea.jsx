@@ -126,7 +126,7 @@ function PdfSplitPreviewArea({
   useEffect(() => {
     const pdfPages = range(pageIndexFirst - 1, pageIndexLast - 1);
     setCurrSplitPdfPages(pdfPages);
-    // if (toggleOparation) setRangeIndex(0);
+    if (toggleOparation) setRangeIndex(0);
 
     setSplitPdfPages(() => pdfPages);
     setRangeNumber(rangeIndex);
@@ -193,10 +193,10 @@ function PdfSplitPreviewArea({
         ) : (
           <div className="h-screen w-fit max-sm:mt-[250px] sm:mt-[300px]">
             {!rangeIndex && (
-            <div className="h-1/2 w-fit flex items-center">
-              <p className="text-xl">Please enter a custom range to split your PDF.</p>
-            </div>
-            ) }
+              <div className="h-1/2 w-fit flex items-center">
+                <p className="text-xl">Please enter a custom range to split your PDF.</p>
+              </div>
+            )}
             <Document
               file={file}
               onLoadSuccess={handleLoadSucces}
