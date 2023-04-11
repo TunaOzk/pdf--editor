@@ -1,11 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, {
+  useRef, useState, memo,
+} from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Document, Page } from 'react-pdf';
 import PropTypes, { arrayOf, number } from 'prop-types';
-import { FixedSizeList as List } from 'react-window';
+import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import ScrollAreaPage from './ScrollAreaPage';
-import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
+import { LoadingIcon, RemoveIcon } from '../assets';
 
 function PdfScrollArea({
   file, currFileIndex, setPageIndex, pdfPagesList,
@@ -15,6 +17,7 @@ function PdfScrollArea({
   const [maxCanvasHeight, setMaxCanvasHeight] = useState(0);
   const [disableDeleteOnLastRemainingPage, setDisableDeleteOnLastRemainingPage] = useState(false);
   const handleLoading = () => <LoadingIcon className="animate-spin" />;
+  const deneme = useRef(null);
 
   const handleOnDocumentLoadSuccess = async (pdf) => {
     const heightArr = [];
@@ -44,7 +47,7 @@ function PdfScrollArea({
   };
 
   const handleDragEnd = (result) => {
-    if (!result.destination) return;
+    if (!result.destination || result.source.index === result.destination.index) return;
     switch (currentPageIndex.current) {
       case result.source.index:
         currentPageIndex.current = result.destination.index;
@@ -55,6 +58,7 @@ function PdfScrollArea({
       default:
         break;
     }
+
     const newPageList = [...currentPdfPages];
     const [reorderedPage] = newPageList.splice(result.source.index, 1);
     newPageList.splice(result.destination.index, 0, reorderedPage);
@@ -89,9 +93,13 @@ function PdfScrollArea({
       setPageIndex(currentPageIndex.current);
     }
   };
-  const row = ({ data, index, style }) => (
+
+  // eslint-disable-next-line max-len
+  // eslint-disable-next-line react/no-unstable-nested-components, react/display-name, react/prop-types
+  const ListRow = memo(({ data, index, style }) => (
     <div style={style}>
       <ScrollAreaPage
+        refx={deneme}
         pageNum={data[index] + 1}
         width={200}
         scale={1}
@@ -101,7 +109,21 @@ function PdfScrollArea({
         isLastDelete={disableDeleteOnLastRemainingPage}
       />
     </div>
-  );
+  ), areEqual);
+
+  // const row = ({ data, index, style }) => (
+  //   <div style={style}>
+  //     <ScrollAreaPage
+  //       pageNum={data[index] + 1}
+  //       width={200}
+  //       scale={1}
+  //       index={index}
+  //       onDelete={handleDelete}
+  //       onClick={handleClick}
+  //       isLastDelete={disableDeleteOnLastRemainingPage}
+  //     />
+  //   </div>
+  // );
   return (
     <div className="mt-2 relative flex flex-col items-center">
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -136,12 +158,32 @@ function PdfScrollArea({
                     width={100}
                     scale={2}
                   />
+                  <button
+                    title="Delete"
+                    disabled={disableDeleteOnLastRemainingPage}
+                    type="submit"
+                    onClick={() => handleDelete(
+                      currentPdfPages[rubric.source.index] + 1,
+                      rubric.source.index,
+                    )}
+                    className={`absolute ${!disableDeleteOnLastRemainingPage ? 'hover:bg-[#dc2626]' : 'hover:bg-gray-500'}  
+            transition ease-in-out duration-300 border-2 rounded-md border-[#1c1b1e]`}
+                  >
+                    <RemoveIcon />
+                  </button>
+                  <div className="absolute bottom-0 px-2 text-[#1b1a2c] bg-[#e4dff9]
+            rounded-r-md flex justify-center h-fit w-fit border-2 border-[#1c1b1e]"
+                  >
+                    {currentPdfPages[rubric.source.index] + 1}
+
+                  </div>
                 </div>
+
               )}
               droppableId="droppable"
             >
               {(provided) => (
-                <div style={{ height: '100vh' }} ref={provided.innerRef}>
+                <div style={{ height: '90vh' }} ref={provided.innerRef}>
                   <AutoSizer disableWidth>
                     {({ height }) => (
                       <List
@@ -152,7 +194,7 @@ function PdfScrollArea({
                         outerRef={provided.innerRef}
                         itemData={currentPdfPages}
                       >
-                        {row}
+                        {ListRow}
 
                       </List>
                     )}

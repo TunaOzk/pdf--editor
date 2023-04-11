@@ -10,6 +10,11 @@ import { ReactComponent as DeleteIcon } from './delete.svg';
 import { ReactComponent as SelectedIcon } from './selected.svg';
 import { ReactComponent as BrushSizeIcon } from './brush_size.svg';
 import { ReactComponent as SplitIcon } from './split_icon.svg';
+import { ReactComponent as LoadingIcon } from './loading.svg';
+import { ReactComponent as RemoveIcon } from './remove.svg';
+import { ReactComponent as MergeIcon } from './merge_icon.svg';
+import { ReactComponent as AddIcon } from './add.svg';
+import PdfIcon from './pdf_img.svg';
 import SplitModeIcon from './split_mode.svg';
 import IntervalIcon from './interval.svg';
 import RangeIcon from './range.svg';
@@ -29,4 +34,9 @@ export {
   SplitModeIcon,
   IntervalIcon,
   RangeIcon,
+  RemoveIcon,
+  LoadingIcon,
+  MergeIcon,
+  PdfIcon,
+  AddIcon,
 };
