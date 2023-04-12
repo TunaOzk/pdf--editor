@@ -36,7 +36,7 @@
   },
   "scripts": {
     "start": "concurrently \"react-scripts start\" \"cd src/backend && node routerRules.js\"",
-    "build": "concurrentl \"react-scripts build\" \"cd src/backend && node routerRules.js\"",
+    "build": "concurrently \"react-scripts build\" \"cd src/backend && node routerRules.js\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "prepare": "husky install"
