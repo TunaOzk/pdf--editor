@@ -1,11 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Document, Page } from 'react-pdf';
 import PropTypes, { number } from 'prop-types';
-import { last } from 'pdf-lib';
-import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
 import IntervalBar from './IntervalBar';
-import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
-import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
+import { BackIcon, ForwardIcon, LoadingIcon } from '../assets';
 
 function PdfSplitPreviewArea({
   file, setCurrentPdfPages, setSplitPdfPages, toggleOparation, setRangeNumber,

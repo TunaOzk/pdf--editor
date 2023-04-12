@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import PropTypes from 'prop-types';
 import NavBar from './NavBar';
-import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
+import { LoadingIcon } from '../assets';
 
 function PdfPreviewArea({
   file, pageIndex, setPageIndex, currentPdfPages, height, onLoadSuccessForEditPage,

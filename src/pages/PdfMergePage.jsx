@@ -44,14 +44,15 @@ function PdfEditPage() {
         currentFile,
         currentFileName,
       }).then((res) => {
-        setIsLoading(false);
         const downloadFile = document.createElement('a');
         downloadFile.href = res.data;
         downloadFile.download = currentFileName;
         downloadFile.click();
         downloadFile.remove();
+        setIsLoading(false);
       });
     } catch (error) {
+      setIsLoading(false);
       throw new Error(error);
     }
   };
@@ -78,6 +79,7 @@ function PdfEditPage() {
         setIsLoading(false);
       });
     } catch (error) {
+      setIsLoading(false);
       throw new Error(error);
     }
   };
@@ -129,22 +131,6 @@ function PdfEditPage() {
             menuItemHeader={menuContent.header}
             menuItemContent={menuContent.content}
           />
-          {/* {files.names.map((val, index) => (
-            <button
-              className="w-fit rounded-xl drop-shadow-xl p-3 flex bg-[#e4dff9]"
-              key={`button${index + 1}`}
-              type="button"
-              onClick={() => handleOptionClick(index)}
-              title={files.names[index]}
-            >
-              <PdfIcon className="fill-[#1b1a2c]" />
-              <p className="ml-2 text-[#1b1a2c]">
-                {val.length > 7 ? val.slice(0, 7) : val}
-                ...
-              </p>
-
-            </button>
-          ))} */}
         </div>
         <div className="flex">
           <button

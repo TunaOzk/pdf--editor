@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
-import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
+import { BackIcon, ForwardIcon } from '../assets';
 
 function NavBar({
   innerRef, onClickForward, onClickBack, pdfLength, inputValue, onChange,

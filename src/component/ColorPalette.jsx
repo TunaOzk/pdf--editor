@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ReactComponent as ColorPaletteIcon } from '../assets/color_palette.svg';
+import { ColorPaletteIcon } from '../assets';
 
 function ColorPalette({
   onClicks,

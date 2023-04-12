@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReactComponent as LoadingIcon } from '../assets/loading.svg';
+import { LoadingIcon } from '../assets';
 
 function LoadingScreen() {
   return (

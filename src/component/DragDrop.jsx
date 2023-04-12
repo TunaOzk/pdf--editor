@@ -1,10 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import pdfImg from '../assets/file-pdf-solid-240.png';
-import PdfAsset from '../assets/pdf_asset.png';
 import { ReactComponent as PdfLogo } from '../assets/pdf_logo.svg';
-import { ReactComponent as MainPageBackground } from '../assets/rose-petals.svg';
-
 import PopUp from './PopUp';
 
 function DragDrop() {

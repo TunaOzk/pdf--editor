@@ -1,4 +1,3 @@
-import React from 'react';
 import { ReactComponent as SelectIcon } from './arrow_select.svg';
 import { ReactComponent as ExportIcon } from './export.svg';
 import { ReactComponent as EraserIcon } from './eraser.svg';
@@ -14,6 +13,10 @@ import { ReactComponent as LoadingIcon } from './loading.svg';
 import { ReactComponent as RemoveIcon } from './remove.svg';
 import { ReactComponent as MergeIcon } from './merge_icon.svg';
 import { ReactComponent as AddIcon } from './add.svg';
+import { ReactComponent as ColorPaletteIcon } from './color_palette.svg';
+import { ReactComponent as ForwardIcon } from './arrow_forward.svg';
+import { ReactComponent as BackIcon } from './arrow_back.svg';
+
 import PdfIcon from './pdf_img.svg';
 import SplitModeIcon from './split_mode.svg';
 import IntervalIcon from './interval.svg';
@@ -39,4 +42,7 @@ export {
   MergeIcon,
   PdfIcon,
   AddIcon,
+  ColorPaletteIcon,
+  ForwardIcon,
+  BackIcon,
 };

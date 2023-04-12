@@ -7,6 +7,7 @@ import axios from 'axios';
 import Switch from 'react-switch';
 import PdfSplitPreviewArea from '../component/PdfSplitPreviewArea';
 import DropDown from '../component/DropDown';
+import LoadingScreen from '../component/LoadingScreen';
 import {
   SplitIcon, SplitModeIcon, RangeIcon, IntervalIcon,
 } from '../assets';
@@ -22,6 +23,7 @@ function PdfSplitPage() {
   const [toggleOparation, setToggleOparation] = useState(true);
   const [rangeNumber, setRangeNumber] = useState(0);
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // eslint-disable-next-line no-var
   var zip = new JSZip();
@@ -29,6 +31,7 @@ function PdfSplitPage() {
   var docs = zip.folder('Documents');
   const postSplitPdf = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       await axios.post('http://localhost:4000/pdfSplitFileIndex', {
         currentFile,
@@ -44,8 +47,10 @@ function PdfSplitPage() {
         zip.generateAsync({ type: 'blob' }).then((content) => {
           saveAs(content, 'example.zip');
         });
+        setIsLoading(false);
       });
     } catch (error) {
+      setIsLoading(false);
       throw new Error(error);
     }
   };
@@ -86,6 +91,7 @@ function PdfSplitPage() {
   };
   return (
     <div className="flex flex-col bg-[#fbf8fd] items-center justify-center h-screen overflow-y-auto relative ">
+      {isLoading && <LoadingScreen />}
       <div className=" w-full  absolute top-0">
         <header className="drop-shadow-xl bg-[#fffbff] w-full h-min flex justify-end items-center">
 
@@ -95,18 +101,6 @@ function PdfSplitPage() {
               menuItemHeader={modeContent.header}
               menuItemContent={modeContent.content}
             />
-            {/* <button
-              className="flex group bg-[#4f33ff]
-              // rounded-xl drop-shadow-xl text-white my-1 p-3 w-fit"
-              type="submit"
-              onClick={() => setOpen(!open)}
-            >
-              <div className="transition-all ease-in-out delay-100 absolute h-full w-full
-              opacity-0 group-hover:opacity-[0.08] bg-white left-0 rounded-xl bottom-0"
-              />
-              <SplitModeIcon className="fill-white" />
-              <p className="ml-2 text-white">Split Mode</p>
-            </button> */}
           </div>
           <div className="">
             <button

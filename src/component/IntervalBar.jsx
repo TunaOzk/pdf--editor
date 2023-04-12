@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ReactComponent as ForwardIcon } from '../assets/arrow_forward.svg';
-import { ReactComponent as BackIcon } from '../assets/arrow_back.svg';
-import { ReactComponent as ZoomInIcon } from '../assets/zoom_in.svg';
-import { ReactComponent as ZoomOutIcon } from '../assets/zoom_out.svg';
+import { BackIcon, ForwardIcon } from '../assets';
 
 function IntervalBar({
   innerFirstRef, innerLastRef, onClickForwardFirst, onClickBackFirst,
