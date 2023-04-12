@@ -210,7 +210,7 @@ function PdfSplitPreviewArea({
                         <div className="border-dashed  border-2 p-2 border-gray-300">
                           <div className="flex grid grid-cols-2 gap-2 ">
                             <div className="bg-white">
-                              <p className="bg-stone-200">
+                              <p className="bg-[#fbf8fd]">
                                 Page
                                 {val[0] + 1}
                               </p>
@@ -230,7 +230,7 @@ function PdfSplitPreviewArea({
                               {pdfLength - 1 !== val[0] ? (
                                 <>
 
-                                  <p className="bg-stone-200">
+                                  <p className="bg-[#fbf8fd]">
                                     Page
                                     {val[1] + 1}
                                   </p>
@@ -251,41 +251,46 @@ function PdfSplitPreviewArea({
                           </div>
                         </div>
                       ) : (
-                        <div className="flex grid grid-cols-2 gap-2">
-                          <div className="">
-                            <p>
-                              Page
-                              {val[0] + 1}
-                            </p>
-                            <Page
-                              className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
-                              renderTextLayer={false}
-                              renderAnnotationLayer={false}
-                              loading={() => { }}
-                              pageNumber={val[0] + 1}
-                              // eslint-disable-next-line no-restricted-globals
-                              height={2 * (screen.height / 8)}
-                              scale={screenScale}
-                            />
-                          </div>
-                          {pdfLength - 1 !== val[0] ? (
-                            <div>
-                              <p>
-                                Page
-                                {val[1] + 1}
-                              </p>
-                              <Page
-                                className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
-                                renderTextLayer={false}
-                                renderAnnotationLayer={false}
-                                loading={() => { }}
-                                pageNumber={val[1] + 1}
-                                // eslint-disable-next-line no-restricted-globals
-                                height={2 * (screen.height / 8)}
-                                scale={screenScale}
-                              />
+                        <div className="">
+                          {rangeIndex < 1 ? (null) : (
+                            <div className="flex grid grid-cols-2 gap-2">
+                              <div className="">
+                                <p>
+                                  Page
+                                  {val[0] + 1}
+                                </p>
+                                <Page
+                                  className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
+                                  renderTextLayer={false}
+                                  renderAnnotationLayer={false}
+                                  loading={() => { }}
+                                  pageNumber={val[0] + 1}
+                                  // eslint-disable-next-line no-restricted-globals
+                                  height={2 * (screen.height / 8)}
+                                  scale={screenScale}
+                                />
+                              </div>
+                              {pdfLength - 1 !== val[0] ? (
+                                <div>
+                                  <p>
+                                    Page
+                                    {val[1] + 1}
+                                  </p>
+                                  <Page
+                                    className="rounded-md border-2 border-[#1c1b1e] shadow-2xl"
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                    loading={() => { }}
+                                    pageNumber={val[1] + 1}
+                                    // eslint-disable-next-line no-restricted-globals
+                                    height={2 * (screen.height / 8)}
+                                    scale={screenScale}
+                                  />
+                                </div>
+                              ) : null}
                             </div>
-                          ) : null}
+                          )}
+
                         </div>
 
                       )}

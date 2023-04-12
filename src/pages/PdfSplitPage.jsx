@@ -88,9 +88,7 @@ function PdfSplitPage() {
     <div className="flex flex-col bg-[#fbf8fd] items-center justify-center h-screen overflow-y-auto relative ">
       <div className=" w-full  absolute top-0">
         <header className="drop-shadow-xl bg-[#fffbff] w-full h-min flex justify-end items-center">
-          <div className="left-header ">
-            <h1 className="text-lg text-neutral-100 p-1">Pdf Editor Logo</h1>
-          </div>
+
           <div className="mr-2">
             <DropDown
               onAction={setToggleOparation}
