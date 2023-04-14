@@ -100,7 +100,7 @@ async function fillForm(textAreaList, file, shapes) {
             }
             else if (textArea.type === 'F') {
                 const form = mainPdf.getForm();
-                const fillableField = form.createTextField(`textArea.Field${i}${secondaryIndex++}`);
+                const fillableField = form.createTextField(`textArea.Field${i}${secondaryIndex}`);
                 fillableField.setText(textArea.content);
                 fillableField.enableMultiline();
                 fillableField.addToPage(page, {
@@ -116,7 +116,9 @@ async function fillForm(textAreaList, file, shapes) {
                 })
                 fillableField.updateAppearances(font);
             }
+            secondaryIndex++;
         };
+        
     }
     const temp = await mainPdf.saveAsBase64({ dataUri: true });
     return await addCanvasToPDF(temp, shapes);

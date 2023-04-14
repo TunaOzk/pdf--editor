@@ -16,6 +16,7 @@ import { ReactComponent as AddIcon } from './add.svg';
 import { ReactComponent as ColorPaletteIcon } from './color_palette.svg';
 import { ReactComponent as ForwardIcon } from './arrow_forward.svg';
 import { ReactComponent as BackIcon } from './arrow_back.svg';
+import { ReactComponent as ExpandMoreIcon } from './expand_more.svg';
 
 import PdfIcon from './pdf_img.svg';
 import SplitModeIcon from './split_mode.svg';
@@ -45,4 +46,5 @@ export {
   ColorPaletteIcon,
   ForwardIcon,
   BackIcon,
+  ExpandMoreIcon,
 };

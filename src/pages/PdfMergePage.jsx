@@ -6,7 +6,7 @@ import PdfScrollArea from '../component/PdfScrollArea';
 import PdfPreviewArea from '../component/PdfPreviewArea';
 import DropDown from '../component/DropDown';
 import {
-  AddIcon, ExportIcon, MergeIcon, PdfIcon,
+  AddIcon, ExpandMoreIcon, ExportIcon, MergeIcon, PdfIcon,
 } from '../assets';
 import LoadingScreen from '../component/LoadingScreen';
 
@@ -125,7 +125,8 @@ function PdfEditPage() {
     <div className="flex flex-col h-screen bg-[#fbf8fd]">
 
       <div className="flex justify-between items-center drop-shadow-xl bg-[#fffbff] z-10">
-        <div className="ml-2 bg-[#e4dff9] rounded-md">
+        <div className="flex relative items-center ml-2 bg-[#e4dff9] rounded-md">
+          <ExpandMoreIcon className="absolute z-10 fill-[#46464f]" />
           <DropDown
             onAction={handleOptionClick}
             menuItemHeader={menuContent.header}

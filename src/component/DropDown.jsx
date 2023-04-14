@@ -47,7 +47,7 @@ function DropDown({
               <img src={val.img} alt="" />
               <span className="ml-1 whitespace-nowrap text-m text-[#46464f]">
 
-                {val.label.length > 22 ? `${val.label.slice(0, 22)}...` : val.label}
+                {!onToolbarVisiblity && val.label.length > label.length ? `${val.label.slice(0, label.length - 3)}...` : val.label}
 
               </span>
             </button>
