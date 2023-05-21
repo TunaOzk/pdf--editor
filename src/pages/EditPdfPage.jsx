@@ -142,7 +142,7 @@ function EditPdfPage() {
     const shapes = [objects.map((val) => val.rects),
       objects.map((val) => val.circs), objects.map((val) => val.canvasesForPaths)];
     try {
-      await axios.post('http://localhost:4000/pdfEdit', {
+      await axios.post('https://pdf-editor-3o0w.onrender.com/pdfEdit', {
         texts,
         file,
         shapes,
