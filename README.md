@@ -4,6 +4,7 @@
 With PDF Editor, you have a dedicated tool for editing your PDF documents. Add text, fillable texts or you can merge, split and replace the pdf pages and even drawings. Manipulate PDF as you want.
 
 Live link: https://646a082d0fe5f863cdadd019--bejewelled-moxie-be728f.netlify.app/
+(If you do not download it the first time you should try again to click the export button. We use free backend deployment therefore sometimes you should try twice.)
 
 ## Features
 
