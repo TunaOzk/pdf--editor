@@ -66,7 +66,7 @@ function PdfEditPage() {
     const finalPagesList = await Promise.all(temp);
     const fileList = files.data;
     try {
-      await axios.post('http://localhost:4000/pdfMerge', {
+      await axios.post('https://pdf-editor-3o0w.onrender.com/pdfMerge', {
         finalPagesList,
         fileList,
         currentFileName,
