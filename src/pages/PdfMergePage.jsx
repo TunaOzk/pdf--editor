@@ -39,7 +39,7 @@ function PdfEditPage() {
     setIsLoading(true);
     const currentFileName = files.names[fileListIndex];
     try {
-      await axios.post('http://localhost:4000/pdfFileIndex', {
+      await axios.post('https://pdf-editor-3o0w.onrender.com/pdfFileIndex', {
         currentPdfPages,
         currentFile,
         currentFileName,
