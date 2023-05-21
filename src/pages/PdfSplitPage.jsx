@@ -33,7 +33,7 @@ function PdfSplitPage() {
     event.preventDefault();
     setIsLoading(true);
     try {
-      await axios.post('http://localhost:4000/pdfSplitFileIndex', {
+      await axios.post('https://pdf-editor-3o0w.onrender.com/pdfSplitFileIndex', {
         currentFile,
         rangeNumber,
         splitPdfPages,
